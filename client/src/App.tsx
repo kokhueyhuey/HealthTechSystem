@@ -9,8 +9,8 @@ import {
   saveSession,
   getSession,
   clearSession,
-  LoginResponse,
 } from "./api";
+import type { LoginResponse } from "./api";
 
 import connection from "./signalR";
 
