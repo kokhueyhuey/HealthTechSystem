@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import LoginPage           from "./pages/LoginPage/Loginpage";    
 import RegisterPage        from "./pages/RegisterPage/RegisterPage";
 import PatientDashboard    from "./pages/PatientDashboard/PatientDashboard";
-import DoctorDashboard     from "./pages/DoctorDashboard";
+import DoctorDashboard     from "./pages/DoctorDashboard/DoctorDashboard"; 
 import PharmacistDashboard from "./pages/PharmacistDashboard/PharmacistDashboard";
 
 import {
@@ -129,7 +129,6 @@ export default function App() {
         <DoctorDashboard
           user={user}
           onLogout={handleLogout}
-          patients={patients}
         />
       );
     case "Pharmacist":

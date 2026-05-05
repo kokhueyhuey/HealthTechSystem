@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { LoginResponse } from "../../services/api";
-import styles from "./DoctorDashboard.module.css";
+import "./DoctorDashboard.css"; 
 
 interface Props {
   user: LoginResponse;
@@ -13,24 +13,24 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
   const [active, setActive] = useState<Section>("home");
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <div className={styles.logoMark} style={{ background: "#10b981" }}>H</div>
-          <span className={styles.brandName}>HealthTech</span>
+    <div className="layout">
+      <aside className="sidebar">
+        <div className="sidebarBrand">
+          <div className="logoMark" style={{ background: "#10b981" }}>H</div>
+          <span className="brandName">HealthTech</span>
         </div>
 
-        <div className={styles.userBadge}>
-          <div className={styles.avatar} style={{ background: "#10b981" }}>
+        <div className="userBadge">
+          <div className="avatar" style={{ background: "#10b981" }}>
             {user.name[0].toUpperCase()}
           </div>
           <div>
-            <div className={styles.userName}>{user.name}</div>
-            <div className={styles.userRole}>Doctor</div>
+            <div className="userName">{user.name}</div>
+            <div className="userRole">Doctor</div>
           </div>
         </div>
 
-        <nav className={styles.nav}>
+        <nav className="nav">
           {[
             { id: "home", label: "🏠  Overview" },
             { id: "appointments", label: "📋  Today's Appointments" },
@@ -39,7 +39,7 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
           ].map(item => (
             <button
               key={item.id}
-              className={`${styles.navBtn} ${active === item.id ? styles.active : ""}`}
+              className={`navBtn ${active === item.id ? "active" : ""}`}
               onClick={() => setActive(item.id as Section)}
             >
               {item.label}
@@ -47,12 +47,12 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
           ))}
         </nav>
 
-        <button className={styles.logoutBtn} onClick={onLogout}>
+        <button className="logoutBtn" onClick={onLogout}>
           Sign out
         </button>
       </aside>
 
-      <main className={styles.main}>
+      <main className="main">
         {active === "home" && <HomeSection name={user.name} setActive={setActive} />}
         {active === "appointments" && <AppointmentsSection />}
         {active === "status" && <StatusSection />}
@@ -71,20 +71,20 @@ function HomeSection({ name, setActive }: { name: string; setActive: (s: Section
 
   return (
     <div>
-      <h1 className={styles.pageTitle}>Welcome, {name}</h1>
-      <p className={styles.pageSub}>Here's your clinic dashboard</p>
+      <h1 className="pageTitle">Welcome, {name}</h1>
+      <p className="pageSub">Here's your clinic dashboard</p>
 
-      <div className={styles.cardGrid}>
+      <div className="cardGrid">
         {cards.map(c => (
           <div
             key={c.id}
-            className={styles.featureCard}
+            className="featureCard"
             style={{ borderTop: `3px solid ${c.color}` }}
             onClick={() => setActive(c.id as Section)}
           >
             <div style={{ fontSize: 32 }}>{c.icon}</div>
-            <div className={styles.cardTitle}>{c.label}</div>
-            <div className={styles.cardDesc}>{c.desc}</div>
+            <div className="cardTitle">{c.label}</div>
+            <div className="cardDesc">{c.desc}</div>
           </div>
         ))}
       </div>
@@ -106,14 +106,14 @@ function AppointmentsSection() {
 
   return (
     <div>
-      <h2 className={styles.pageTitle}>Today's Appointments</h2>
-      <p className={styles.pageSub}>
+      <h2 className="pageTitle">Today's Appointments</h2>
+      <p className="pageSub">
         {new Date().toLocaleDateString()}
       </p>
 
       {appts.map((a, i) => (
-        <div key={i} className={styles.apptRow}>
-          <div className={styles.apptTime}>{a.time}</div>
+        <div key={i} className="apptRow">
+          <div className="apptTime">{a.time}</div>
           <div style={{ flex: 1 }}>
             <div>{a.patient}</div>
             <div>{a.reason}</div>
@@ -130,9 +130,9 @@ function StatusSection() {
 
   return (
     <div>
-      <h2 className={styles.pageTitle}>Update Status</h2>
+      <h2 className="pageTitle">Update Status</h2>
 
-      <div className={styles.formCard}>
+      <div className="formCard">
         <div style={{ display: "flex", gap: 10 }}>
           {["Pending", "InProgress", "Completed"].map(s => (
             <button
@@ -149,7 +149,7 @@ function StatusSection() {
           ))}
         </div>
 
-        <button className={styles.primaryBtn}>Update</button>
+        <button className="primaryBtn">Update</button>
       </div>
     </div>
   );
@@ -158,12 +158,12 @@ function StatusSection() {
 function PrescriptionSection() {
   return (
     <div>
-      <h2 className={styles.pageTitle}>Prescription</h2>
+      <h2 className="pageTitle">Prescription</h2>
 
-      <div className={styles.formCard}>
-        <input className={styles.input} placeholder="Medicine" />
-        <input className={styles.input} placeholder="Dosage" />
-        <button className={styles.primaryBtn}>Send</button>
+      <div className="formCard">
+        <input className="input" placeholder="Medicine" />
+        <input className="input" placeholder="Dosage" />
+        <button className="primaryBtn">Send</button>
       </div>
     </div>
   );
