@@ -1,6 +1,6 @@
 import { useState } from "react";
-import  { loginUser, saveSession } from "./api";
-import type { LoginResponse } from "./api";
+import  { loginUser, saveSession } from "../../services/api";
+import type { LoginResponse } from "../../services/api";
 
 interface Props {
   onLoginSuccess: (user: LoginResponse) => void;

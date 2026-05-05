@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { LoginResponse } from "./api";
-import type { Patient } from "./types";
+import type { LoginResponse } from "../../services/api";
+import type { Patient } from "../../types/types";
 
 interface Props {
   user: LoginResponse;

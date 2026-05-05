@@ -1,20 +1,20 @@
 import { useEffect, useState, useCallback } from "react";
-import LoginPage           from "./Loginpage";    
-import RegisterPage        from "./RegisterPage";
-import PatientDashboard    from "./PatientDashboard";
-import DoctorDashboard     from "./DoctorDashboard";
-import PharmacistDashboard from "./PharmacistDashboard";
+import LoginPage           from "./pages/LoginPage/Loginpage";    
+import RegisterPage        from "./pages/RegisterPage/RegisterPage";
+import PatientDashboard    from "./pages/PatientDashboard/PatientDashboard";
+import DoctorDashboard     from "./pages/DoctorDashboard";
+import PharmacistDashboard from "./pages/PharmacistDashboard/PharmacistDashboard";
 
 import {
   saveSession,
   getSession,
   clearSession,
-} from "./api";
-import type { LoginResponse } from "./api";
+} from "./services/api";
+import type { LoginResponse } from "./services/api";
 
-import connection from "./signalR";
+import connection from "./services/signalR";
 
-import type { Patient, CreatePatientRequest } from "./types";
+import type { Patient, CreatePatientRequest } from "./types/types";
 
 const PATIENTS_URL = "http://localhost:5165/api/patients";
 
