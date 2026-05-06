@@ -3,6 +3,8 @@ import type { LoginResponse } from "../../services/api";
 import { bookAppointment } from "../../services/appointmentService";
 import { getDoctors } from "../../services/doctorService";
 
+import "./BookAppointment.css";
+
 type Doctor = {
   id: number;
   name: string;
@@ -23,14 +25,13 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // load doctors from service
   useEffect(() => {
     getDoctors()
       .then((data) => {
         setDoctors(data);
         if (data.length > 0) setDoctorId(data[0].id);
       })
-      .catch((err) => console.error(err));
+      .catch(console.error);
   }, []);
 
   async function handleBook() {
@@ -41,6 +42,7 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const isoDate = new Date(`${date}T${time}:00`).toISOString();
@@ -61,38 +63,64 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
   }
 
   return (
-    <div>
-      <h2>Book Appointment</h2>
+    <div className="formPage">
+      <div className="formCard">
+        <h2 className="pageTitle">Book Appointment</h2>
+        <p className="pageSub">Select doctor, date and time slot</p>
 
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {success && <div className="successBox">{success}</div>}
+        {error && <div className="errorBox">{error}</div>}
 
-      <label>Doctor</label>
-      <select value={doctorId} onChange={(e) => setDoctorId(Number(e.target.value))}>
-        {doctors.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.name} ({d.specialization})
-          </option>
-        ))}
-      </select>
+        <label>Doctor</label>
+        <select
+          className="select"
+          value={doctorId}
+          onChange={(e) => setDoctorId(Number(e.target.value))}
+        >
+          {doctors.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name} ({d.specialization})
+            </option>
+          ))}
+        </select>
 
-      <label>Date</label>
-      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <label>Date</label>
+        <input
+          className="input"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
-      <label>Time</label>
-      <select value={time} onChange={(e) => setTime(e.target.value)}>
-        <option value="">Select</option>
-        {TIME_SLOTS.map((t) => (
-          <option key={t} value={t}>{t}</option>
-        ))}
-      </select>
+        <label>Time</label>
+        <select
+          className="select"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+        >
+          <option value="">Select</option>
+          {TIME_SLOTS.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
 
-      <label>Notes</label>
-      <input value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <label>Notes</label>
+        <input
+          className="input"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
-      <button onClick={handleBook} disabled={loading}>
-        {loading ? "Booking..." : "Book Appointment"}
-      </button>
+        <button
+          className="primaryBtn"
+          onClick={handleBook}
+          disabled={loading}
+        >
+          {loading ? "Booking..." : "Book Appointment"}
+        </button>
+      </div>
     </div>
   );
 }

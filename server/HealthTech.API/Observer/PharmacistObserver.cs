@@ -22,10 +22,8 @@ namespace HealthTech.API.Observer
 
     public class PharmacistObserver : IAppointmentObserver
     {
-        // 🔴 BREAKPOINT HERE ↓  (third and final stop in NotifyObservers loop)
         public void Update(Appointment appointment, string eventType)
         {
-            // 🔴 BREAKPOINT HERE ↓
             var msg = eventType switch
             {
                 "Booked"        => $"[PHARMACIST NOTIFICATION]  New appointment #{appointment.Id} added to system. Patient ID {appointment.PatientId}.",
@@ -35,11 +33,7 @@ namespace HealthTech.API.Observer
                 _               => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} — event: {eventType}."
             };
 
-            Console.WriteLine(msg);
-
-            // Real implementation would be:
-            // await _smsService.SendAsync(appointment.Patient.PhoneNumber, msg);
-            // Or generate a task in the pharmacist's work queue.
+            Console.WriteLine(msg);// BREAKPOINT- show each observer receives the update
         }
     }
 }

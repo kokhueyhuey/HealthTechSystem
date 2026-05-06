@@ -76,18 +76,12 @@ namespace HealthTech.API.Services
             _observers.Remove(observer);
         }
 
-        // 🔴 BREAKPOINT A — set a breakpoint on the foreach line below.
-        //    Step through: you will see PatientObserver.Update() → DoctorObserver.Update()
-        //    → PharmacistObserver.Update() fire in sequence.
-        //    To prove OCP: comment out RegisterObserver(new DoctorObserver()) above,
-        //    re-run — only Patient and Pharmacist fire. The loop itself never changes.
-
         public void NotifyObservers(Appointment appointment, string eventType)
         {
-            // 🔴 BREAKPOINT A — step INTO each iteration ↓
+            
             foreach (var observer in _observers)
             {
-                observer.Update(appointment, eventType);   // polymorphic dispatch
+                observer.Update(appointment, eventType);  // BREAKPOINT see the loops iterating through all observers and notifying them individually.
             }
         }
 
@@ -129,9 +123,8 @@ namespace HealthTech.API.Services
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            // 🔴 BREAKPOINT B — set here to watch NotifyObservers fire after save.
-            //    Inspect: appointment.Id will now have the DB-generated ID.
-            NotifyObservers(appointment, "Booked");    // 🔴 BREAKPOINT B
+            // BREAKPOINT — db is saved and is about to notify all observers
+            NotifyObservers(appointment, "Booked");    
 
             return (true, "Appointment booked successfully.", appointment);
         }
@@ -188,7 +181,7 @@ namespace HealthTech.API.Services
             appointment.Status = "Cancelled";
             await _context.SaveChangesAsync();
 
-            NotifyObservers(appointment, "Cancelled");  // 🔴 all three observers fire here too
+            NotifyObservers(appointment, "Cancelled");  
 
             return (true, "Appointment cancelled successfully.");
         }
