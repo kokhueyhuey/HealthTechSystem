@@ -4,6 +4,7 @@ import type { LoginResponse } from "../../services/api";
 
 import Home from "./Home";
 import BookAppointment from "./BookAppointment";
+import MyAppointments from "./MyAppointments";
 import QueueStatus from "./QueueStatus";
 import Prescriptions from "./Prescriptions";
 
@@ -14,27 +15,25 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "book" | "queue" | "prescriptions";
+type Section = "home" | "book" | "myappointments" | "queue" | "prescriptions";
 
 export default function PatientDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // convert URL → active section
   const active: Section =
     location.pathname.includes("/book")
       ? "book"
+      : location.pathname.includes("/myappointments")
+      ? "myappointments"
       : location.pathname.includes("/queue")
       ? "queue"
       : location.pathname.includes("/prescriptions")
       ? "prescriptions"
       : "home";
 
-  // default redirect to /patient/home
   useEffect(() => {
-    if (location.pathname === "/patient") {
-      navigate("/patient/home");
-    }
+    if (location.pathname === "/patient") navigate("/patient/home");
   }, [location.pathname, navigate]);
 
   function go(section: Section) {
@@ -59,10 +58,11 @@ export default function PatientDashboard({ user, onLogout }: Props) {
 
         <nav className="nav">
           {[
-            { id: "home", label: "🏠 Overview" },
-            { id: "book", label: "📅 Book Appointment" },
-            { id: "queue", label: "🔢 Queue Status" },
-            { id: "prescriptions", label: "💊 Prescriptions" },
+            { id: "home",           label: "🏠 Overview" },
+            { id: "book",           label: "📅 Book Appointment" },
+            { id: "myappointments", label: "🗂️ My Appointments" },
+            { id: "queue",          label: "🔢 Queue Status" },
+            { id: "prescriptions",  label: "💊 Prescriptions" },
           ].map(item => (
             <button
               key={item.id}
@@ -74,16 +74,15 @@ export default function PatientDashboard({ user, onLogout }: Props) {
           ))}
         </nav>
 
-        <button className="logoutBtn" onClick={onLogout}>
-          Sign out
-        </button>
+        <button className="logoutBtn" onClick={onLogout}>Sign out</button>
       </aside>
 
       <main className="main">
-        {active === "home" && <Home name={user.name} />}
-        {active === "book" && <BookAppointment />}
-        {active === "queue" && <QueueStatus />}
-        {active === "prescriptions" && <Prescriptions />}
+        {active === "home"           && <Home name={user.name} />}
+        {active === "book"           && <BookAppointment user={user} />}
+        {active === "myappointments" && <MyAppointments user={user} />}
+        {active === "queue"          && <QueueStatus />}
+        {active === "prescriptions"  && <Prescriptions />}
       </main>
     </div>
   );

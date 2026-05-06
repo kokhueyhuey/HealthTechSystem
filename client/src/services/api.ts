@@ -11,6 +11,7 @@ export const createPatient = (data: CreatePatientRequest) =>
 
 const BASE_URL = "http://localhost:5165/api";
 
+//Auth
 export interface LoginResponse {
   id: number;
   name: string;
@@ -25,6 +26,7 @@ export interface RegisterRequest {
   phoneNumber: string;
   role: "Patient" | "Doctor" | "Pharmacist";
 }
+
 
 // POST /api/user/login
 // reads role to redirect to the right dashboard.

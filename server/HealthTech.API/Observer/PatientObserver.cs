@@ -1,0 +1,58 @@
+using HealthTech.API.Models;
+
+namespace HealthTech.API.Observer
+{
+    // ─────────────────────────────────────────────────────────────────────────
+    // OBSERVER PATTERN — Concrete Observer #1: Patient
+    //
+    // CONCEPT — Encapsulation:
+    //   The logic of "what a patient sees when an appointment changes" is
+    //   entirely INSIDE this class. No other class touches or duplicates
+    //   this logic. The notification message is built here and only here.
+    //
+    // CONCEPT — Refinement:
+    //   This class is a specialisation of the general IAppointmentObserver
+    //   interface. It refines the abstract "react to update" contract into
+    //   a patient-specific behaviour (confirmation, cancellation receipt, etc.)
+    //
+    // SOLID — Single Responsibility Principle (SRP):
+    //   This class has exactly one job: handle appointment event notifications
+    //   from the patient's perspective. Nothing else lives here.
+    //
+    // SOLID — Liskov Substitution Principle (LSP):
+    //   Anywhere IAppointmentObserver is expected, PatientObserver can be
+    //   used without breaking the system. All three concrete observers are
+    //   fully substitutable.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public class PatientObserver : IAppointmentObserver
+    {
+        // In production this would send an email / push notification.
+        // For now we write to the console so you can see it fire at the
+        // breakpoint during your demo.
+
+        // 🔴 BREAKPOINT LINE — set your IDE breakpoint on the Console.WriteLine
+        //    inside Update(). When NotifyObservers() loops, execution pauses HERE
+        //    first (Patient), then moves to DoctorObserver, then PharmacistObserver.
+        //    This proves each observer is called independently.
+
+        public void Update(Appointment appointment, string eventType)
+        {
+            // 🔴 BREAKPOINT HERE ↓
+            var msg = eventType switch
+            {
+                "Booked"        => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} confirmed with Doctor ID {appointment.DoctorId} on {appointment.AppointmentDate:dd MMM yyyy HH:mm}.",
+                "Cancelled"     => $"[PATIENT NOTIFICATION] Your appointment #{appointment.Id} has been cancelled.",
+                "Rescheduled"   => $"[PATIENT NOTIFICATION] Your appointment #{appointment.Id} has been rescheduled to {appointment.AppointmentDate:dd MMM yyyy HH:mm}.",
+                "StatusUpdated" => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} status changed to '{appointment.Status}'.",
+                _               => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} updated — event: {eventType}."
+            };
+
+            Console.WriteLine(msg);
+
+            // Real implementation would be:
+            // await _emailService.SendAsync(appointment.Patient.Email, subject, body);
+            // await _pushService.NotifyAsync(appointment.PatientId, msg);
+        }
+    }
+}
