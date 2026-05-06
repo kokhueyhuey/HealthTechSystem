@@ -72,3 +72,82 @@ export function getSession(): LoginResponse | null {
 export function clearSession() {
   localStorage.removeItem("healthtech_user");
 }
+
+
+
+export interface Medicine {
+  id: number;
+  name: string;
+  description: string;
+  photo: string;
+  quantity: number;
+  threshold: number;
+  expiryDate: string;
+  status: string;
+}
+
+export interface MedicineRequest {
+  name: string;
+  description: string;
+  photo: string;
+  quantity: number;
+  threshold: number;
+  expiryDate: string;
+}
+
+export async function getMedicines(): Promise<Medicine[]> {
+  const response = await fetch(`${BASE_URL}/Medicines`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch medicines");
+  }
+
+  return response.json();
+}
+
+export async function addMedicine(
+  medicine: MedicineRequest
+): Promise<Medicine> {
+  const response = await fetch(`${BASE_URL}/Medicines`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(medicine),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to add medicine");
+  }
+
+  return response.json();
+}
+
+export async function updateMedicine(
+  id: number,
+  medicine: MedicineRequest
+): Promise<Medicine> {
+  const response = await fetch(`${BASE_URL}/Medicines/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(medicine),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update medicine");
+  }
+
+  return response.json();
+}
+
+export async function deleteMedicine(id: number): Promise<void> {
+  const response = await fetch(`${BASE_URL}/Medicines/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete medicine");
+  }
+}
