@@ -21,28 +21,20 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
   const location = useLocation();
 
   const active: Section =
-    location.pathname.includes("/appointments")
-      ? "appointments"
-      : location.pathname.includes("/status")
-      ? "status"
-      : location.pathname.includes("/prescription")
-      ? "prescription"
-      : "home";
+    location.pathname.includes("/appointments") ? "appointments"
+    : location.pathname.includes("/status")      ? "status"
+    : location.pathname.includes("/prescription") ? "prescription"
+    : "home";
 
   useEffect(() => {
-    if (location.pathname === "/doctor") {
-      navigate("/doctor/home");
-    }
+    if (location.pathname === "/doctor") navigate("/doctor/home");
   }, [location.pathname, navigate]);
 
-  function go(section: Section) {
-    navigate(`/doctor/${section}`);
-  }
+  function go(section: Section) { navigate(`/doctor/${section}`); }
 
   return (
     <div className="layout">
       <aside className="sidebar">
-
         <div className="sidebarBrand">
           <div className="logoMark" style={{ background: "#10b981" }}>H</div>
           <span className="brandName">HealthTech</span>
@@ -60,9 +52,9 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
 
         <nav className="nav">
           {[
-            { id: "home", label: "🏠 Overview" },
+            { id: "home",         label: "🏠 Overview" },
             { id: "appointments", label: "📋 Today's Appointments" },
-            { id: "status", label: "✏️ Update Status" },
+            { id: "status",       label: "✏️ Update Status" },
             { id: "prescription", label: "💊 Prescription" },
           ].map(item => (
             <button
@@ -75,16 +67,13 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
           ))}
         </nav>
 
-        <button className="logoutBtn" onClick={onLogout}>
-          Sign out
-        </button>
-
+        <button className="logoutBtn" onClick={onLogout}>Sign out</button>
       </aside>
 
       <main className="main">
-        {active === "home" && <Home name={user.name} />}
-        {active === "appointments" && <Appointments />}
-        {active === "status" && <Status />}
+        {active === "home"         && <Home name={user.name} />}
+        {active === "appointments" && <Appointments user={user} />}
+        {active === "status"       && <Status user={user} />}
         {active === "prescription" && <Prescription />}
       </main>
     </div>

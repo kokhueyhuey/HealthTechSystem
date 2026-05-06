@@ -6,6 +6,7 @@ import Home from "./Home";
 import Inventory from "./Inventory";
 import Alerts from "./Alerts";
 import Queue from "./Queue";
+import ManageAppointments from "./ManageAppointments";
 
 import "./PharmacistDashboard.css";
 
@@ -14,35 +15,28 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "inventory" | "alerts" | "queue";
+type Section = "home" | "inventory" | "alerts" | "queue" | "manage";
 
 export default function PharmacistDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const active: Section =
-    location.pathname.includes("/inventory")
-      ? "inventory"
-      : location.pathname.includes("/alerts")
-      ? "alerts"
-      : location.pathname.includes("/queue")
-      ? "queue"
-      : "home";
+    location.pathname.includes("/inventory") ? "inventory"
+    : location.pathname.includes("/alerts")  ? "alerts"
+    : location.pathname.includes("/queue")   ? "queue"
+    : location.pathname.includes("/manage")  ? "manage"
+    : "home";
 
   useEffect(() => {
-    if (location.pathname === "/pharmacist") {
-      navigate("/pharmacist/home");
-    }
+    if (location.pathname === "/pharmacist") navigate("/pharmacist/home");
   }, [location.pathname, navigate]);
 
-  function go(section: Section) {
-    navigate(`/pharmacist/${section}`);
-  }
+  function go(section: Section) { navigate(`/pharmacist/${section}`); }
 
   return (
     <div className="layout">
       <aside className="sidebar">
-
         <div className="sidebarBrand">
           <div className="logoMark" style={{ background: "#f59e0b" }}>H</div>
           <span className="brandName">HealthTech</span>
@@ -60,10 +54,11 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
 
         <nav className="nav">
           {[
-            { id: "home", label: "🏠 Overview" },
+            { id: "home",      label: "🏠 Overview" },
+            { id: "manage",    label: "📋 Manage Appointments" },
             { id: "inventory", label: "📦 Inventory" },
-            { id: "alerts", label: "🚨 Alerts" },
-            { id: "queue", label: "🔔 Queue" },
+            { id: "alerts",    label: "🚨 Alerts" },
+            { id: "queue",     label: "🔔 Queue" },
           ].map(item => (
             <button
               key={item.id}
@@ -75,17 +70,15 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
           ))}
         </nav>
 
-        <button className="logoutBtn" onClick={onLogout}>
-          Sign out
-        </button>
-
+        <button className="logoutBtn" onClick={onLogout}>Sign out</button>
       </aside>
 
       <main className="main">
-        {active === "home" && <Home />}
+        {active === "home"      && <Home />}
+        {active === "manage"    && <ManageAppointments />}
         {active === "inventory" && <Inventory />}
-        {active === "alerts" && <Alerts />}
-        {active === "queue" && <Queue />}
+        {active === "alerts"    && <Alerts />}
+        {active === "queue"     && <Queue />}
       </main>
     </div>
   );
