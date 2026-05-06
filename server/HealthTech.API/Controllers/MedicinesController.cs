@@ -2,6 +2,7 @@ using HealthTech.API.Data;
 using HealthTech.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using HealthTech.API.Patterns.State;
 
 namespace HealthTech.API.Controllers
 {
@@ -25,11 +26,13 @@ namespace HealthTech.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Medicine>> AddMedicine(Medicine medicine)
         {
-            medicine.Status = GetMedicineStatus(
+            var medicineContext = new MedicineContext(
                 medicine.Quantity,
                 medicine.Threshold,
                 medicine.ExpiryDate
             );
+
+            medicine.Status = medicineContext.GetStatus();
 
             _context.Medicines.Add(medicine);
             await _context.SaveChangesAsync();
@@ -54,11 +57,13 @@ namespace HealthTech.API.Controllers
             existingMedicine.Threshold = medicine.Threshold;
             existingMedicine.ExpiryDate = medicine.ExpiryDate;
 
-            existingMedicine.Status = GetMedicineStatus(
+            var medicineContext = new MedicineContext(
                 medicine.Quantity,
                 medicine.Threshold,
                 medicine.ExpiryDate
             );
+
+            existingMedicine.Status = medicineContext.GetStatus();
 
             await _context.SaveChangesAsync();
 
@@ -81,24 +86,5 @@ namespace HealthTech.API.Controllers
             return Ok();
         }
 
-        private string GetMedicineStatus(int quantity, int threshold, DateTime expiryDate)
-        {
-            if (expiryDate.Date < DateTime.Today)
-            {
-                return "Expired";
-            }
-
-            if (quantity == 0)
-            {
-                return "Out of Stock";
-            }
-
-            if (quantity <= threshold)
-            {
-                return "Low Stock";
-            }
-
-            return "In Stock";
-        }
     }
 }
