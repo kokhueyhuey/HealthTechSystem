@@ -22,10 +22,10 @@ namespace HealthTech.API.Observer
 
     public class PharmacistObserver : IAppointmentObserver
     {
-        // 🔴 BREAKPOINT HERE ↓  (third and final stop in NotifyObservers loop)
+        // BREAKPOINT HERE ↓  (third and final stop in NotifyObservers loop)
         public void Update(Appointment appointment, string eventType)
         {
-            // 🔴 BREAKPOINT HERE ↓
+            // BREAKPOINT HERE ↓
             var msg = eventType switch
             {
                 "Booked"        => $"[PHARMACIST NOTIFICATION]  New appointment #{appointment.Id} added to system. Patient ID {appointment.PatientId}.",

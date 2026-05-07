@@ -17,10 +17,10 @@ namespace HealthTech.API.Observer
 
     public class DoctorObserver : IAppointmentObserver
     {
-        // 🔴 BREAKPOINT HERE ↓  (second stop when stepping through NotifyObservers loop)
+        // BREAKPOINT HERE ↓  (second stop when stepping through NotifyObservers loop)
         public void Update(Appointment appointment, string eventType)
         {
-            // 🔴 BREAKPOINT HERE ↓
+            // BREAKPOINT HERE ↓
             var msg = eventType switch
             {
                 "Booked"        => $"[DOCTOR NOTIFICATION]  New appointment #{appointment.Id} booked — Patient ID {appointment.PatientId} on {appointment.AppointmentDate:dd MMM yyyy HH:mm}. Please review your schedule.",

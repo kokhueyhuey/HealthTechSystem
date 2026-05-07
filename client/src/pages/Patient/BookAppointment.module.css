@@ -1,0 +1,312 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap');
+
+/* ── Page wrapper ─────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #0d0f12;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  width: 100%;
+  max-width: 620px;
+  background: #13161c;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 44px 48px 48px;
+  box-shadow:
+    0 0 0 1px rgba(0, 210, 150, 0.04),
+    0 24px 64px rgba(0, 0, 0, 0.55);
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.header {
+  margin-bottom: 36px;
+}
+
+.title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #f0f2f5;
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 13px;
+  font-weight: 300;
+  color: #5a6070;
+  letter-spacing: 0.3px;
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0,210,150,0.25) 0%, rgba(255,255,255,0.05) 60%, transparent 100%);
+  margin-bottom: 32px;
+}
+
+/* ── Form grid ────────────────────────────────────────────── */
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 24px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+/* ── Field group ──────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: #3ecf8e;
+}
+
+/* ── Inputs & Selects ─────────────────────────────────────── */
+.input,
+.select {
+  width: 100%;
+  background: #0a0c10;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  color: #dde1ea;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 12px 16px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.input::placeholder {
+  color: #343840;
+}
+
+.input:focus,
+.select:focus {
+  border-color: rgba(62, 207, 142, 0.55);
+  background: #0d1017;
+  box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.08);
+}
+
+/* Date input calendar icon tint */
+.input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) sepia(1) saturate(3) hue-rotate(110deg);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+/* Select arrow */
+.selectWrapper {
+  position: relative;
+}
+
+.selectWrapper::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #3ecf8e;
+  pointer-events: none;
+}
+
+.selectWrapper .select {
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+.select option {
+  background: #13161c;
+  color: #dde1ea;
+}
+
+/* Textarea / notes */
+.textarea {
+  width: 100%;
+  background: #0a0c10;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  color: #dde1ea;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 12px 16px;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textarea::placeholder { color: #343840; }
+
+.textarea:focus {
+  border-color: rgba(62, 207, 142, 0.55);
+  box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.08);
+}
+
+/* ── Submit button ────────────────────────────────────────── */
+.actions {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #1fbb7a 0%, #0ea863 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px rgba(31, 187, 122, 0.25);
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(31, 187, 122, 0.35);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Loading spinner inside button */
+.btnInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Alert banners ────────────────────────────────────────── */
+.alert {
+  grid-column: 1 / -1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.3s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alertSuccess {
+  background: rgba(31, 187, 122, 0.1);
+  border: 1px solid rgba(31, 187, 122, 0.3);
+  color: #3ecf8e;
+}
+
+.alertError {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.alertIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Appointment ID badge (inside success) ────────────────── */
+.badge {
+  margin-left: auto;
+  background: rgba(31, 187, 122, 0.15);
+  border: 1px solid rgba(31, 187, 122, 0.3);
+  color: #3ecf8e;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ── Section separator label ──────────────────────────────── */
+.sectionLabel {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #2e3340;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.sectionLabel::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+}
