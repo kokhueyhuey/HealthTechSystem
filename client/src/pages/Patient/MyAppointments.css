@@ -1,0 +1,124 @@
+/* PAGE CENTER WRAPPER */
+.pageWrap {
+  padding: 20px;
+}
+
+/* CARD */
+.apptCard {
+  background: #13161f;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* HEADER */
+.apptHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* TITLE */
+.apptTitle {
+  color: white;
+  font-weight: 600;
+}
+
+/* SUB TEXT */
+.apptSub {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.apptNotes {
+  color: #cbd5e1;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* STATUS */
+.statusBadge {
+  font-weight: 600;
+}
+
+/* ACTION BUTTONS */
+.apptActions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.dangerBtn {
+  background: #ef4444;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.secondaryBtn {
+  background: #334155;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* RESCHEDULE PANEL (IMPORTANT FIX) */
+.reschedulePanel {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* INPUT + SELECT FIX (Chrome/Edge SAME LOOK) */
+.input,
+.select {
+  background: #0f1117;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 10px;
+  border-radius: 8px;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* CALENDAR ICON FIX */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* BUTTON */
+.primaryBtn {
+  background: #10b981;
+  border: none;
+  padding: 10px 14px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* EMPTY / ERROR */
+.emptyState {
+  color: #9ca3af;
+}
+
+.errorBox {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.successBox {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  padding: 10px;
+  border-radius: 8px;
+}

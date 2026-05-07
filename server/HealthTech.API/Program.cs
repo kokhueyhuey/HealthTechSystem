@@ -10,6 +10,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSignalR();
+
+// ── Observer Pattern — register AppointmentService ────────────────────────
+// Scoped = one instance per HTTP request.
+// The constructor auto-registers all 3 observers (Patient, Doctor, Pharmacist).
+// CONCEPT — Architecture: Service registered here, injected into Controller via DI.
+builder.Services.AddScoped<HealthTech.API.Services.AppointmentService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
