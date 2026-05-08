@@ -27,18 +27,10 @@ namespace HealthTech.API.Observer
 
     public class PatientObserver : IAppointmentObserver
     {
-        // In production this would send an email / push notification.
-        // For now we write to the console so you can see it fire at the
-        // breakpoint during your demo.
-
-        // 🔴 BREAKPOINT LINE — set your IDE breakpoint on the Console.WriteLine
-        //    inside Update(). When NotifyObservers() loops, execution pauses HERE
-        //    first (Patient), then moves to DoctorObserver, then PharmacistObserver.
-        //    This proves each observer is called independently.
 
         public void Update(Appointment appointment, string eventType)
         {
-            // 🔴 BREAKPOINT HERE ↓
+            
             var msg = eventType switch
             {
                 "Booked"        => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} confirmed with Doctor ID {appointment.DoctorId} on {appointment.AppointmentDate:dd MMM yyyy HH:mm}.",
@@ -48,11 +40,8 @@ namespace HealthTech.API.Observer
                 _               => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} updated — event: {eventType}."
             };
 
-            Console.WriteLine(msg);
+            Console.WriteLine(msg); // BREAKPOINT- show each observer receives the update
 
-            // Real implementation would be:
-            // await _emailService.SendAsync(appointment.Patient.Email, subject, body);
-            // await _pushService.NotifyAsync(appointment.PatientId, msg);
         }
     }
 }

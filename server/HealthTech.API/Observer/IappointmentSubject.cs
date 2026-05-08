@@ -20,7 +20,7 @@ namespace HealthTech.API.Observer
         void RegisterObserver(IAppointmentObserver observer);
         void RemoveObserver(IAppointmentObserver observer);
 
-        // Calls Update() on every registered observer.
+        // Calls Update() on every observer.
         void NotifyObservers(Models.Appointment appointment, string eventType);
     }
 }

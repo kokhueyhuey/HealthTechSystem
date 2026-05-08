@@ -1,0 +1,303 @@
+/* ══════════════════════════════════════════════════════════════
+   Queue.module.css  — DOCTOR view
+   Aesthetic: sharp clinical command panel. Ice-blue accent on
+   near-black. Monospaced counter, tight grid, decisive buttons.
+   Font: JetBrains Mono (counter) + DM Sans (UI)
+   ══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── Page ─────────────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  padding: 36px 28px 60px;
+  background: #080a0d;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  animation: slideIn 0.4s ease both;
+}
+
+.pageTitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3b82f6;
+  margin-bottom: 4px;
+}
+
+.pageSub {
+  font-size: 22px;
+  font-weight: 500;
+  color: #e2e8f0;
+  letter-spacing: -0.3px;
+}
+
+.sessionBadge {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #3b82f6;
+  letter-spacing: 0.5px;
+}
+
+/* ── Main counter card ────────────────────────────────────── */
+.counterCard {
+  background: #0d1117;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 20px;
+  padding: 36px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.4s ease 0.08s both;
+}
+
+.counterCard::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  border-radius: 0 2px 2px 0;
+}
+
+.counterLeft { flex: 1; }
+
+.counterEyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #3b82f6;
+  margin-bottom: 10px;
+}
+
+.counterNum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 72px;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1;
+  letter-spacing: -3px;
+  transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+
+.counterNum.bump {
+  color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.counterSub {
+  font-size: 12px;
+  color: #334155;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ── Call Next button ─────────────────────────────────────── */
+.callBtn {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnNext {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.35);
+}
+
+.btnNext:hover:not(:disabled) {
+  transform: scale(1.07);
+  box-shadow: 0 6px 32px rgba(37, 99, 235, 0.5);
+}
+
+.btnNext:active:not(:disabled) { transform: scale(0.96); }
+.btnNext:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btnNextLabel {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+/* ── Stats row ────────────────────────────────────────────── */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  animation: slideIn 0.4s ease 0.16s both;
+}
+
+.statBox {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.statValue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #334155;
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Queue list ───────────────────────────────────────────── */
+.queueSection {
+  animation: slideIn 0.4s ease 0.22s both;
+}
+
+.sectionTitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1e3a5f;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sectionTitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.04);
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.queueRow {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.queueRow.serving {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.queueRowNum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3b82f6;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.queueRowName {
+  flex: 1;
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.queueRowTime {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #1e3a5f;
+}
+
+.statusPill {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.statusPill.serving  { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.statusPill.waiting  { background: rgba(255,255,255,0.05); color: #334155; }
+.statusPill.done     { background: rgba(34,197,94,0.1); color: #4ade80; }
+.statusPill.skipped  { background: rgba(239,68,68,0.1); color: #f87171; }
+
+/* ── Action buttons row ───────────────────────────────────── */
+.actionRow {
+  display: flex;
+  gap: 10px;
+  animation: slideIn 0.4s ease 0.28s both;
+}
+
+.btnAction {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: #0d1117;
+  color: #64748b;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btnAction:hover { background: #111827; color: #94a3b8; border-color: rgba(255,255,255,0.12); }
+
+.btnAction.danger:hover { background: rgba(239,68,68,0.08); color: #f87171; border-color: rgba(239,68,68,0.2); }
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

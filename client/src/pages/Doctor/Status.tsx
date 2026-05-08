@@ -1,37 +1,28 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// USE CASE: Update Appointment Status — Doctor
-// Observer Pattern: StatusUpdated → Patient + Doctor + Pharmacist notified
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { useState, useEffect } from "react";
 import type { LoginResponse } from "../../services/api";
-import type {
-  DoctorAppointmentSummary,
-} from "../../services/appointmentService";
-
+import type { DoctorAppointmentSummary } from "../../services/appointmentService";
 import type { AppointmentStatus } from "../../types/appointment";
 import {
   getDoctorAppointments,
   updateAppointmentStatus,
 } from "../../services/appointmentService";
+import styles from "./Status.module.css";
 
-const STATUSES: AppointmentStatus[] = [
-  "Pending",
-  "InProgress",
-  "Completed",
-  "Cancelled",
-];
+const STATUSES: AppointmentStatus[] = ["Pending", "InProgress", "Completed", "Cancelled"];
+
+const STATUS_ICONS: Record<AppointmentStatus, string> = {
+  Pending: "⏳",
+  InProgress: "🔵",
+  Completed: "✅",
+  Cancelled: "✗",
+};
 
 export default function Status({ user }: { user: LoginResponse }) {
-  const [appointments, setAppointments] = useState<
-    DoctorAppointmentSummary[]
-  >([]);
-
+  const [appointments, setAppointments] = useState<DoctorAppointmentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
   const [updating, setUpdating] = useState<number | null>(null);
 
-  // ── Load doctor appointments ─────────────────────────────
   async function load() {
     try {
       const data = await getDoctorAppointments(user.id);
@@ -43,25 +34,13 @@ export default function Status({ user }: { user: LoginResponse }) {
     }
   }
 
-  useEffect(() => {
-    load();
-  }, [user.id]);
+  useEffect(() => { load(); }, [user.id]);
 
-  // ── Update status ────────────────────────────────────────
-  async function handleStatus(
-    id: number,
-    newStatus: AppointmentStatus
-  ) {
+  async function handleStatus(id: number, newStatus: AppointmentStatus) {
     setUpdating(id);
     setMsg(null);
-
     try {
-      const result = await updateAppointmentStatus(
-        id,
-        user.id,
-        newStatus
-      );
-
+      const result = await updateAppointmentStatus(id, user.id, newStatus);
       setMsg("✅ " + result);
       await load();
     } catch (err: any) {
@@ -72,66 +51,81 @@ export default function Status({ user }: { user: LoginResponse }) {
   }
 
   const activeAppointments = appointments.filter(
-    (a) => a.status !== "Completed" && a.status !== "Cancelled"
+    a => a.status !== "Completed" && a.status !== "Cancelled"
   );
+  const pendingCount   = appointments.filter(a => a.status === "Pending").length;
+  const inProgressCount = appointments.filter(a => a.status === "InProgress").length;
+  const completedCount  = appointments.filter(a => a.status === "Completed").length;
 
   return (
-    <div>
-      <h2 className="pageTitle">Update Appointment Status</h2>
-      <p className="pageSub">
-        Pending → InProgress → Completed (Observer Pattern active)
+    <div className={styles.page}>
+
+      <h2 className={styles.pageTitle}>Appointment Status</h2>
+      <p className={styles.pageMeta}>
+        {new Date().toLocaleDateString("en-MY", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}
       </p>
 
-      {/* Message */}
+      {/* Summary pills */}
+      <div className={styles.summaryBar}>
+        <div className={styles.summaryPill}>
+          <span className={styles.summaryPillCount}>{pendingCount}</span> Pending
+        </div>
+        <div className={styles.summaryPill}>
+          <span className={styles.summaryPillCount}>{inProgressCount}</span> In Progress
+        </div>
+        <div className={styles.summaryPill}>
+          <span className={styles.summaryPillCount}>{completedCount}</span> Done
+        </div>
+      </div>
+
+      {/* Feedback */}
       {msg && (
-        <div className={msg.startsWith("✅") ? "successBox" : "errorBox"}>
+        <div className={msg.startsWith("✅") ? styles.successBox : styles.errorBox}>
           {msg}
         </div>
       )}
 
-      {/* Loading */}
-      {loading && <p className="mutedText">Loading appointments...</p>}
+      {loading && <p className={styles.mutedText}>Loading appointments…</p>}
 
-      {/* Empty state */}
       {!loading && activeAppointments.length === 0 && (
-        <div className="emptyState">
-          No active appointments found.
-        </div>
+        <div className={styles.emptyState}>No active appointments for today.</div>
       )}
 
-      {/* Appointment cards */}
-      {activeAppointments.map((a) => (
-        <div key={a.id} className="apptCard">
-          <div className="apptTitle">
-            #{a.id} — {a.patientName}
+      {activeAppointments.map(a => (
+        <div key={a.id} className={styles.apptCard}>
+
+          <div className={styles.apptHeader}>
+            <div className={styles.apptTitle}>{a.patientName}</div>
+            <div className={styles.apptId}>#{a.id}</div>
           </div>
 
-          <div className="apptSub">
+          <div className={styles.apptSub}>
             📅{" "}
             {new Date(a.appointmentDate).toLocaleString("en-MY", {
               dateStyle: "medium",
               timeStyle: "short",
             })}
-            {"  "}
-            · Current:{" "}
-            <strong style={{ color: "#fbbf24" }}>{a.status}</strong>
+            {" · "}
+            <span className={styles.statusText}>{a.status}</span>
           </div>
 
-          {/* Status buttons */}
-          <div className="statusBtnRow">
-            {STATUSES.map((st) => (
+          <div className={styles.statusBtnRow}>
+            {STATUSES.map(st => (
               <button
                 key={st}
-                className={`statusBtn ${
-                  a.status === st ? "statusBtnActive" : ""
-                }`}
+                data-status={st}
+                className={`${styles.statusBtn} ${a.status === st ? styles.statusBtnActive : ""}`}
                 disabled={updating === a.id || a.status === st}
                 onClick={() => handleStatus(a.id, st)}
               >
-                {st}
+                {updating === a.id && a.status !== st
+                  ? <span className={styles.spinnerInline} />
+                  : null}
+                {STATUS_ICONS[st]} {st}
               </button>
             ))}
           </div>
+
         </div>
       ))}
     </div>

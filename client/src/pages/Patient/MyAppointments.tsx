@@ -14,7 +14,7 @@ import { useState, useEffect } from "react";
 import type { LoginResponse } from "../../services/api";
 import { getPatientAppointments, cancelAppointment, rescheduleAppointment } from "../../services/appointmentService";
 import type{ AppointmentSummary } from "../../services/appointmentService";
-
+import "./MyAppointments.css";
 
 const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
 

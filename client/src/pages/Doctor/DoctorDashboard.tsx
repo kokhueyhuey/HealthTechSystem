@@ -21,27 +21,34 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
   const location = useLocation();
 
   const active: Section =
-    location.pathname.includes("/appointments") ? "appointments"
-    : location.pathname.includes("/status")      ? "status"
-    : location.pathname.includes("/prescription") ? "prescription"
-    : "home";
+    location.pathname.includes("/appointments")
+      ? "appointments"
+      : location.pathname.includes("/status")
+      ? "status"
+      : location.pathname.includes("/prescription")
+      ? "prescription"
+      : "home";
 
   useEffect(() => {
-    if (location.pathname === "/doctor") navigate("/doctor/home");
+    if (location.pathname === "/doctor") {
+      navigate("/doctor/home");
+    }
   }, [location.pathname, navigate]);
 
-  function go(section: Section) { navigate(`/doctor/${section}`); }
+  function go(section: Section) {
+    navigate(`/doctor/${section}`);
+  }
 
   return (
     <div className="layout">
       <aside className="sidebar">
         <div className="sidebarBrand">
-          <div className="logoMark" style={{ background: "#10b981" }}>H</div>
+          <div className="logoMark logoGreen">H</div>
           <span className="brandName">HealthTech</span>
         </div>
 
         <div className="userBadge">
-          <div className="avatar" style={{ background: "#10b981" }}>
+          <div className="avatar avatarGreen">
             {user.name[0].toUpperCase()}
           </div>
           <div>
@@ -52,11 +59,11 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
 
         <nav className="nav">
           {[
-            { id: "home",         label: "🏠 Overview" },
+            { id: "home", label: "🏠 Overview" },
             { id: "appointments", label: "📋 Today's Appointments" },
-            { id: "status",       label: "✏️ Update Status" },
+            { id: "status", label: "✏️ Update Status" },
             { id: "prescription", label: "💊 Prescription" },
-          ].map(item => (
+          ].map((item) => (
             <button
               key={item.id}
               className={`navBtn ${active === item.id ? "active" : ""}`}
@@ -67,13 +74,15 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
           ))}
         </nav>
 
-        <button className="logoutBtn" onClick={onLogout}>Sign out</button>
+        <button className="logoutBtn" onClick={onLogout}>
+          Sign out
+        </button>
       </aside>
 
       <main className="main">
-        {active === "home"         && <Home name={user.name} />}
+        {active === "home" && <Home name={user.name} />}
         {active === "appointments" && <Appointments user={user} />}
-        {active === "status"       && <Status user={user} />}
+        {active === "status" && <Status user={user} />}
         {active === "prescription" && <Prescription />}
       </main>
     </div>

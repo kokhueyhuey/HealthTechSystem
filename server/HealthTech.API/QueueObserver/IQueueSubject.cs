@@ -1,21 +1,37 @@
-namespace HealthTech.API.QueueObserver
+namespace HealthTech.API.Observer.Queue
 {
-    // ─────────────────────────────────────────────────────────────────────────
-    // QUEUE OBSERVER PATTERN — Step 2: The Subject Interface
+    // ════════════════════════════════════════════════════════════════════
+    // OBSERVER PATTERN — Step 2: the Subject interface (Queue module)
+    // ════════════════════════════════════════════════════════════════════
     //
     // CONCEPT — Modularity:
-    //   By keeping the registration mechanism in an interface, you separate the 
-    //   "Queue Management" logic from the "Subscription Management" logic.
+    //   The Subject contract lives in its own file. QueueService implements
+    //   it, but any alternative (e.g. MockQueueService in unit tests) can
+    //   substitute it without changing a single observer.
+    //
+    // CONCEPT — Encapsulation:
+    //   The internal observer list (_observers) is hidden inside QueueService.
+    //   External callers only see these three verbs: Register, Remove, Notify.
     //
     // SOLID — Open/Closed Principle (OCP):
-    //   If the hospital adds an SMS notification system next year, you just create
-    //   an SmsQueueObserver and call RegisterObserver(). This interface and the 
-    //   underlying QueueService will not need a single line of code changed.
-    // ─────────────────────────────────────────────────────────────────────────
+    //   Adding a new observer type (e.g. AdminQueueObserver for analytics)
+    //   only requires calling RegisterObserver() — the Subject is never
+    //   modified; it is extended purely through registration.
+    //
+    // SOLID — Dependency Inversion Principle (DIP):
+    //   Controllers depend on IQueueSubject, not QueueService directly.
+    //   This keeps the HTTP layer independent of the queue business logic.
+    // ════════════════════════════════════════════════════════════════════
+
     public interface IQueueSubject
     {
         void RegisterObserver(IQueueObserver observer);
         void RemoveObserver(IQueueObserver observer);
-        void NotifyObservers(int currentServingNumber, int? calledPatientId, string roomNumber);
+
+        /// <summary>
+        /// Fans out the current QueueState to every registered observer.
+        /// Always called internally by QueueService after mutating state.
+        /// </summary>
+        Task NotifyObservers(Models.QueueState queueState, string eventType);
     }
 }
