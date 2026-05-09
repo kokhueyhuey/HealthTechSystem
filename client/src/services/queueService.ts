@@ -46,3 +46,18 @@ export async function enqueuePatient(
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+// 3. Call the next patient in the queue (POST)
+export async function callNextPatient(token: string): Promise<QueueState> {
+  const res = await fetch(`${BASE_URL}/next`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to call next patient.");
+  }
+  
+  return res.json();
+}

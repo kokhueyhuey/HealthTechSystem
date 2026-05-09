@@ -5,7 +5,6 @@ import type { LoginResponse } from "../../services/api";
 import Home from "./Home";
 import Inventory from "./Inventory";
 import Alerts from "./Alerts";
-import Queue from "./Queue";
 import ManageAppointments from "./ManageAppointments";
 
 import "./PharmacistDashboard.css";
@@ -78,7 +77,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
         {active === "manage"    && <ManageAppointments user={user}/>}
         {active === "inventory" && <Inventory />}
         {active === "alerts"    && <Alerts />}
-        {active === "queue"     && <Queue user={user} />}
+        {/* {active === "queue"     && <Queue user={user} />} */}
       </main>
     </div>
   );
