@@ -81,7 +81,7 @@ export default function PatientDashboard({ user, onLogout }: Props) {
         {active === "home"           && <Home name={user.name} />}
         {active === "book"           && <BookAppointment user={user} />}
         {active === "myappointments" && <MyAppointments user={user} />}
-        {active === "queue"          && <QueueStatus />}
+        {active === "queue"          && <QueueStatus user={user} />}
         {active === "prescriptions"  && <Prescriptions />}
       </main>
     </div>

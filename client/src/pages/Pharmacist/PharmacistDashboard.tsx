@@ -78,7 +78,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
         {active === "manage"    && <ManageAppointments />}
         {active === "inventory" && <Inventory />}
         {active === "alerts"    && <Alerts />}
-        {active === "queue"     && <Queue />}
+        {active === "queue"     && <Queue user={user} />}
       </main>
     </div>
   );

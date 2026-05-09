@@ -1,207 +1,221 @@
-/* ══════════════════════════════════════════════════════════════
-   Queue.module.css  — DOCTOR view
-   Aesthetic: sharp clinical command panel. Ice-blue accent on
-   near-black. Monospaced counter, tight grid, decisive buttons.
-   Font: JetBrains Mono (counter) + DM Sans (UI)
-   ══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-
-/* ── Page ─────────────────────────────────────────────────── */
+/* ── Page shell ───────────────────────────────────────────── */
 .page {
   min-height: 100vh;
-  padding: 36px 28px 60px;
-  background: #080a0d;
+  padding: 32px 28px 60px;
+  background: #07090c;
   font-family: 'DM Sans', sans-serif;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 720px;
+  max-width: 780px;
   margin: 0 auto;
 }
 
 /* ── Page header ──────────────────────────────────────────── */
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
-  animation: slideIn 0.4s ease both;
+  margin-bottom: 28px;
+  animation: fadeDown 0.4s ease both;
 }
 
-.pageTitle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #3b82f6;
-  margin-bottom: 4px;
-}
+.headerLeft {}
 
-.pageSub {
-  font-size: 22px;
-  font-weight: 500;
-  color: #e2e8f0;
-  letter-spacing: -0.3px;
-}
-
-.sessionBadge {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: #3b82f6;
-  letter-spacing: 0.5px;
-}
-
-/* ── Main counter card ────────────────────────────────────── */
-.counterCard {
-  background: #0d1117;
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: 20px;
-  padding: 36px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  position: relative;
-  overflow: hidden;
-  animation: slideIn 0.4s ease 0.08s both;
-}
-
-.counterCard::after {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
-  border-radius: 0 2px 2px 0;
-}
-
-.counterLeft { flex: 1; }
-
-.counterEyebrow {
-  font-family: 'JetBrains Mono', monospace;
+.roleBadge {
+  font-family: 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #3b82f6;
-  margin-bottom: 10px;
+  color: #0d9488;
+  margin-bottom: 4px;
 }
 
-.counterNum {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 72px;
-  font-weight: 700;
-  color: #e2e8f0;
-  line-height: 1;
-  letter-spacing: -3px;
-  transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+.pageTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e2ede9;
+  letter-spacing: -0.3px;
 }
 
-.counterNum.bump {
-  color: #3b82f6;
-  transform: scale(1.05);
+.liveChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(13,148,136,0.1);
+  border: 1px solid rgba(13,148,136,0.22);
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: #0d9488;
 }
 
-.counterSub {
-  font-size: 12px;
-  color: #334155;
-  margin-top: 8px;
-  font-family: 'JetBrains Mono', monospace;
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #14b8a6;
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+/* ── Calendar strip ───────────────────────────────────────── */
+.calendarSection {
+  margin-bottom: 24px;
+  animation: fadeDown 0.4s ease 0.06s both;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.calMonthLabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #4a7c6f;
   letter-spacing: 0.5px;
 }
 
-/* ── Call Next button ─────────────────────────────────────── */
-.callBtn {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.btnNext {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  border: none;
-  color: #fff;
-  font-size: 28px;
+.calNavBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #0d1310;
+  color: #4a7c6f;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.35);
+  transition: all 0.15s ease;
 }
 
-.btnNext:hover:not(:disabled) {
-  transform: scale(1.07);
-  box-shadow: 0 6px 32px rgba(37, 99, 235, 0.5);
+.calNavBtn:hover {
+  background: rgba(13,148,136,0.1);
+  color: #14b8a6;
+  border-color: rgba(13,148,136,0.25);
 }
 
-.btnNext:active:not(:disabled) { transform: scale(0.96); }
-.btnNext:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.btnNextLabel {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #334155;
-}
-
-/* ── Stats row ────────────────────────────────────────────── */
-.statsRow {
+/* Weekday labels */
+.calWeekRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  animation: slideIn 0.4s ease 0.16s both;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
 }
 
-.statBox {
-  background: #0d1117;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 18px 16px;
-  text-align: center;
-}
-
-.statValue {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 28px;
-  font-weight: 700;
-  color: #e2e8f0;
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: 11px;
-  color: #334155;
-  margin-top: 6px;
-  letter-spacing: 0.3px;
-}
-
-/* ── Queue list ───────────────────────────────────────────── */
-.queueSection {
-  animation: slideIn 0.4s ease 0.22s both;
-}
-
-.sectionTitle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
+.calWeekDay {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: #1e3a5f;
-  margin-bottom: 12px;
+  color: #1e3830;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* Day grid */
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calDay {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #3a5a50;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.14s ease;
+  position: relative;
+}
+
+.calDay:hover:not(.calDayEmpty):not(.calDaySelected) {
+  background: rgba(13,148,136,0.08);
+  color: #94d5cb;
+  border-color: rgba(13,148,136,0.15);
+}
+
+.calDayEmpty {
+  cursor: default;
+  pointer-events: none;
+}
+
+.calDayToday {
+  color: #14b8a6;
+  font-weight: 600;
+}
+
+.calDayToday::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #14b8a6;
+}
+
+.calDaySelected {
+  background: rgba(13,148,136,0.18);
+  border-color: rgba(13,148,136,0.4);
+  color: #5eead4;
+  font-weight: 600;
+}
+
+.calDayDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #0d9488;
+  flex-shrink: 0;
+}
+
+/* ── Selected date label ──────────────────────────────────── */
+.dateLabel {
+  font-size: 13px;
+  color: #2d6b5e;
+  font-weight: 300;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
+  animation: fadeDown 0.3s ease both;
 }
+
+.dateLabelStrong {
+  color: #5eead4;
+  font-weight: 500;
+}
+
+/* ── Section divider ──────────────────────────────────────── */
+.sectionTitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1e3830;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 .sectionTitle::after {
   content: '';
   flex: 1;
@@ -209,95 +223,268 @@
   background: rgba(255,255,255,0.04);
 }
 
-.queueList {
+/* ── Appointment list ─────────────────────────────────────── */
+.apptList {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.4s ease 0.1s both;
 }
 
-.queueRow {
-  background: #0d1117;
+.apptCard {
+  background: #0b0f0d;
   border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
-  padding: 14px 18px;
+  border-radius: 14px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   transition: border-color 0.2s ease;
 }
 
-.queueRow.serving {
-  border-color: rgba(59, 130, 246, 0.35);
-  background: rgba(59, 130, 246, 0.04);
+.apptCard:hover {
+  border-color: rgba(13,148,136,0.18);
 }
 
-.queueRowNum {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  font-weight: 600;
-  color: #3b82f6;
-  width: 36px;
+.apptCard.inQueue {
+  border-color: rgba(13,148,136,0.3);
+  background: rgba(13,148,136,0.04);
+}
+
+/* Ticket badge */
+.ticketBadge {
   flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #0d1310;
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.queueRowName {
-  flex: 1;
+.ticketBadgeNum {
+  font-family: 'Space Mono', monospace;
   font-size: 14px;
-  color: #94a3b8;
-  font-weight: 400;
+  font-weight: 700;
+  color: #14b8a6;
+  line-height: 1;
 }
 
-.queueRowTime {
-  font-family: 'JetBrains Mono', monospace;
+.ticketBadgeLabel {
+  font-size: 8px;
+  letter-spacing: 0.8px;
+  color: #1e3830;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* Card info */
+.apptInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.apptName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #cde8e1;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.apptMeta {
   font-size: 11px;
-  color: #1e3a5f;
+  color: #2d6b5e;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
+.apptTime {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #3a7a6e;
+}
+
+.apptDoctor {
+  color: #2d6b5e;
+}
+
+/* Status pill */
 .statusPill {
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 20px;
+  flex-shrink: 0;
 }
 
-.statusPill.serving  { background: rgba(59,130,246,0.15); color: #60a5fa; }
-.statusPill.waiting  { background: rgba(255,255,255,0.05); color: #334155; }
-.statusPill.done     { background: rgba(34,197,94,0.1); color: #4ade80; }
-.statusPill.skipped  { background: rgba(239,68,68,0.1); color: #f87171; }
+.statusPending    { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.statusInProgress { background: rgba(59,130,246,0.1);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+.statusCompleted  { background: rgba(34,197,94,0.08);  color: #4ade80; border: 1px solid rgba(34,197,94,0.15); }
+.statusCancelled  { background: rgba(239,68,68,0.08);  color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
 
-/* ── Action buttons row ───────────────────────────────────── */
-.actionRow {
-  display: flex;
-  gap: 10px;
-  animation: slideIn 0.4s ease 0.28s both;
-}
-
-.btnAction {
-  flex: 1;
-  padding: 13px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: #0d1117;
-  color: #64748b;
+/* Enter Queue button */
+.btnEnqueue {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(13,148,136,0.35);
+  background: rgba(13,148,136,0.1);
+  color: #14b8a6;
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.16s ease;
+  white-space: nowrap;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 5px;
 }
 
-.btnAction:hover { background: #111827; color: #94a3b8; border-color: rgba(255,255,255,0.12); }
+.btnEnqueue:hover:not(:disabled) {
+  background: rgba(13,148,136,0.18);
+  border-color: rgba(13,148,136,0.55);
+  box-shadow: 0 0 12px rgba(13,148,136,0.15);
+}
 
-.btnAction.danger:hover { background: rgba(239,68,68,0.08); color: #f87171; border-color: rgba(239,68,68,0.2); }
+.btnEnqueue:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btnEnqueued {
+  border-color: rgba(13,148,136,0.25);
+  background: rgba(13,148,136,0.06);
+  color: #2d8c80;
+  cursor: default;
+}
+
+/* ── Stats bar ────────────────────────────────────────────── */
+.statsBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.4s ease 0.04s both;
+}
+
+.statBox {
+  background: #0b0f0d;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.statValue {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #cde8e1;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: #1e3830;
+  margin-top: 5px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Loading / empty ──────────────────────────────────────── */
+.loadingRow {
+  padding: 32px 0;
+  text-align: center;
+  color: #1e3830;
+  font-size: 13px;
+  font-weight: 300;
+}
+
+.emptyState {
+  background: #0b0f0d;
+  border: 1px dashed rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  opacity: 0.4;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #1e3830;
+  font-weight: 300;
+}
+
+/* ── Feedback toast ───────────────────────────────────────── */
+.toast {
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeDown 0.3s ease both;
+}
+
+.toastSuccess {
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-left: 3px solid #22c55e;
+  color: #4ade80;
+}
+
+.toastError {
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.18);
+  border-left: 3px solid #ef4444;
+  color: #f87171;
+}
+
+/* ── Spinner ──────────────────────────────────────────────── */
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(20,184,166,0.25);
+  border-top-color: #14b8a6;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
 
 /* ── Animations ───────────────────────────────────────────── */
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to   { opacity: 1; transform: translateX(0); }
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

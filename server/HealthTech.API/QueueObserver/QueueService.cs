@@ -1,10 +1,6 @@
 using HealthTech.API.Models;
 using HealthTech.API.Observer.Queue;
 
-// ── THIS NAMESPACE must match the folder name in your project ─────────
-// Your project places this file at:
-//   HealthTech.API/QueueObserver/QueueService.cs
-// So the namespace is:
 namespace HealthTech.API.QueueObserver
 {
     // ════════════════════════════════════════════════════════════════════
