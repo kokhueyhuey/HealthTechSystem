@@ -27,6 +27,7 @@ namespace HealthTech.API.Observer.Queue
 
     public class PharmacistQueueObserver : IQueueObserver
     {
+        // BREAKPOINT HERE
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
             var msg = eventType switch
@@ -56,7 +57,7 @@ namespace HealthTech.API.Observer.Queue
                     $"[PHARMACIST QUEUE]  Queue event '{eventType}'. Now serving #{queueState.NowServing}."
             };
 
-            Console.WriteLine(msg); // BREAKPOINT — pharmacist dashboard receives live update
+            Console.WriteLine(msg); 
             return Task.CompletedTask;
         }
     }

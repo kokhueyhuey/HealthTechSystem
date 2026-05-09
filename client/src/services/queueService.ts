@@ -15,6 +15,7 @@ export type QueueState = {
   waitingCount: number;
   minutesPerSlot: number;
   queue: QueueEntry[];
+  lastUpdatedUtc: string;
 };
 
 const BASE_URL = "http://localhost:5165/api/queue";

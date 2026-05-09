@@ -36,8 +36,10 @@ namespace HealthTech.API.Observer.Queue
             _patientTicketNumber = patientTicketNumber;
         }
 
+        // BREAKPOINT here 
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
+
             var waitMins = queueState.EstimatedWaitMinutes(_patientTicketNumber);
 
             var msg = eventType switch
@@ -70,7 +72,7 @@ namespace HealthTech.API.Observer.Queue
                     $"[PATIENT QUEUE]  Queue updated — Now serving #{queueState.NowServing}. Event: {eventType}."
             };
 
-            Console.WriteLine(msg); // BREAKPOINT — show patient receives real-time update
+            Console.WriteLine(msg); 
             return Task.CompletedTask;
         }
     }

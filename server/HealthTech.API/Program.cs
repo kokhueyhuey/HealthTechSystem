@@ -1,13 +1,13 @@
 using HealthTech.API.Data;
 using HealthTech.API.Hubs;
 using HealthTech.API.Observer.Queue;
-using HealthTech.API.QueueObserver;          // ← QueueService lives here
+using HealthTech.API.QueueObserver;          
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Core services ──────────────────────────────────────────────────────
+// Core services 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -17,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSignalR();
 
-// ── CORS ───────────────────────────────────────────────────────────────
+// CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
@@ -28,10 +28,10 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// ── Observer — Appointment module (existing, scoped per request) ───────
+// Observer — Appointment module (existing, scoped per request) 
 builder.Services.AddScoped<HealthTech.API.Services.AppointmentService>();
 
-// ── Observer — Queue module ────────────────────────────────────────────
+//  Observer — Queue module 
 // SINGLETON: one shared instance so every HTTP request and SignalR event
 // operates on the same live queue state. Matches the lock(_lock) pattern
 // inside QueueService.

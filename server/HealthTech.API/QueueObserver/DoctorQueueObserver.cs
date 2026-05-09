@@ -29,7 +29,7 @@ namespace HealthTech.API.Observer.Queue
     {
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
-            // Find the next patient waiting in line (first "Waiting" entry)
+            // BREAKPOINT HERE
             var next = queueState.Queue.FirstOrDefault(e => e.Status == "Waiting");
 
             var msg = eventType switch
@@ -61,7 +61,7 @@ namespace HealthTech.API.Observer.Queue
                     $"[DOCTOR QUEUE]   Queue event '{eventType}'. Now serving #{queueState.NowServing}."
             };
 
-            Console.WriteLine(msg); // BREAKPOINT — doctor dashboard receives live update
+            Console.WriteLine(msg); 
             return Task.CompletedTask;
         }
     }

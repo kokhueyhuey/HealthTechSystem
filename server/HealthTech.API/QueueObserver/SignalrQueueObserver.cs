@@ -43,9 +43,10 @@ namespace HealthTech.API.Observer.Queue
 
         public async Task OnQueueUpdated(QueueState queueState, string eventType)
         {
-            // ── Broadcast to ALL connected clients ─────────────────────
+            // Broadcast to ALL connected clients 
             // "ReceiveQueueUpdate" is the event name the React frontend
             // subscribes to: connection.on("ReceiveQueueUpdate", handler)
+            // BREAKPOINT HERE
             await _hubContext.Clients.All.SendAsync("ReceiveQueueUpdate", new
             {
                 eventType,
