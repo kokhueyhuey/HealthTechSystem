@@ -41,12 +41,7 @@ namespace HealthTech.API.Controllers
             if (emailExists)
                 return BadRequest(new { message = "Email already registered." });
 
-            User newUser = factory.CreateUser(
-                request.Name,
-                request.Email,
-                request.Password,
-                request.PhoneNumber
-            );
+            User newUser = factory.CreateUser(request);
 
             if (newUser is Patient patient)         _context.Patients.Add(patient);
             else if (newUser is Doctor doctor)       _context.Doctors.Add(doctor);
@@ -85,20 +80,46 @@ namespace HealthTech.API.Controllers
             var results = new List<object>();
 
             IUserFactory pf = UserFactoryProvider.GetFactory("Patient");
-            User p = pf.CreateUser("Alice Tan", "alice@email.com", "pw", "0123456789");
-            results.Add(new { role = p.Role, name = p.Name, type = p.GetType().Name, allergies = ((Patient)p).Allergies, bloodType = ((Patient)p).BloodType });
+            // Pass the object instead of 4 strings!
+            User p = pf.CreateUser(new RegisterUserRequest { Name = "Alice", Email = "alice@email.com", ICNumber = "1234", PhoneNumber = "012", Role = "Patient" });
+            results.Add(new { role = p.Role, name = p.Name });
 
             IUserFactory df = UserFactoryProvider.GetFactory("Doctor");
-            User d = df.CreateUser("Dr. Lee Wei", "drlee@email.com", "pw", "0198765432");
-            results.Add(new { role = d.Role, name = d.Name, type = d.GetType().Name, specialization = ((Doctor)d).Specialization, consultationFee = ((Doctor)d).ConsultationFee });
+            User d = df.CreateUser(new RegisterUserRequest { Name = "Dr. Lee", Email = "lee@email.com", Password = "pw", PhoneNumber = "019", Role = "Doctor" });
+            results.Add(new { role = d.Role, name = d.Name });
 
-            IUserFactory phf = UserFactoryProvider.GetFactory("Pharmacist");
-            User ph = phf.CreateUser("Siti Aminah", "siti@email.com", "pw", "0167778888");
-            results.Add(new { role = ph.Role, name = ph.Name, type = ph.GetType().Name, canApproveInventory = ((Pharmacist)ph).CanApproveInventory, shiftSchedule = ((Pharmacist)ph).ShiftSchedule });
-
-            return Ok(new { patternUsed = "Factory Method Pattern", entryPoint = "UserFactoryProvider.GetFactory(role)", usersCreated = results });
+            return Ok(new { patternUsed = "Factory Method", usersCreated = results });
         }
-    }
+
+        [HttpPost("admin/create-doctor")]
+        public async Task<IActionResult> AdminCreateDoctor([FromBody] RegisterUserRequest request)
+        {
+            request.Role = "Doctor";
+            IUserFactory factory = UserFactoryProvider.GetFactory(request.Role);
+
+            if (await _context.Doctors.AnyAsync(d => d.Email == request.Email))
+                return BadRequest(new { message = "Email already in use by another doctor."});
+
+            User newDoctor = factory.CreateUser(request);
+
+            _context.Doctors.Add((Doctor)newDoctor);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Doctor created successfully.", id = newDoctor.Id });
+        }
+        
+        [HttpDelete("admin/delete-doctor/{id}")]
+        public async Task<IActionResult> AdminDeleteDoctor(int id)
+        {
+            var doctor = await _context.Doctors.FindAsync(id);
+            if (doctor == null) return NotFound(new { message = "Doctor not found." });
+
+            _context.Doctors.Remove(doctor);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Doctor deleted successfully." });
+        }
+    }            
 
     public class RegisterUserRequest
     {
@@ -107,6 +128,7 @@ namespace HealthTech.API.Controllers
         public string Password    { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Role        { get; set; } = string.Empty;
+        public string? ICNumber   { get; set; } 
     }
 
     public class LoginRequest

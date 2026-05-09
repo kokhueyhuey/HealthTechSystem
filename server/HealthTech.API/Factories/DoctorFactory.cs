@@ -1,21 +1,24 @@
+using HealthTech.API.Controllers;
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Factories
 {
     public class DoctorFactory : IUserFactory
     {
-        public User CreateUser(string name, string email, string passwordHash, string phoneNumber)
+        public User CreateUser(RegisterUserRequest request)
         {
-            // ⬇ BREAKPOINT HERE — this is the Factory Method executing for a Doctor.
+            if (string.IsNullOrEmpty(request.Password)) 
+                throw new ArgumentException("Password required for Doctors.");
+
             return new Doctor
             {
-                Name = name,
-                Email = email,
-                PasswordHash = passwordHash,
-                PhoneNumber = phoneNumber,
+                Name = request.Name,
+                Email = request.Email,
+                PasswordHash = request.Password, 
+                PhoneNumber = request.PhoneNumber,
                 Role = "Doctor",
                 Specialization = "General Practice",
-                WorkSchedule = "Mon-Fri 9:00am-5:00pm", 
+                WorkSchedule = "Mon-Sun 9:00am-5:00pm",
                 ConsultationFee = 30.00m,
                 CreatedAt = DateTime.UtcNow
             };
