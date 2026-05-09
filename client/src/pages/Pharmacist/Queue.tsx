@@ -1,33 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import type { LoginResponse } from "../../services/api";
+import { getQueueState, enqueuePatient, type QueueState } from "../../services/queueService";
+import { getAppointmentsByDate, type Appointment } from "../../services/appointmentService"; 
+
 import styles from "./Queue.module.css";
-
-// ── Types ──────────────────────────────────────────────────────────────
-type AppointmentStatus = "Pending" | "InProgress" | "Completed" | "Cancelled";
-
-type Appointment = {
-  id: number;
-  patientName: string;
-  patientPhone: string;
-  doctorName: string;
-  appointmentDate: string; // ISO
-  status: AppointmentStatus;
-};
-
-type QueueEntry = {
-  queueEntryId: number;
-  ticketNumber: number;
-  patientId: number;
-  appointmentId: number;
-  status: "Waiting" | "Serving" | "Completed" | "Skipped";
-};
-
-type QueueState = {
-  nowServing: number;
-  lastIssued: number;
-  waitingCount: number;
-  queue: QueueEntry[];
-};
 
 // ── Helpers ────────────────────────────────────────────────────────────
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -38,9 +14,7 @@ function toDateKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
-function toISODate(d: Date) { return toDateKey(d); }
-
-const STATUS_CLASS: Record<AppointmentStatus, string> = {
+const STATUS_CLASS: Record<string, string> = {
   Pending:    styles.statusPending,
   InProgress: styles.statusInProgress,
   Completed:  styles.statusCompleted,
@@ -52,32 +26,27 @@ export default function PharmacistQueue({ user }: { user: LoginResponse }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Calendar state
   const [viewYear,  setViewYear]  = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selected,  setSelected]  = useState<Date>(new Date(today));
 
-  // Data state
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [queueState,   setQueueState]   = useState<QueueState | null>(null);
   const [apptLoading,  setApptLoading]  = useState(false);
   const [enqueuingId,  setEnqueuingId]  = useState<number | null>(null);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
 
-  // IDs already in the queue (to disable their buttons)
-  const enqueuedApptIds = new Set(queueState?.queue.map(e => e.appointmentId) ?? []);
+  const enqueuedApptIds = new Set(queueState?.queue?.map(e => e.appointmentId) ?? []);
 
-  // ── Fetch appointments for selected date ─────────────────────────────
+  // ── 1. Fetch appointments (Abstracted!) ─────────────────────────────
   const loadAppointments = useCallback(async (date: Date) => {
     setApptLoading(true);
     setMsg(null);
     try {
-      const iso = toISODate(date);
-      const res = await fetch(`/api/appointments/by-date?date=${iso}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      setAppointments(await res.json());
+      const iso = toDateKey(date);
+      // Clean service call!
+      const data = await getAppointmentsByDate(iso, user.token);
+      setAppointments(data);
     } catch (e: any) {
       setMsg({ text: e.message ?? "Failed to load appointments", ok: false });
     } finally {
@@ -85,45 +54,30 @@ export default function PharmacistQueue({ user }: { user: LoginResponse }) {
     }
   }, [user.token]);
 
-  // ── Fetch current queue state ─────────────────────────────────────────
+  // ── 2. Fetch current queue state (Abstracted!) ──────────────────────
   const loadQueue = useCallback(async () => {
     try {
-      const res = await fetch("/api/queue", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (res.ok) setQueueState(await res.json());
-    } catch (e) { console.error(e); }
+      // Clean service call!
+      const data = await getQueueState(user.token);
+      setQueueState(data);
+    } catch (e) { 
+      console.error(e); 
+    }
   }, [user.token]);
 
   useEffect(() => {
     loadAppointments(selected);
     loadQueue();
-  }, []);
+  }, [selected, loadAppointments, loadQueue]);
 
-  // Reload appointments whenever selected date changes
-  useEffect(() => {
-    loadAppointments(selected);
-  }, [selected]);
-
-  // ── Enter Queue ────────────────────────────────────────────────────────
+  // ── 3. Enter Queue (Abstracted!) ──────────────────────────────────────
   async function handleEnqueue(appt: Appointment) {
     setEnqueuingId(appt.id);
     setMsg(null);
     try {
-      const res = await fetch("/api/queue/enqueue", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          appointmentId: appt.id,
-          patientId: appt.id,        // replace with real patientId if available on the type
-          patientName: appt.patientName,
-        }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const entry: QueueEntry = await res.json();
+      // Clean service call!
+      const entry = await enqueuePatient(user.token, appt.id, appt.id, appt.patientName);
+      
       setMsg({ text: `✓ ${appt.patientName} added — Ticket #${entry.ticketNumber}`, ok: true });
       await loadQueue();
     } catch (e: any) {

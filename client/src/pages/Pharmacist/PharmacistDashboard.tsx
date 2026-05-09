@@ -75,7 +75,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
 
       <main className="main">
         {active === "home"      && <Home />}
-        {active === "manage"    && <ManageAppointments />}
+        {active === "manage"    && <ManageAppointments user={user}/>}
         {active === "inventory" && <Inventory />}
         {active === "alerts"    && <Alerts />}
         {active === "queue"     && <Queue user={user} />}

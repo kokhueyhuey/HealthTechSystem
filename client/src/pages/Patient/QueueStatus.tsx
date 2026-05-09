@@ -1,58 +1,47 @@
 import { useState, useEffect } from "react";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
+import { getQueueState, type QueueState } from "../../services/queueService";
 import styles from "./QueueStatus.module.css";
-
-// ── Types (matches QueueState from the C# backend) ─────────────────────
-type QueueEntry = {
-  ticketNumber: number;
-  patientId: number;
-  status: string;
-};
-
-type QueueState = {
-  nowServing: number;
-  lastIssued: number;
-  waitingCount: number;
-  minutesPerSlot: number;
-  queue: QueueEntry[];
-};
 
 export default function QueueStatus({ user }: { user: LoginResponse }) {
   const [queueState, setQueueState] = useState<QueueState | null>(null);
   const [myTicket, setMyTicket] = useState<number | null>(null);
   const [isMyTurn, setIsMyTurn] = useState(false);
 
-  // ── Initial HTTP GET ──────────────────────────────────────────────────
+  // ── 1. Initial HTTP GET (Abstracted!) ──────────────────────────────────
   useEffect(() => {
-    fetch("/api/queue", {
-      headers: { Authorization: `Bearer ${user.token}` }
-    })
-      .then(r => r.json())
-      .then((data: QueueState) => {
+    async function loadInitialQueue() {
+      try {
+        const data = await getQueueState(user.token);
         setQueueState(data);
-        const me = data.queue.find(e => e.patientId === user.id);
+        
+        // Safe check using optional chaining (?.) to prevent crashes
+        const me = data?.queue?.find((e) => e.patientId === user.id);
         if (me) setMyTicket(me.ticketNumber);
-      })
-      .catch(console.error);
-  }, [user.id]);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadInitialQueue();
+  }, [user.id, user.token]);
 
-  // ── SignalR subscription ──────────────────────────────────────────────
-  // Uncomment when @microsoft/signalr is installed:
-  //
-  // useEffect(() => {
-  //   const connection = new HubConnectionBuilder()
-  //     .withUrl(`/hubs/queue?access_token=${user.token}`)
-  //     .withAutomaticReconnect()
-  //     .build();
-  //
-  //   connection.on("ReceiveQueueUpdate", (data: QueueState) => {
-  //     setQueueState(data);
-  //     if (myTicket && data.nowServing === myTicket) setIsMyTurn(true);
-  //   });
-  //
-  //   connection.start().catch(console.error);
-  //   return () => { connection.stop(); };
-  // }, [myTicket]);
+  // ── 2. SignalR subscription (Push Model) ───────────────────────────────
+  useEffect(() => {
+    // Note: Pointing to the specific queue hub, not the notification hub!
+    const connection = new HubConnectionBuilder()
+      .withUrl(`http://localhost:5165/hubs/queue?access_token=${user.token}`)
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on("ReceiveQueueUpdate", (data: QueueState) => {
+      setQueueState(data);
+      if (myTicket && data.nowServing === myTicket) setIsMyTurn(true);
+    });
+
+    connection.start().catch(console.error);
+    return () => { connection.stop(); };
+  }, [myTicket, user.token]);
 
   const waitMins = myTicket && queueState
     ? Math.max(0, (myTicket - queueState.nowServing) * (queueState.minutesPerSlot ?? 5))

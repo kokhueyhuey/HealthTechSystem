@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { LoginResponse } from "../../services/api"; // Added for token
 import { getDoctors } from "../../services/doctorService";
 import {
   getAffectedAppointments,
@@ -6,6 +7,9 @@ import {
   rescheduleAppointment,
   type AffectedAppointment,
 } from "../../services/appointmentService";
+
+// 1. Import the Queue Service!
+import { enqueuePatient } from "../../services/queueService";
 
 type Doctor = {
   id: number;
@@ -15,7 +19,8 @@ type Doctor = {
 
 const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
 
-export default function ManageAppointments() {
+// 2. Added the user prop so we can pass the security token to the Queue API
+export default function ManageAppointments({ user }: { user: LoginResponse }) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorId, setDoctorId] = useState<string>("");
 
@@ -26,7 +31,11 @@ export default function ManageAppointments() {
   const [rescheduleId, setRescheduleId] = useState<number | null>(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
+  
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // Track which appointment is currently being added to the queue
+  const [enqueuingId, setEnqueuingId] = useState<number | null>(null); 
 
   // ✅ Load doctors
   useEffect(() => {
@@ -101,6 +110,25 @@ export default function ManageAppointments() {
     }
   }
 
+  // 3. ✅ Add to Queue
+  async function handleEnqueue(appt: AffectedAppointment) {
+    setEnqueuingId(appt.id);
+    setMsg(null);
+    try {
+      const entry = await enqueuePatient(
+        user.token, 
+        appt.id, 
+        appt.patientId, 
+        appt.patientName
+      );
+      setMsg(`✅ ${appt.patientName} added to Queue — Ticket #${entry.ticketNumber}`);
+    } catch (e: any) {
+      setMsg("⚠️ " + (e.message || "Failed to enqueue patient"));
+    } finally {
+      setEnqueuingId(null);
+    }
+  }
+
   return (
     <div>
       <h2>Manage Appointments</h2>
@@ -135,12 +163,21 @@ export default function ManageAppointments() {
             Date: {new Date(a.appointmentDate).toLocaleString("en-MY")}
           </p>
 
-          <button onClick={() => handleCancel(a.id)} disabled={actionLoading}>
+          <button onClick={() => handleCancel(a.id)} disabled={actionLoading || enqueuingId !== null}>
             Cancel
           </button>
 
-          <button onClick={() => setRescheduleId(a.id)}>
+          <button onClick={() => setRescheduleId(a.id)} disabled={actionLoading || enqueuingId !== null} style={{ marginLeft: "5px" }}>
             Reschedule
+          </button>
+
+          {/* 4. The new Enter Queue Button! */}
+          <button 
+            onClick={() => handleEnqueue(a)} 
+            disabled={actionLoading || enqueuingId === a.id} 
+            style={{ marginLeft: "5px", backgroundColor: "#34d399", color: "black" }}
+          >
+            {enqueuingId === a.id ? "Adding..." : "Enter Queue"}
           </button>
 
           {/* Reschedule panel */}
