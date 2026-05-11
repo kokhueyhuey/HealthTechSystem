@@ -37,7 +37,7 @@ namespace HealthTech.API.Data
             //Pharmacist seed acc
             modelBuilder.Entity<Pharmacist>().HasData(new Pharmacist
             {
-                Id = 1,
+                Id = 999,
                 Name = "Pharmacist (System Admin)",
                 Email = "pharmacist@gmail.com",
                 PasswordHash = "pharmacist@123",
