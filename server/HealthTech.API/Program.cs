@@ -51,6 +51,8 @@ var app = builder.Build();
 var queueService = app.Services.GetRequiredService<QueueService>();
 var hubContext   = app.Services.GetRequiredService<IHubContext<QueueHub>>();
 
+await queueService.InitializeAsync();
+
 // Observer 1 — broadcasts to ALL React clients via SignalR WebSocket
 queueService.RegisterObserver(new SignalRQueueObserver(hubContext));
 

@@ -18,6 +18,8 @@ export default function Status({ user }: { user: LoginResponse }) {
   const [queueState, setQueueState] = useState<QueueState | null>(null);
   const [queueActionLoading, setQueueActionLoading] = useState(false);
 
+  const currentPatient = queueState?.queue.find(e => e.status === "Serving");
+
   // ── 1. Load Initial Queue Data ────────────────────────────────────────
   useEffect(() => { 
     async function loadInitialQueue() {
@@ -87,6 +89,11 @@ export default function Status({ user }: { user: LoginResponse }) {
               Now Serving: {queueState && queueState.nowServing > 0 ? `Q-${String(queueState.nowServing).padStart(3,"0")}` : "None"}
             </div>
             <div style={{ color: "#15803d" }}>Patients Waiting: {queueState?.waitingCount || 0}</div>
+            {currentPatient && (
+              <div style={{ marginTop: 10, color: "#166534" }}>
+                Serving Patient: {currentPatient.patientName} (Apt #{currentPatient.appointmentId})
+              </div>
+            )}
           </div>
           
           <button 

@@ -36,9 +36,9 @@ namespace HealthTech.API.Controllers
 
         // ── GET api/queue ──────────────────────────────────────────────
         [HttpGet]
-        public ActionResult<QueueState> GetQueueState()
+        public async Task<ActionResult<QueueState>> GetQueueState()
         {
-            return Ok(_queueService.GetCurrentState());
+            return Ok(await _queueService.GetCurrentStateAsync());
         }
 
         // ── POST api/queue/enqueue ─────────────────────────────────────

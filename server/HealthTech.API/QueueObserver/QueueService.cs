@@ -1,34 +1,93 @@
+using HealthTech.API.Data;
 using HealthTech.API.Models;
 using HealthTech.API.Observer.Queue;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTech.API.QueueObserver
 {
-    // ════════════════════════════════════════════════════════════════════
-    // OBSERVER PATTERN — Concrete Subject: QueueService
-    // ════════════════════════════════════════════════════════════════════
+    // --------------------------------------------------------------------
+    // OBSERVER PATTERN � Concrete Subject: QueueService
+    // --------------------------------------------------------------------
     //
-    // CONCEPT — Encapsulation:
+    // CONCEPT � Encapsulation:
     //   _observers list and _state are private. External callers use only
     //   the public API: EnqueuePatient, CallNext, CompletePatient, etc.
     //
-    // CONCEPT — Modularity:
+    // CONCEPT � Modularity:
     //   Standalone class. No controller, view, or UI logic inside.
     //
-    // SOLID — SRP: manages queue state and fires observer notifications.
-    // SOLID — OCP: new observers added via RegisterObserver(); this class never changes.
-    // SOLID — DIP: depends on IQueueObserver abstraction, not concrete types.
+    // SOLID � SRP: manages queue state and fires observer notifications.
+    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
+    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
     //
     // Registered as Singleton in Program.cs so ALL HTTP requests and the
     // SignalR hub share the same live queue state.
-    // ════════════════════════════════════════════════════════════════════
+    // --------------------------------------------------------------------
 
     public class QueueService : IQueueSubject
     {
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly List<IQueueObserver> _observers = new();
         private readonly QueueState _state = new();
         private readonly object _lock = new();
+        private bool _initialized;
 
-        // ── IQueueSubject ──────────────────────────────────────────────
+        public QueueService(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory;
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (_initialized) return;
+
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var persisted = await db.QueueRecords
+                .Include(q => q.Appointment)
+                    .ThenInclude(a => a.Patient)
+                .OrderBy(q => q.TicketNumber)
+                .ToListAsync();
+
+            lock (_lock)
+            {
+                _state.Queue.Clear();
+                foreach (var record in persisted)
+                {
+                    _state.Queue.Add(new QueueEntry
+                    {
+                        QueueEntryId  = record.Id,
+                        AppointmentId = record.AppointmentId,
+                        PatientId     = record.Appointment?.PatientId ?? 0,
+                        PatientName   = record.Appointment?.Patient?.Name ?? "Unknown",
+                        TicketNumber  = record.TicketNumber,
+                        Status        = record.Status,
+                        CheckedInAt   = record.CreatedAt
+                    });
+                    _state.LastIssued = Math.Max(_state.LastIssued, record.TicketNumber);
+                }
+
+                var serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
+                if (serving != null)
+                {
+                    _state.NowServing = serving.TicketNumber;
+                }
+                else
+                {
+                    _state.NowServing = 0;
+                }
+
+                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _initialized = true;
+            }
+        }
+
+        private async Task EnsureInitializedAsync()
+        {
+            if (!_initialized) await InitializeAsync();
+        }
+
+        // -- IQueueSubject ----------------------------------------------
 
         public void RegisterObserver(IQueueObserver observer)
         {
@@ -48,36 +107,66 @@ namespace HealthTech.API.QueueObserver
         {
             List<IQueueObserver> snapshot;
             lock (_lock) { snapshot = new List<IQueueObserver>(_observers); }
-
-            // Parallel fan-out: slow observers (SMS, email) don't block SignalR
             await Task.WhenAll(snapshot.Select(o => o.OnQueueUpdated(queueState, eventType)));
         }
 
-        // ── Queue operations ───────────────────────────────────────────
+        public async Task<QueueState> GetCurrentStateAsync()
+        {
+            await EnsureInitializedAsync();
+            lock (_lock) { return CloneState(); }
+        }
 
-        /// <summary>Pharmacist: check in a patient and issue a ticket.</summary>
         public async Task<QueueEntry> EnqueuePatient(int appointmentId, int patientId, string patientName)
         {
-            QueueEntry entry;
-            QueueState snapshot;
+            await EnsureInitializedAsync();
 
+            int ticketNumber;
             lock (_lock)
             {
                 _state.LastIssued++;
+                ticketNumber = _state.LastIssued;
+            }
+
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var appointment = await db.Appointments.FindAsync(appointmentId);
+            if (appointment == null)
+                throw new InvalidOperationException("Appointment not found.");
+
+            if (appointment.Status == "Completed" || appointment.Status == "Cancelled" || appointment.Status == "InQueue" || appointment.Status == "InConsultation")
+                throw new InvalidOperationException("This appointment cannot be added to the queue.");
+
+            appointment.Status = "InQueue";
+
+            var record = new QueueRecord
+            {
+                AppointmentId = appointmentId,
+                TicketNumber  = ticketNumber,
+                Status        = "Waiting",
+                CreatedAt     = DateTime.UtcNow,
+                UpdatedAt     = DateTime.UtcNow
+            };
+
+            db.QueueRecords.Add(record);
+            await db.SaveChangesAsync();
+
+            QueueEntry entry;
+            QueueState snapshot;
+            lock (_lock)
+            {
                 entry = new QueueEntry
                 {
-                    QueueEntryId  = _state.LastIssued,
+                    QueueEntryId  = record.Id,
                     AppointmentId = appointmentId,
                     PatientId     = patientId,
                     PatientName   = patientName,
-                    TicketNumber  = _state.LastIssued,
+                    TicketNumber  = ticketNumber,
                     Status        = "Waiting",
-                    CheckedInAt   = DateTime.UtcNow
+                    CheckedInAt   = record.CreatedAt
                 };
+
                 _state.Queue.Add(entry);
                 _state.LastUpdatedUtc = DateTime.UtcNow;
-
-                if (_state.NowServing == 0) _state.NowServing = 1;
                 snapshot = CloneState();
             }
 
@@ -85,19 +174,71 @@ namespace HealthTech.API.QueueObserver
             return entry;
         }
 
-        /// <summary>Doctor/Pharmacist: call the next patient.</summary>
         public async Task<QueueState> CallNext()
         {
-            QueueState snapshot;
+            await EnsureInitializedAsync();
+
+            QueueEntry? currentServing;
+            QueueEntry? nextWaiting;
 
             lock (_lock)
             {
-                var current = _state.Queue.FirstOrDefault(e => e.TicketNumber == _state.NowServing);
-                if (current != null) current.Status = "Completed";
+                currentServing = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
+                nextWaiting = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
+            }
 
-                var next = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
-                if (next != null) { _state.NowServing = next.TicketNumber; next.Status = "Serving"; }
-                else _state.NowServing++;
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            if (currentServing != null)
+            {
+                var currentRecord = await db.QueueRecords.FirstOrDefaultAsync(q => q.Id == currentServing.QueueEntryId);
+                if (currentRecord != null)
+                {
+                    currentRecord.Status = "Completed";
+                    currentRecord.UpdatedAt = DateTime.UtcNow;
+                }
+
+                var currentAppointment = await db.Appointments.FindAsync(currentServing.AppointmentId);
+                if (currentAppointment != null)
+                {
+                    currentAppointment.Status = "Completed";
+                }
+            }
+
+            if (nextWaiting != null)
+            {
+                var nextRecord = await db.QueueRecords.FirstOrDefaultAsync(q => q.Id == nextWaiting.QueueEntryId);
+                if (nextRecord != null)
+                {
+                    nextRecord.Status = "Serving";
+                    nextRecord.UpdatedAt = DateTime.UtcNow;
+                }
+
+                var nextAppointment = await db.Appointments.FindAsync(nextWaiting.AppointmentId);
+                if (nextAppointment != null)
+                {
+                    nextAppointment.Status = "InConsultation";
+                }
+            }
+
+            await db.SaveChangesAsync();
+
+            QueueState snapshot;
+            lock (_lock)
+            {
+                if (currentServing != null)
+                    currentServing.Status = "Completed";
+
+                if (nextWaiting != null)
+                {
+                    nextWaiting.Status = "Serving";
+                    _state.NowServing = nextWaiting.TicketNumber;
+                }
+                else
+                {
+                    _state.NowServing = 0;
+                }
 
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 snapshot = CloneState();
@@ -107,15 +248,42 @@ namespace HealthTech.API.QueueObserver
             return snapshot;
         }
 
-        /// <summary>Doctor: mark the current consultation complete.</summary>
         public async Task<QueueState> CompleteCurrentPatient()
         {
-            QueueState snapshot;
+            await EnsureInitializedAsync();
 
+            QueueEntry? serving;
             lock (_lock)
             {
-                var serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
-                if (serving != null) serving.Status = "Completed";
+                serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
+            }
+
+            if (serving != null)
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var record = await db.QueueRecords.FirstOrDefaultAsync(q => q.Id == serving.QueueEntryId);
+                if (record != null)
+                {
+                    record.Status = "Completed";
+                    record.UpdatedAt = DateTime.UtcNow;
+                }
+
+                var appointment = await db.Appointments.FindAsync(serving.AppointmentId);
+                if (appointment != null)
+                {
+                    appointment.Status = "Completed";
+                }
+
+                await db.SaveChangesAsync();
+            }
+
+            QueueState snapshot;
+            lock (_lock)
+            {
+                if (serving != null)
+                    serving.Status = "Completed";
+
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 snapshot = CloneState();
             }
@@ -124,18 +292,65 @@ namespace HealthTech.API.QueueObserver
             return snapshot;
         }
 
-        /// <summary>Skip a non-responsive patient and advance the queue.</summary>
         public async Task<QueueState> SkipCurrentPatient()
         {
-            QueueState snapshot;
+            await EnsureInitializedAsync();
+
+            QueueEntry? serving;
+            QueueEntry? nextWaiting;
 
             lock (_lock)
             {
-                var serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
-                if (serving != null) serving.Status = "Skipped";
+                serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
+                nextWaiting = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
+            }
 
-                var next = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
-                if (next != null) { _state.NowServing = next.TicketNumber; next.Status = "Serving"; }
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            if (serving != null)
+            {
+                var record = await db.QueueRecords.FirstOrDefaultAsync(q => q.Id == serving.QueueEntryId);
+                if (record != null)
+                {
+                    record.Status = "Skipped";
+                    record.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            if (nextWaiting != null)
+            {
+                var nextRecord = await db.QueueRecords.FirstOrDefaultAsync(q => q.Id == nextWaiting.QueueEntryId);
+                if (nextRecord != null)
+                {
+                    nextRecord.Status = "Serving";
+                    nextRecord.UpdatedAt = DateTime.UtcNow;
+                }
+
+                var nextAppointment = await db.Appointments.FindAsync(nextWaiting.AppointmentId);
+                if (nextAppointment != null)
+                {
+                    nextAppointment.Status = "InConsultation";
+                }
+            }
+
+            await db.SaveChangesAsync();
+
+            QueueState snapshot;
+            lock (_lock)
+            {
+                if (serving != null)
+                    serving.Status = "Skipped";
+
+                if (nextWaiting != null)
+                {
+                    nextWaiting.Status = "Serving";
+                    _state.NowServing = nextWaiting.TicketNumber;
+                }
+                else
+                {
+                    _state.NowServing = 0;
+                }
 
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 snapshot = CloneState();
@@ -145,11 +360,16 @@ namespace HealthTech.API.QueueObserver
             return snapshot;
         }
 
-        /// <summary>End-of-day: clear all entries and reset counters.</summary>
         public async Task<QueueState> ResetQueue()
         {
-            QueueState snapshot;
+            await EnsureInitializedAsync();
 
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.QueueRecords.RemoveRange(db.QueueRecords);
+            await db.SaveChangesAsync();
+
+            QueueState snapshot;
             lock (_lock)
             {
                 _state.Queue.Clear();
@@ -161,12 +381,6 @@ namespace HealthTech.API.QueueObserver
 
             await NotifyObservers(snapshot, "QueueReset");
             return snapshot;
-        }
-
-        /// <summary>Read-only snapshot for the initial HTTP GET.</summary>
-        public QueueState GetCurrentState()
-        {
-            lock (_lock) { return CloneState(); }
         }
 
         // Deep-copy so observers cannot mutate the live state

@@ -11,10 +11,13 @@ namespace HealthTech.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Pharmacists",
-                columns: new[] { "Id", "CanApproveInventory", "CreatedAt", "Email", "Name", "PasswordHash", "PharmacistLicenseNumber", "PhoneNumber", "Role", "ShiftSchedule", "StaffId" },
-                values: new object[] { 999, true, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "pharmacist@gmail.com", "Pharmacist (System Admin)", "pharmacist@123", "PH001", "011-1111111", "Pharmacist", "Mon-Sun 9am-5pm", "STAFF-001" });
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM [Pharmacists] WHERE [Id] = 999)
+                BEGIN
+                    INSERT INTO [Pharmacists] ([Id], [CanApproveInventory], [CreatedAt], [Email], [Name], [PasswordHash], [PharmacistLicenseNumber], [PhoneNumber], [Role], [ShiftSchedule], [StaffId])
+                    VALUES (999, 1, '2026-01-01T00:00:00.0000000Z', N'pharmacist@gmail.com', N'Pharmacist (System Admin)', N'pharmacist@123', N'PH001', N'011-1111111', N'Pharmacist', N'Mon-Sun 9am-5pm', N'STAFF-001');
+                END
+            ");
         }
 
         /// <inheritdoc />

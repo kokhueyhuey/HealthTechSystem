@@ -13,6 +13,7 @@ namespace HealthTech.API.Data
         public DbSet<Pharmacist>  Pharmacists  { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Medicine>    Medicines    { get; set; }
+        public DbSet<QueueRecord> QueueRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +28,17 @@ namespace HealthTech.API.Data
                 .HasOne(a => a.Doctor)
                 .WithMany(d => d.Appointments)
                 .HasForeignKey(a => a.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<QueueRecord>()
+                .ToTable("Queue")
+                .HasIndex(q => q.TicketNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<QueueRecord>()
+                .HasOne(q => q.Appointment)
+                .WithMany()
+                .HasForeignKey(q => q.AppointmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // unique Email across all users
