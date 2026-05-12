@@ -175,3 +175,71 @@ export async function adminDeleteDoctor(id: number): Promise<any> {
   if (!res.ok) throw new Error(data.message || "Failed to delete doctor.");
   return data;
 }
+
+export interface CurrentPatient {
+  appointmentId: number;
+  patientId: number;
+  patientName: string;
+  doctorId: number;
+  status: string;
+}
+
+export interface PrescriptionItemRequest {
+  medicineId: number;
+  dosage: string;
+  quantity: number;
+  usageInstruction: string;
+  preference: string;
+}
+
+export interface CreatePrescriptionRequest {
+  appointmentId: number;
+  needMc: boolean;
+  mcReason: string;
+  mcDays: number;
+  items: PrescriptionItemRequest[];
+}
+
+export async function getCurrentPatient(doctorId: number): Promise<CurrentPatient> {
+  const response = await fetch(`${BASE_URL}/Appointments/current/${doctorId}`);
+
+  if (!response.ok) {
+    throw new Error("No patient currently in consultation.");
+  }
+
+  return response.json();
+}
+
+export async function generatePrescription(payload: CreatePrescriptionRequest) {
+  const response = await fetch(`${BASE_URL}/Prescriptions/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
+  return response.json();
+}
+
+export async function completeWithoutPrescription(appointmentId: number) {
+  const response = await fetch(`${BASE_URL}/Prescriptions/complete-without-prescription`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ appointmentId }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
+  return response.json();
+}
