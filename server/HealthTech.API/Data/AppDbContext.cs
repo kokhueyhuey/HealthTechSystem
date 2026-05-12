@@ -12,13 +12,12 @@ namespace HealthTech.API.Data
         public DbSet<Doctor>      Doctors      { get; set; }
         public DbSet<Pharmacist>  Pharmacists  { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<Medicine> Medicines { get; set; }
+        public DbSet<Medicine>    Medicines    { get; set; }
+        public DbSet<QueueRecord> QueueRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // We use OnDelete(DeleteBehavior.Restrict) to PREVENT cascading deletes
-            // (e.g., deleting a Doctor should NOT auto-delete all their appointments —
-            //  the clinic still needs that history for records).
             modelBuilder.Entity<Appointment>()
                 .HasOne(a => a.Patient)
                 .WithMany(p => p.Appointments)
@@ -31,10 +30,37 @@ namespace HealthTech.API.Data
                 .HasForeignKey(a => a.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<QueueRecord>()
+                .ToTable("Queue")
+                .HasIndex(q => q.TicketNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<QueueRecord>()
+                .HasOne(q => q.Appointment)
+                .WithMany()
+                .HasForeignKey(q => q.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // unique Email across all users
             modelBuilder.Entity<Patient>().HasIndex(p => p.Email).IsUnique();
             modelBuilder.Entity<Doctor>().HasIndex(d => d.Email).IsUnique();
             modelBuilder.Entity<Pharmacist>().HasIndex(ph => ph.Email).IsUnique();
-        }
+
+            //Pharmacist seed acc
+            modelBuilder.Entity<Pharmacist>().HasData(new Pharmacist
+            {
+                Id = 999,
+                Name = "Pharmacist (System Admin)",
+                Email = "pharmacist@gmail.com",
+                PasswordHash = "pharmacist@123",
+                PhoneNumber = "011-1111111",
+                Role = "Pharmacist", 
+                PharmacistLicenseNumber = "PH001",
+                StaffId = "STAFF-001",
+                ShiftSchedule = "Mon-Sun 9am-5pm",
+                CanApproveInventory = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) // ⬅ Fixed typo
+            });
+        } 
     }
 }

@@ -35,6 +35,15 @@ export interface AffectedAppointment {
   status: AppointmentStatus;
 }
 
+export interface Appointment {
+  id: number;
+  patientName: string;
+  patientPhone: string;
+  doctorName: string;
+  appointmentDate: string; 
+  status: AppointmentStatus;
+}
+
 /* ─────────────────────────────────────────────
    BOOK APPOINTMENT
    Observer Pattern fires in backend
@@ -181,3 +190,27 @@ export async function getAffectedAppointments(
   return Array.isArray(data) ? data : [];
 }
 
+/* ─────────────────────────────────────────────
+   PHARMACIST — GET APPOINTMENTS BY DATE
+   (Used for the Queue Check-In Calendar)
+───────────────────────────────────────────── */
+
+export async function getAppointmentsByDate(
+  date: string,
+  token: string
+): Promise<Appointment[]> {
+  const res = await fetch(`${BASE_URL}/by-date?date=${date}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to load appointments for this date.");
+  }
+
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}

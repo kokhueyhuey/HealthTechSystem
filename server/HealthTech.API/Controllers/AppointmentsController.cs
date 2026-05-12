@@ -30,7 +30,7 @@ namespace HealthTech.API.Controllers
             _service = service;
         }
 
-        // ── POST api/appointments/book ─────────────────────────────────────
+        // ── POST api/appointments/book 
         // USE CASE: Book Appointment — Basic Flow
         [HttpPost("book")]
         public async Task<IActionResult> Book([FromBody] BookRequest req)
@@ -54,7 +54,7 @@ namespace HealthTech.API.Controllers
             });
         }
 
-        // ── GET api/appointments/patient/{patientId} ───────────────────────
+        // ── GET api/appointments/patient/{patientId}
         // USE CASE: View Appointment Status — Basic Flow step 3-4
         [HttpGet("patient/{patientId}")]
         public async Task<IActionResult> GetByPatient(int patientId)
@@ -75,7 +75,7 @@ namespace HealthTech.API.Controllers
             }));
         }
 
-        // ── GET api/appointments/doctor/{doctorId}?date=2026-05-10 ─────────
+        // ── GET api/appointments/doctor/{doctorId}?date=2026-05-10
         // USE CASE: View Daily Appointments — Basic Flow step 3-4
         [HttpGet("doctor/{doctorId}")]
         public async Task<IActionResult> GetByDoctor(int doctorId, [FromQuery] DateTime? date)
@@ -96,7 +96,7 @@ namespace HealthTech.API.Controllers
             }));
         }
 
-        // ── PATCH api/appointments/{id}/cancel ─────────────────────────────
+        // ── PATCH api/appointments/{id}/cancel 
         // USE CASE: Cancel or Reschedule Appointment
         [HttpPatch("{id}/cancel")]
         public async Task<IActionResult> Cancel(int id, [FromBody] RoleRequest req)
@@ -105,7 +105,7 @@ namespace HealthTech.API.Controllers
             return success ? Ok(new { message }) : BadRequest(new { message });
         }
 
-        // ── PATCH api/appointments/{id}/reschedule ─────────────────────────
+        // ── PATCH api/appointments/{id}/reschedule 
         // USE CASE: Cancel or Reschedule Appointment — Basic Flow step 4-6
         [HttpPatch("{id}/reschedule")]
         public async Task<IActionResult> Reschedule(int id, [FromBody] RescheduleRequest req)
@@ -115,7 +115,7 @@ namespace HealthTech.API.Controllers
             return success ? Ok(new { message }) : BadRequest(new { message });
         }
 
-        // ── PATCH api/appointments/{id}/status ─────────────────────────────
+        // ── PATCH api/appointments/{id}/status 
         // USE CASE: Update Appointment Status (Doctor)
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusUpdateRequest req)
@@ -124,7 +124,7 @@ namespace HealthTech.API.Controllers
             return success ? Ok(new { message }) : BadRequest(new { message });
         }
 
-        // ── GET api/appointments/affected/{doctorId} ───────────────────────
+        // ── GET api/appointments/affected/{doctorId} 
         // USE CASE: Manage Appointment Due to Doctor Unavailability (Pharmacist)
         [HttpGet("affected/{doctorId}")]
         public async Task<IActionResult> GetAffected(int doctorId)
@@ -142,7 +142,7 @@ namespace HealthTech.API.Controllers
         }
     }
 
-    // ── Request DTOs ─────────────────────────────────────────────────────────
+    // Request DTOs 
     // CONCEPT — Encapsulation: these DTOs carry only the data the endpoint needs.
     // Internal model fields (Status, CreatedAt) are never exposed on input.
 

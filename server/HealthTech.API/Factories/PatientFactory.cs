@@ -1,21 +1,25 @@
+using HealthTech.API.Controllers;
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Factories
 {
     public class PatientFactory : IUserFactory
     {
-        public User CreateUser(string name, string email, string passwordHash, string phoneNumber)
+        public User CreateUser(RegisterUserRequest request)
         {
-            // ⬇ BREAKPOINT HERE — this is where the Patient object is constructed.
-            // When your instructor says "put a breakpoint on the entry of the pattern",
-            // this return statement is the moment the Factory Method executes.
+            if (string.IsNullOrEmpty(request.ICNumber) || request.ICNumber.Length < 4)
+                throw new ArgumentException("Patient registration requires a valid IC Number.");
+
+            string lastFourIC = request.ICNumber.Substring(request.ICNumber.Length - 4);
+
             return new Patient
             {
-                Name = name,
-                Email = email,
-                PasswordHash = passwordHash,
-                PhoneNumber = phoneNumber,
-                Role = "Patient", 
+                Name = request.Name,
+                Email = request.Email,
+                PasswordHash = lastFourIC, 
+                PhoneNumber = request.PhoneNumber,
+                Role = "Patient",
+                ICNumber = request.ICNumber,
                 Allergies = "None",
                 BloodType = "Unknown",
                 CreatedAt = DateTime.UtcNow

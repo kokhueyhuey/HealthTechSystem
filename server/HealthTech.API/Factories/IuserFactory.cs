@@ -1,10 +1,11 @@
 using HealthTech.API.Models;
+using HealthTech.API.Controllers; 
 
 namespace HealthTech.API.Factories
 {
     //where the interface define contracts
     public interface IUserFactory
     {
-        User CreateUser(string name, string email, string passwordHash, string phoneNumber);
+        User CreateUser(RegisterUserRequest request);
     }
 }

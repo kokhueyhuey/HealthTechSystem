@@ -239,7 +239,7 @@ namespace HealthTech.API.Services
             if (appointment.DoctorId != doctorId)
                 return (false, "You are not authorised to update this appointment.");
 
-            var allowed = new[] { "Pending", "InProgress", "Completed", "Cancelled" };
+            var allowed = new[] { "Pending", "InQueue", "InConsultation", "InProgress", "Completed", "Cancelled" };
             if (!allowed.Contains(newStatus))
                 return (false, $"Invalid status '{newStatus}'.");
 

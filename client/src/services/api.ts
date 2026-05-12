@@ -17,14 +17,16 @@ export interface LoginResponse {
   name: string;
   role: "Patient" | "Doctor" | "Pharmacist";
   email: string;
+  token: string;
 }
 
 export interface RegisterRequest {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   phoneNumber: string;
   role: "Patient" | "Doctor" | "Pharmacist";
+  icNumber?: string;
 }
 
 
@@ -152,4 +154,24 @@ export async function deleteMedicine(id: number): Promise<void> {
   if (!response.ok) {
     throw new Error("Failed to delete medicine");
   }
+}
+
+export async function adminCreateDoctor(payload: RegisterRequest): Promise<any> {
+  const res = await fetch(`${BASE_URL}/User/admin/create-doctor`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to create doctor.");
+  return data;
+}
+
+export async function adminDeleteDoctor(id: number): Promise<any> {
+  const res = await fetch(`${BASE_URL}/User/admin/delete-doctor/${id}`, {
+    method: "DELETE",
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to delete doctor.");
+  return data;
 }

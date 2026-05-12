@@ -5,8 +5,8 @@ import type { LoginResponse } from "../../services/api";
 import Home from "./Home";
 import Inventory from "./Inventory";
 import Alerts from "./Alerts";
-import Queue from "./Queue";
 import ManageAppointments from "./ManageAppointments";
+import ManageDoctor from "./ManageDoctor";
 
 import "./PharmacistDashboard.css";
 
@@ -15,7 +15,7 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "inventory" | "alerts" | "queue" | "manage";
+type Section = "home" | "inventory" | "alerts" | "queue" | "manage" | "doctors";
 
 export default function PharmacistDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
     : location.pathname.includes("/alerts")  ? "alerts"
     : location.pathname.includes("/queue")   ? "queue"
     : location.pathname.includes("/manage")  ? "manage"
+    : location.pathname.includes("/doctors") ? "doctors"
     : "home";
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
         <nav className="nav">
           {[
             { id: "home",      label: "🏠 Overview" },
+            { id: "doctors",   label: "👨‍⚕️ Manage Doctors" },
             { id: "manage",    label: "📋 Manage Appointments" },
             { id: "inventory", label: "📦 Inventory" },
             { id: "alerts",    label: "🚨 Alerts" },
@@ -75,10 +77,11 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
 
       <main className="main">
         {active === "home"      && <Home />}
-        {active === "manage"    && <ManageAppointments />}
+        {active === "doctors"   && <ManageDoctor />}
+        {active === "manage"    && <ManageAppointments user={user}/>}
         {active === "inventory" && <Inventory />}
         {active === "alerts"    && <Alerts />}
-        {active === "queue"     && <Queue />}
+        {/* {active === "queue"     && <Queue user={user} />} */}
       </main>
     </div>
   );

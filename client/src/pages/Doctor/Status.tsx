@@ -1,110 +1,111 @@
 import { useState, useEffect } from "react";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
-import type { DoctorAppointmentSummary } from "../../services/appointmentService";
-import type { AppointmentStatus } from "../../types/appointment";
 
-import {
-  getDoctorAppointments,
-  updateAppointmentStatus,
-} from "../../services/appointmentService";
+// Import our abstracted Queue logic
+import { 
+  getQueueState, 
+  callNextPatient, 
+  type QueueState 
+} from "../../services/queueService";
 
-import "./Status.css";
-
-const STATUSES: AppointmentStatus[] = [
-  "Pending",
-  "InProgress",
-  "Completed",
-  "Cancelled",
-];
+import styles from "./Status.module.css";
 
 export default function Status({ user }: { user: LoginResponse }) {
-  const [appointments, setAppointments] = useState<DoctorAppointmentSummary[]>([]);
-  const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
-  const [updating, setUpdating] = useState<number | null>(null);
 
-  async function load() {
-    try {
-      const data = await getDoctorAppointments(user.id);
-      setAppointments(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+  // Queue State
+  const [queueState, setQueueState] = useState<QueueState | null>(null);
+  const [queueActionLoading, setQueueActionLoading] = useState(false);
+
+  const currentPatient = queueState?.queue.find(e => e.status === "Serving");
+
+  // ── 1. Load Initial Queue Data ────────────────────────────────────────
+  useEffect(() => { 
+    async function loadInitialQueue() {
+      try {
+        const data = await getQueueState(user.token);
+        setQueueState(data);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
+    
+    loadInitialQueue();
+  }, [user.token]);
 
+  // ── 2. SignalR Subscription (Real-time updates) ───────────────────────
   useEffect(() => {
-    load();
-  }, [user.id]);
+    const connection = new HubConnectionBuilder()
+      .withUrl(`http://localhost:5165/hubs/queue?access_token=${user.token}`)
+      .withAutomaticReconnect()
+      .build();
 
-  async function handleStatus(id: number, newStatus: AppointmentStatus) {
-    setUpdating(id);
+    connection.on("ReceiveQueueUpdate", (data: QueueState) => {
+      setQueueState(data);
+    });
+
+    connection.start().catch(console.error);
+    return () => { connection.stop(); };
+  }, [user.token]);
+
+  // ── 3. Handle "Call Next Patient" (Queue Use Case) ───────────────────
+  async function handleCallNext() {
+    setQueueActionLoading(true);
     setMsg(null);
-
     try {
-      const result = await updateAppointmentStatus(id, user.id, newStatus);
-      setMsg("✅ " + result);
-      await load();
+      // Pushes the command to the backend Subject, which broadcasts to all Observers
+      await callNextPatient(user.token);
+      setMsg("✅ Called next patient successfully.");
     } catch (err: any) {
-      setMsg("⚠️ " + err.message);
+      // Captures the Exception Flow: "Queue is empty"
+      setMsg("⚠️ " + (err.message || "No patients waiting"));
     } finally {
-      setUpdating(null);
+      setQueueActionLoading(false);
     }
   }
-
-  const activeAppointments = appointments.filter(
-    (a) => a.status !== "Completed" && a.status !== "Cancelled"
-  );
 
   return (
-    <div className="page">
-      <h2 className="pageTitle">Update Appointment Status</h2>
+    <div className={styles.page}>
 
+      <h2 className={styles.pageTitle}>Doctor Dashboard</h2>
+      <p className={styles.pageMeta}>
+        {new Date().toLocaleDateString("en-MY", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}
+      </p>
+
+      {/* Feedback Message */}
       {msg && (
-        <div className={msg.startsWith("✅") ? "successBox" : "errorBox"}>
+        <div className={msg.startsWith("✅") ? styles.successBox : styles.errorBox} style={{ marginBottom: "20px" }}>
           {msg}
         </div>
       )}
 
-      {loading && <p className="mutedText">Loading appointments...</p>}
-
-      {!loading && activeAppointments.length === 0 && (
-        <div className="emptyState">No active appointments found.</div>
-      )}
-
-      {activeAppointments.map((a) => (
-        <div key={a.id} className="apptCard">
-          <div className="apptTitle">
-            #{a.id} — {a.patientName}
+      {/* ── QUEUE MANAGEMENT SECTION ───────────────────────────────────── */}
+      <div className={styles.queueCard} style={{ backgroundColor: "#f0fdf4", padding: "20px", borderRadius: "10px", marginBottom: "20px", border: "1px solid #bbf7d0" }}>
+        <h3 style={{ marginTop: 0, color: "#166534" }}>Live Queue Control</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+              Now Serving: {queueState && queueState.nowServing > 0 ? `Q-${String(queueState.nowServing).padStart(3,"0")}` : "None"}
+            </div>
+            <div style={{ color: "#15803d" }}>Patients Waiting: {queueState?.waitingCount || 0}</div>
+            {currentPatient && (
+              <div style={{ marginTop: 10, color: "#166534" }}>
+                Serving Patient: {currentPatient.patientName} (Apt #{currentPatient.appointmentId})
+              </div>
+            )}
           </div>
-
-          <div className="apptSub">
-            📅{" "}
-            {new Date(a.appointmentDate).toLocaleString("en-MY", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
-            {" · "}
-            Current: <span className="statusText">{a.status}</span>
-          </div>
-
-          <div className="statusBtnRow">
-            {STATUSES.map((st) => (
-              <button
-                key={st}
-                className={`statusBtn ${
-                  a.status === st ? "statusBtnActive" : ""
-                }`}
-                disabled={updating === a.id || a.status === st}
-                onClick={() => handleStatus(a.id, st)}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
+          
+          <button 
+            onClick={handleCallNext} 
+            disabled={queueActionLoading || !queueState || queueState.waitingCount === 0}
+            style={{ padding: "12px 24px", fontSize: "1.1rem", backgroundColor: "#22c55e", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", opacity: (queueActionLoading || !queueState || queueState.waitingCount === 0) ? 0.6 : 1 }}
+          >
+            {queueActionLoading ? "Calling..." : "🔔 Call Next Patient"}
+          </button>
         </div>
-      ))}
+      </div>
+
     </div>
   );
 }
