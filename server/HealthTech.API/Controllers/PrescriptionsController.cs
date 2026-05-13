@@ -3,6 +3,7 @@ using HealthTech.API.Models;
 using HealthTech.API.Patterns.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using HealthTech.API.Patterns.State;
 
 namespace HealthTech.API.Controllers
 {
@@ -23,6 +24,29 @@ namespace HealthTech.API.Controllers
             var prescriptions = await _context.Prescriptions
                 .Include(p => p.Items)
                 .Where(p => p.Status == "Pending")
+                .Select(p => new
+                {
+                    p.Id,
+                    p.AppointmentId,
+                    p.PatientId,
+                    p.PatientName,
+                    p.DoctorId,
+                    p.Status,
+                    p.NeedMc,
+                    p.McReason,
+                    p.McDays,
+                    p.CreatedAt,
+                    Items = p.Items.Select(item => new
+                    {
+                        item.Id,
+                        item.MedicineId,
+                        item.MedicineName,
+                        item.Dosage,
+                        item.Quantity,
+                        item.UsageInstruction,
+                        item.Preference
+                    })
+                })
                 .ToListAsync();
 
             return Ok(prescriptions);
@@ -128,6 +152,60 @@ namespace HealthTech.API.Controllers
             return Ok(new
             {
                 message = "Consultation completed without prescription."
+            });
+        }
+
+        [HttpPut("approve/{id}")]
+        public async Task<IActionResult> ApprovePrescription(int id)
+        {
+            var prescription = await _context.Prescriptions
+                .Include(p => p.Items)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (prescription == null)
+            {
+                return NotFound("Prescription not found.");
+            }
+
+            if (prescription.Status != "Pending")
+            {
+                return BadRequest("Only pending prescriptions can be approved.");
+            }
+
+            foreach (var item in prescription.Items)
+            {
+                var medicine = await _context.Medicines.FindAsync(item.MedicineId);
+
+                if (medicine == null)
+                {
+                    return BadRequest($"Medicine {item.MedicineName} not found.");
+                }
+
+                if (medicine.Quantity < item.Quantity)
+                {
+                    return BadRequest($"{medicine.Name} does not have enough stock.");
+                }
+
+                medicine.Quantity -= item.Quantity;
+
+                var medicineContext = new MedicineContext(
+                    medicine.Quantity,
+                    medicine.Threshold,
+                    medicine.ExpiryDate
+                );
+
+                medicine.Status = medicineContext.GetStatus();
+            }
+
+            prescription.Status = "Approved";
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Prescription approved successfully.",
+                prescription.Id,
+                prescription.Status
             });
         }
     }

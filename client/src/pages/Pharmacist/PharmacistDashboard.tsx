@@ -7,6 +7,7 @@ import Inventory from "./Inventory";
 import Alerts from "./Alerts";
 import ManageAppointments from "./ManageAppointments";
 import ManageDoctor from "./ManageDoctor";
+import PrescriptionManagement from "./PrescriptionManagement";
 
 import "./PharmacistDashboard.css";
 
@@ -15,7 +16,7 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "inventory" | "alerts" | "queue" | "manage" | "doctors";
+type Section = "home" | "inventory" | "alerts" | "queue" | "manage" | "doctors" | "prescriptions";
 
 export default function PharmacistDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
     : location.pathname.includes("/queue")   ? "queue"
     : location.pathname.includes("/manage")  ? "manage"
     : location.pathname.includes("/doctors") ? "doctors"
+    : location.pathname.includes("/prescriptions") ? "prescriptions"
     : "home";
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
             { id: "home",      label: "🏠 Overview" },
             { id: "doctors",   label: "👨‍⚕️ Manage Doctors" },
             { id: "manage",    label: "📋 Manage Appointments" },
+            { id: "prescriptions", label: "💊 Prescriptions" },
             { id: "inventory", label: "📦 Inventory" },
             { id: "alerts",    label: "🚨 Alerts" },
             { id: "queue",     label: "🔔 Queue" },
@@ -81,6 +84,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
         {active === "manage"    && <ManageAppointments user={user}/>}
         {active === "inventory" && <Inventory />}
         {active === "alerts"    && <Alerts />}
+        {active === "prescriptions" && <PrescriptionManagement />}
         {/* {active === "queue"     && <Queue user={user} />} */}
       </main>
     </div>

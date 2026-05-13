@@ -243,3 +243,50 @@ export async function completeWithoutPrescription(appointmentId: number) {
 
   return response.json();
 }
+
+export interface PrescriptionItem {
+  id: number;
+  medicineId: number;
+  medicineName: string;
+  dosage: string;
+  quantity: number;
+  usageInstruction: string;
+  preference: string;
+}
+
+export interface Prescription {
+  id: number;
+  appointmentId: number;
+  patientId: number;
+  patientName: string;
+  doctorId: number;
+  status: string;
+  needMc: boolean;
+  mcReason: string;
+  mcDays: number;
+  createdAt: string;
+  items: PrescriptionItem[];
+}
+
+export async function getPendingPrescriptions(): Promise<Prescription[]> {
+  const response = await fetch(`${BASE_URL}/Prescriptions/pending`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load pending prescriptions.");
+  }
+
+  return response.json();
+}
+
+export async function approvePrescription(id: number) {
+  const response = await fetch(`${BASE_URL}/Prescriptions/approve/${id}`, {
+    method: "PUT",
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error);
+  }
+
+  return response.json();
+}
