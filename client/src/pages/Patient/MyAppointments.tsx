@@ -1,28 +1,17 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// USE CASE: View Appointment Status — Basic Flow (steps 2–4)
-// USE CASE: Cancel or Reschedule Appointment — Basic Flow (steps 2–6)
-//
-// Observer Pattern — cancel/reschedule triggers NotifyObservers() on backend:
-//   Cancel     → "Cancelled"    → all 3 observers notified
-//   Reschedule → "Rescheduled"  → all 3 observers notified
-//
-// Business rule enforced in AppointmentService (not here):
-//   Patient role → 2-hour rule applied before cancel/reschedule is allowed
-// ─────────────────────────────────────────────────────────────────────────────
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
+import type { AppointmentSummary } from "../../services/appointmentService";
 import { getPatientAppointments, cancelAppointment, rescheduleAppointment } from "../../services/appointmentService";
-import type{ AppointmentSummary } from "../../services/appointmentService";
-import "./MyAppointments.css";
 
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
+const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 
 const STATUS_COLOR: Record<string, string> = {
-  Pending:    "#fbbf24",
-  InProgress: "#60a5fa",
-  Completed:  "#34d399",
-  Cancelled:  "#f87171",
+  Pending:        "#fbbf24",
+  InQueue:        "#a78bfa",
+  InConsultation: "#60a5fa",
+  Completed:      "#34d399",
+  Cancelled:      "#f87171",
 };
 
 export default function MyAppointments({ user }: { user: LoginResponse }) {
@@ -35,8 +24,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
   const [newTime,       setNewTime]       = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  async function load() {
-    setLoading(true);
+  const load = useCallback(async () => {
     try {
       setAppointments(await getPatientAppointments(user.id));
     } catch (e: any) {
@@ -44,18 +32,44 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user.id]);
 
-  useEffect(() => { load(); }, [user.id]);
+  // Initial load
+  useEffect(() => { load(); }, [load]);
+
+  // ── SignalR — real-time auto-refresh ───────────────────────────────────
+  // OBSERVER PATTERN (frontend side):
+  //   When SignalRAppointmentObserver fires on the backend, it pushes
+  //   "ReceiveAppointmentUpdate" here. We check if it involves this patient
+  //   and refresh the list automatically.
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5165/appointmentHub")
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on("ReceiveAppointmentUpdate", (payload: { patientId: number; eventType: string }) => {
+      // Only refresh if this event involves the current patient
+      if (payload.patientId === user.id) {
+        load();
+      }
+    });
+
+    connection.start().catch(err =>
+      console.warn("Appointment SignalR connection failed:", err)
+    );
+
+    return () => { connection.stop(); };
+  }, [user.id, load]);
+  // ────────────────────────────────────────────────────────────────────────
 
   async function handleCancel(id: number) {
     setActionLoading(true); setActionMsg(null);
     try {
       // "Patient" role → 2-hour rule enforced in AppointmentService
-      // Observer fires: PatientObserver + DoctorObserver + PharmacistObserver
+      // On success: backend fires NotifyObservers → SignalR pushes → list refreshes
       const msg = await cancelAppointment(id, "Patient");
       setActionMsg("✅ " + msg);
-      load();
     } catch (e: any) {
       setActionMsg("⚠️ " + e.message);
     } finally {
@@ -67,12 +81,10 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
     if (!newDate || !newTime) { setActionMsg("⚠️ Please pick a new date and time."); return; }
     setActionLoading(true); setActionMsg(null);
     try {
-      const isoDate = new Date(`${newDate}T${newTime}:00`).toISOString();
-      // Observer fires "Rescheduled" → all 3 observers notified
-      const msg = await rescheduleAppointment(id, isoDate, "Patient");
+      const localDateTime = `${newDate}T${newTime}:00`; // no UTC conversion — same fix as BookAppointment
+      const msg = await rescheduleAppointment(id, localDateTime, "Patient");
       setActionMsg("✅ " + msg);
       setRescheduleId(null);
-      load();
     } catch (e: any) {
       setActionMsg("⚠️ " + e.message);
     } finally {
@@ -80,11 +92,15 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
     }
   }
 
+  // These statuses cannot be modified by the patient
+  const lockedStatuses = ["Completed", "Cancelled", "InQueue", "InConsultation"];
+
   return (
     <div>
       <h2 className="pageTitle">My Appointments</h2>
       <p className="pageSub">
-        Cancel or reschedule up to 2 hours before your appointment time
+        Cancel or reschedule up to 2 hours before your appointment.
+        This page auto-updates via SignalR when status changes.
       </p>
 
       {actionMsg && (
@@ -97,9 +113,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
       {error   && <div className="errorBox">{error}</div>}
 
       {!loading && appointments.length === 0 && (
-        <div className="emptyState">
-          No appointments found. Book one to get started!
-        </div>
+        <div className="emptyState">No appointments found. Book one to get started!</div>
       )}
 
       {appointments.map(appt => (
@@ -113,17 +127,18 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
                   dateStyle: "medium", timeStyle: "short",
                 })}
               </div>
-              {appt.notes && (
-                <div className="apptNotes">📝 {appt.notes}</div>
-              )}
+              {appt.notes && <div className="apptNotes">📝 {appt.notes}</div>}
             </div>
-            <span className="statusBadge" style={{ color: STATUS_COLOR[appt.status] ?? "#fff" }}>
+            <span
+              className="statusBadge"
+              style={{ color: STATUS_COLOR[appt.status] ?? "#fff" }}
+            >
               {appt.status}
             </span>
           </div>
 
-          {/* Action buttons — only for active appointments */}
-          {appt.status !== "Completed" && appt.status !== "Cancelled" && (
+          {/* Actions only for modifiable statuses */}
+          {!lockedStatuses.includes(appt.status) && (
             <div className="apptActions">
               <button className="dangerBtn" disabled={actionLoading}
                 onClick={() => handleCancel(appt.id)}>
@@ -136,7 +151,6 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
             </div>
           )}
 
-          {/* Inline reschedule panel */}
           {rescheduleId === appt.id && (
             <div className="reschedulePanel">
               <p className="label">Choose a new date and time:</p>
