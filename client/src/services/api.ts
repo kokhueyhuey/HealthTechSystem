@@ -290,3 +290,15 @@ export async function approvePrescription(id: number) {
 
   return response.json();
 }
+
+export async function getPatientPrescriptionHistory(
+  patientId: number
+): Promise<Prescription[]> {
+  const response = await fetch(`${BASE_URL}/Prescriptions/patient/${patientId}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load prescription history.");
+  }
+
+  return response.json();
+}

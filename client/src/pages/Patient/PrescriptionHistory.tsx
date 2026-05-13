@@ -1,23 +1,30 @@
 import { useEffect, useState } from "react";
 import {
-  getPendingPrescriptions,
-  approvePrescription,
-  type Prescription, } from "../../services/api";
+  getPatientPrescriptionHistory,
+  getSession,
+  type Prescription,
+} from "../../services/api";
 
-
-export default function PrescriptionManagement() {
+export default function PrescriptionHistory() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadPendingPrescriptions();
+    loadHistory();
   }, []);
 
-  async function loadPendingPrescriptions() {
+  async function loadHistory() {
+    const user = getSession();
+
+    if (!user) {
+      alert("Patient session not found.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const data = await getPendingPrescriptions();
+      const data = await getPatientPrescriptionHistory(user.id);
       setPrescriptions(data);
     } catch (error: any) {
       alert(error.message);
@@ -26,69 +33,52 @@ export default function PrescriptionManagement() {
     }
   }
 
-  async function handleApprove(id: number) {
-    const confirmed = window.confirm("Approve this prescription?");
-
-    if (!confirmed) return;
-
-    try {
-        await approvePrescription(id);
-
-        setPrescriptions((prev) =>
-        prev.filter((prescription) => prescription.id !== id)
-        );
-
-        alert("Prescription approved successfully.");
-    } catch (error: any) {
-        alert(error.message);
-    }
-    }
-
   return (
     <div>
-      <h2 className="pageTitle">Prescription Management</h2>
+      <h2 className="pageTitle">Prescription History</h2>
 
       {loading ? (
-        <p>Loading pending prescriptions...</p>
+        <p>Loading prescription history...</p>
       ) : prescriptions.length === 0 ? (
         <div style={styles.card}>
-          <p>No pending prescriptions.</p>
+          <p>No prescription history found.</p>
         </div>
       ) : (
         prescriptions.map((prescription) => (
           <div key={prescription.id} style={styles.card}>
             <h3>Prescription #{prescription.id}</h3>
-            <h3>Appointment #{prescription.appointmentId}</h3>
 
-            <p><strong>Patient:</strong> {prescription.patientName}</p>
-            <p><strong>Status:</strong> {prescription.status}</p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {new Date(prescription.createdAt).toLocaleDateString()}
+            </p>
+
+            <p>
+              <strong>Status:</strong> {prescription.status}
+            </p>
 
             {prescription.needMc && (
               <div style={styles.mcBox}>
-                <p><strong>MC Required:</strong> Yes</p>
+                <p><strong>MC:</strong> Yes</p>
                 <p><strong>Reason:</strong> {prescription.mcReason}</p>
                 <p><strong>Days:</strong> {prescription.mcDays}</p>
               </div>
             )}
 
-            <h4>Medicine Items</h4>
+            <h4>Medicine Details</h4>
 
             {prescription.items.map((item) => (
               <div key={item.id} style={styles.itemBox}>
                 <p><strong>Medicine:</strong> {item.medicineName}</p>
                 <p><strong>Dosage:</strong> {item.dosage}</p>
                 <p><strong>Quantity:</strong> {item.quantity}</p>
-                <p><strong>Preference:</strong> {item.preference}</p>
-                <p><strong>Usage Instruction:</strong> {item.usageInstruction}</p>
+                <p><strong>Type:</strong> {item.preference}</p>
+                <p>
+                  <strong>Usage Instruction:</strong>{" "}
+                  {item.usageInstruction}
+                </p>
               </div>
             ))}
-
-            <button
-              style={styles.approveBtn}
-              onClick={() => handleApprove(prescription.id)}
-            >
-              Approve Prescription
-            </button>
           </div>
         ))
       )}
@@ -115,14 +105,5 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "12px",
     borderRadius: "10px",
     marginBottom: "12px",
-  },
-  approveBtn: {
-    padding: "12px",
-    border: "none",
-    borderRadius: "8px",
-    background: "#22c55e",
-    color: "white",
-    cursor: "pointer",
-    fontWeight: "bold",
   },
 };

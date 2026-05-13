@@ -208,6 +208,41 @@ namespace HealthTech.API.Controllers
                 prescription.Status
             });
         }
+
+        [HttpGet("patient/{patientId}")]
+        public async Task<IActionResult> GetPatientPrescriptionHistory(int patientId)
+        {
+            var prescriptions = await _context.Prescriptions
+                .Include(p => p.Items)
+                .Where(p => p.PatientId == patientId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.AppointmentId,
+                    p.PatientId,
+                    p.PatientName,
+                    p.DoctorId,
+                    p.Status,
+                    p.NeedMc,
+                    p.McReason,
+                    p.McDays,
+                    p.CreatedAt,
+                    Items = p.Items.Select(item => new
+                    {
+                        item.Id,
+                        item.MedicineId,
+                        item.MedicineName,
+                        item.Dosage,
+                        item.Quantity,
+                        item.UsageInstruction,
+                        item.Preference
+                    })
+                })
+                .ToListAsync();
+
+            return Ok(prescriptions);
+        }
     }
 
     public class CreatePrescriptionRequest
