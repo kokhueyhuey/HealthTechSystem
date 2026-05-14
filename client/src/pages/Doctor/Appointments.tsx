@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
 import { getDoctorAppointments } from "../../services/appointmentService";
 import type { DoctorAppointmentSummary } from "../../services/appointmentService";
@@ -29,6 +30,31 @@ export default function Appointments({ user }: { user: LoginResponse }) {
   useEffect(() => {
     load();
   }, [user.id, date]);
+
+  useEffect(() => {
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("http://localhost:5165/appointmentHub")
+    .withAutomaticReconnect()
+    .build();
+
+  connection.on(
+    "ReceiveAppointmentUpdate",
+    (payload: { doctorId: number; eventType: string }) => {
+
+      if (payload.doctorId === user.id) {
+        load();
+      }
+    }
+  );
+
+  connection.start().catch(err =>
+    console.warn("SignalR connection failed:", err)
+  );
+
+  return () => {
+    connection.stop();
+  };
+}, [user.id, date]);
 
   return (
     <div>

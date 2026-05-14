@@ -40,9 +40,10 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
     setError(null);
     setSuccess(null);
     try {
-      const isoDate = new Date(`${date}T${time}:00`).toISOString();
-      const result = await bookAppointment(user.id, doctorId, isoDate, notes);
-      setSuccess(`Appointment #${result.appointmentId} confirmed`);
+      const localDateTime = `${date}T${time}:00`;
+      const result = await bookAppointment(user.id, doctorId, localDateTime, notes);
+      setSuccess(`Appointment #${result.appointmentId} confirmed! Status: ${result.status}`);
+      setDate(""); setTime(""); setNotes("");
     } catch (err: any) {
       setError(err.message ?? "Something went wrong. Please try again.");
     } finally {

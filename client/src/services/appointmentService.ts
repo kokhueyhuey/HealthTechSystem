@@ -1,12 +1,11 @@
-// src/services/appointmentService.ts
-import type { AppointmentStatus } from "../types/appointment";
-
 const BASE_URL = "http://localhost:5165/api/appointments";
 
-/* ─────────────────────────────────────────────
-   TYPES
-   (Move here so feature is self-contained)
-───────────────────────────────────────────── */
+export type AppointmentStatus =
+  | "Pending"
+  | "InQueue"
+  | "InConsultation"
+  | "Completed"
+  | "Cancelled";
 
 export interface AppointmentSummary {
   id: number;

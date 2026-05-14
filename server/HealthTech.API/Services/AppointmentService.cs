@@ -8,63 +8,55 @@ namespace HealthTech.API.Services
     // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — The Subject (Concrete)
     //
-    // This class IS the heart of the Observer pattern in your system.
-    // It:
-    //   1. Maintains the list of observers (_observers)
-    //   2. Lets callers register / remove observers
-    //   3. Notifies ALL observers after every appointment change
+    // Maintains the observer list and notifies all observers on every
+    // appointment lifecycle event.
     //
-    // CONCEPT — Architecture:
-    //   The Service Layer sits between the Controller (HTTP) and the
-    //   Database (EF Core). The Controller handles HTTP, the Service
-    //   handles business rules + pattern, the DB handles persistence.
-    //   Clean layered architecture — each layer has one responsibility.
+    // CONCEPT — Architecture (Layered):
+    //   Controller → Service (here) → Database
+    //   Controller: HTTP only. Service: business rules + pattern.
+    //   DB: persistence. Each layer has exactly one responsibility.
     //
     // CONCEPT — Encapsulation:
-    //   _observers is private. Nobody outside this class can directly
-    //   manipulate the observer list — they must use Register/Remove.
-    //   The appointment validation logic (slot taken, 2-hour rule) is
-    //   also hidden inside this service.
+    //   _observers is private. Nobody outside can manipulate the list.
+    //   Validation logic (slot taken, 2-hour rule) is hidden inside here.
     //
     // CONCEPT — Modularity:
     //   AppointmentService only deals with appointments.
-    //   It doesn't know about prescriptions, inventory, or queue — 
-    //   those are separate services/modules.
+    //   Queue, prescriptions, inventory are separate services/modules.
     //
     // CONCEPT — Refactoring:
-    //   Previously, notification logic was scattered across the Controller
-    //   (like your existing PatientsController sends SignalR directly).
-    //   Refactoring moves ALL notification responsibility here, making the
-    //   Controller thin and the Service testable.
+    //   All notification logic is centralised here — not scattered in controllers.
     //
-    // SOLID — SRP: this class owns appointment lifecycle. One responsibility.
+    // SOLID — SRP: owns appointment lifecycle only.
     // SOLID — DIP: depends on IAppointmentObserver (interface), not concrete classes.
-    // SOLID — OCP: new observers are registered externally; this class never changes.
+    // SOLID — OCP: register new observers without changing this class.
     // ─────────────────────────────────────────────────────────────────────────
 
     public class AppointmentService : IAppointmentSubject
     {
         private readonly AppDbContext _context;
 
-        // ── Observer list (private — Encapsulation) ───────────────────────
-        // This is the core data structure of the Observer pattern.
-        // It holds every registered observer at runtime.
+        // CONCEPT — Encapsulation: private list, mutated only through Register/Remove
         private readonly List<IAppointmentObserver> _observers = new();
 
-        public AppointmentService(AppDbContext context)
+        // SignalRAppointmentObserver is injected via DI because it needs
+        // IHubContext<AppointmentHub> — which only DI can provide.
+        // The other 3 observers are pure logic (no dependencies), so new() is fine.
+        //
+        // CONCEPT — Refinement:
+        //   High-level: "notify relevant parties after each appointment event"
+        //   Refined into 4 concrete observers registered here.
+        public AppointmentService(AppDbContext context, SignalRAppointmentObserver signalRObserver)
         {
             _context = context;
 
-            // ── Register all three observers at construction time ──────────
-            // CONCEPT — Refinement:
-            //   At a high level we say "notify relevant parties".
-            //   Here we refine that into three specific concrete observers.
-            RegisterObserver(new PatientObserver());
-            RegisterObserver(new DoctorObserver());
-            RegisterObserver(new PharmacistObserver());
+            RegisterObserver(new PatientObserver());      // console log — patient notification
+            RegisterObserver(new DoctorObserver());       // console log — doctor schedule update
+            RegisterObserver(new PharmacistObserver());   // console log — pharmacist action alert
+            RegisterObserver(signalRObserver);            // SignalR  — real-time frontend push
         }
 
-        // ── IAppointmentSubject implementation ────────────────────────────
+        // ── IAppointmentSubject ───────────────────────────────────────────
 
         public void RegisterObserver(IAppointmentObserver observer)
         {
@@ -76,23 +68,26 @@ namespace HealthTech.API.Services
             _observers.Remove(observer);
         }
 
+        // BREAKPOINT HERE — step through the foreach to watch each observer fire:
+        // 1st: PatientObserver.Update()     → console
+        // 2nd: DoctorObserver.Update()      → console
+        // 3rd: PharmacistObserver.Update()  → console
+        // 4th: SignalRAppointmentObserver.Update() → frontend browser updates live
         public void NotifyObservers(Appointment appointment, string eventType)
         {
-            
-            foreach (var observer in _observers)
+            foreach (var observer in _observers) // BREAKPOINT — step into each iteration
             {
-                observer.Update(appointment, eventType);  // BREAKPOINT see the loops iterating through all observers and notifying them individually.
+                observer.Update(appointment, eventType);
             }
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // USE CASE: Book Appointment
-        // Basic Flow steps 3-6 from your use case table
+        // USE CASE: Book Appointment — Basic Flow steps 3-6
         // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message, Appointment? Result)>
             BookAppointmentAsync(int patientId, int doctorId, DateTime appointmentDate, string notes = "")
         {
-            // Alternative Flow A1: slot already taken (same doctor + overlapping time ±30 min)
+            // Alternative Flow A1: slot already taken (same doctor, overlapping ±30 min)
             bool slotTaken = await _context.Appointments.AnyAsync(a =>
                 a.DoctorId == doctorId &&
                 a.Status != "Cancelled" &&
@@ -106,32 +101,30 @@ namespace HealthTech.API.Services
             if (doctor == null)
                 return (false, "No available slots — doctor not found.", null);
 
-            // Alternative Flow: appointment date must be in the future
+            // Appointment date must be in the future
             if (appointmentDate <= DateTime.UtcNow)
                 return (false, "Appointment date must be in the future.", null);
 
-            // Basic Flow step 5-6: confirm booking and save
             var appointment = new Appointment
             {
                 PatientId       = patientId,
                 DoctorId        = doctorId,
                 AppointmentDate = appointmentDate,
-                Status          = "Pending",          // encapsulated default — caller cannot skip this
+                Status          = "Pending",   // CONCEPT — Encapsulation: caller never sets Status
                 Notes           = notes
             };
 
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            // BREAKPOINT — db is saved and is about to notify all observers
-            NotifyObservers(appointment, "Booked");    
+            // BREAKPOINT — DB saved, now all 4 observers fire including SignalR push
+            NotifyObservers(appointment, "Booked");
 
             return (true, "Appointment booked successfully.", appointment);
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // USE CASE: View Appointment Status  (Patient — Basic Flow step 3)
-        // USE CASE: View Daily Appointments  (Doctor  — Basic Flow step 3)
+        // USE CASE: View Appointment Status (Patient) / View Daily Appointments (Doctor)
         // ─────────────────────────────────────────────────────────────────
         public async Task<List<Appointment>> GetAppointmentsByPatientAsync(int patientId)
         {
@@ -155,8 +148,9 @@ namespace HealthTech.API.Services
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // USE CASE: Cancel or Reschedule Appointment
-        // Use case: patient must be > 2 hours before; pharmacist has no restriction
+        // USE CASE: Cancel Appointment
+        // Patient role → 2-hour rule enforced
+        // Pharmacist role → no restriction (doctor unavailability use case)
         // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             CancelAppointmentAsync(int appointmentId, string requestedByRole)
@@ -165,27 +159,28 @@ namespace HealthTech.API.Services
             if (appointment == null)
                 return (false, "Appointment not found.");
 
-            // Alternative Flow A3: already completed — no modification allowed
+            // Alternative Flow A3: already completed
             if (appointment.Status == "Completed")
                 return (false, "Cannot cancel a completed appointment.");
 
-            // Alternative Flow A1: patient 2-hour rule
+            // Alternative Flow A1: patient 2-hour restriction
             if (requestedByRole == "Patient")
             {
                 var hoursUntil = (appointment.AppointmentDate - DateTime.UtcNow).TotalHours;
                 if (hoursUntil < 2)
                     return (false, "Cannot cancel — appointment is less than 2 hours away. Please call the clinic.");
             }
-            // Pharmacist has no time restriction (per your use case: they manage on behalf of doctor/patient)
 
             appointment.Status = "Cancelled";
             await _context.SaveChangesAsync();
 
-            NotifyObservers(appointment, "Cancelled");  
-
+            NotifyObservers(appointment, "Cancelled"); // all 4 observers fire + SignalR push
             return (true, "Appointment cancelled successfully.");
         }
 
+        // ─────────────────────────────────────────────────────────────────
+        // USE CASE: Reschedule Appointment
+        // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             RescheduleAppointmentAsync(int appointmentId, DateTime newDate, string requestedByRole)
         {
@@ -196,7 +191,6 @@ namespace HealthTech.API.Services
             if (appointment.Status == "Completed")
                 return (false, "Cannot reschedule a completed appointment.");
 
-            // Patient 2-hour rule
             if (requestedByRole == "Patient")
             {
                 var hoursUntil = (appointment.AppointmentDate - DateTime.UtcNow).TotalHours;
@@ -204,7 +198,7 @@ namespace HealthTech.API.Services
                     return (false, "Cannot reschedule — appointment is less than 2 hours away.");
             }
 
-            // Alternative Flow A2: new slot already taken
+            // Alternative Flow A2: new slot taken
             bool newSlotTaken = await _context.Appointments.AnyAsync(a =>
                 a.DoctorId == appointment.DoctorId &&
                 a.Id != appointmentId &&
@@ -215,45 +209,45 @@ namespace HealthTech.API.Services
                 return (false, "The requested new time slot is not available. Please choose another.");
 
             appointment.AppointmentDate = newDate;
-            appointment.Status          = "Pending";  // reset to Pending after reschedule
+            appointment.Status          = "Pending";
             await _context.SaveChangesAsync();
 
-            NotifyObservers(appointment, "Rescheduled");
-
+            NotifyObservers(appointment, "Rescheduled"); // all 4 observers + SignalR push
             return (true, "Appointment rescheduled successfully.");
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // USE CASE: Update Appointment Status (Doctor — Basic Flow step 2-4)
-        // Pending → InProgress → Completed
+        // USE CASE: Update Appointment Status (Doctor — steps 1-4)
+        // Allowed manual statuses: Pending → Cancelled only.
+        // InQueue, InConsultation, Completed are set by QueueService.
         // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             UpdateStatusAsync(int appointmentId, string newStatus, int doctorId)
         {
             var appointment = await _context.Appointments.FindAsync(appointmentId);
 
-            // Alternative Flow A1: invalid appointment
             if (appointment == null)
                 return (false, "Appointment not found.");
 
             if (appointment.DoctorId != doctorId)
                 return (false, "You are not authorised to update this appointment.");
 
-            var allowed = new[] { "Pending", "InQueue", "InConsultation", "InProgress", "Completed", "Cancelled" };
+            // Doctor can only manually set Pending or Cancelled.
+            // InQueue / InConsultation / Completed are owned by QueueService.
+            var allowed = new[] { "Pending", "Cancelled" };
             if (!allowed.Contains(newStatus))
-                return (false, $"Invalid status '{newStatus}'.");
+                return (false, $"Doctors can only set status to Pending or Cancelled. " +
+                               $"InQueue/InConsultation/Completed are managed by the Queue system.");
 
             appointment.Status = newStatus;
             await _context.SaveChangesAsync();
 
-            NotifyObservers(appointment, "StatusUpdated");  // real-time update to patient queue
-
+            NotifyObservers(appointment, "StatusUpdated"); // SignalR push → patient queue refreshes
             return (true, $"Status updated to '{newStatus}'.");
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // USE CASE: Manage Appointment Due to Doctor Unavailability
-        // Pharmacist calls this to get all affected appointments for a doctor
+        // USE CASE: Manage Appointment Due to Doctor Unavailability (Pharmacist)
         // ─────────────────────────────────────────────────────────────────
         public async Task<List<Appointment>> GetAffectedAppointmentsAsync(int doctorId)
         {

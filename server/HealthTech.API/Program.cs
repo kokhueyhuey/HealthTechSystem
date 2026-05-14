@@ -1,7 +1,9 @@
 using HealthTech.API.Data;
 using HealthTech.API.Hubs;
 using HealthTech.API.Observer.Queue;
-using HealthTech.API.QueueObserver;          
+using HealthTech.API.QueueObserver;
+using HealthTech.API.Observer;
+using HealthTech.API.Services;          
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,9 +30,10 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Observer — Appointment module (existing, scoped per request) 
-builder.Services.AddScoped<HealthTech.API.Services.AppointmentService>();
-
+//   AppointmentService depends on IAppointmentObserver (interface).
+//   The concrete SignalRAppointmentObserver is wired here, not inside the service.
+builder.Services.AddScoped<SignalRAppointmentObserver>(); // registered first so it can be injected
+builder.Services.AddScoped<AppointmentService>();         // receives SignalRAppointmentObserver
 //  Observer — Queue module 
 // SINGLETON: one shared instance so every HTTP request and SignalR event
 // operates on the same live queue state. Matches the lock(_lock) pattern
@@ -80,5 +83,7 @@ app.MapHub<NotificationHub>("/notificationHub");
 
 // New queue hub — React frontend connects to this for live queue updates
 app.MapHub<QueueHub>("/hubs/queue");
+// new — appointment real-time updates
+app.MapHub<AppointmentHub>("/appointmentHub");
 
 app.Run();
