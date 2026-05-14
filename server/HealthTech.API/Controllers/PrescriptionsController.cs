@@ -71,12 +71,7 @@ namespace HealthTech.API.Controllers
                 return BadRequest("Please add at least one medicine.");
             }
 
-            var builder = new PrescriptionBuilder()
-                .SetPatient(appointment.PatientId, appointment.Patient?.Name ?? "Unknown")
-                .SetDoctor(appointment.DoctorId)
-                .SetAppointment(appointment.Id)
-                .SetMc(request.NeedMc, request.McReason, request.McDays)
-                .SetPendingStatus();
+            var prescriptionItems = new List<PrescriptionItem>();
 
             foreach (var item in request.Items)
             {
@@ -92,17 +87,30 @@ namespace HealthTech.API.Controllers
                     return BadRequest($"{medicine.Name} does not have enough stock.");
                 }
 
-                builder.AddMedicine(
-                    medicine.Id,
-                    medicine.Name,
-                    item.Dosage,
-                    item.Quantity,
-                    item.UsageInstruction,
-                    item.Preference
-                );
+                prescriptionItems.Add(new PrescriptionItem
+                {
+                    MedicineId = medicine.Id,
+                    MedicineName = medicine.Name,
+                    Dosage = item.Dosage,
+                    Quantity = item.Quantity,
+                    UsageInstruction = item.UsageInstruction,
+                    Preference = item.Preference
+                });
             }
 
-            var prescription = builder.Build();
+            IPrescriptionBuilder builder = new PrescriptionBuilder();
+            var director = new PrescriptionDirector(builder);
+
+            var prescription = director.ConstructPrescription(
+                appointment.PatientId,
+                appointment.Patient?.Name ?? "Unknown",
+                appointment.DoctorId,
+                appointment.Id,
+                request.NeedMc,
+                request.McReason,
+                request.McDays,
+                prescriptionItems
+            );
 
             _context.Prescriptions.Add(prescription);
             appointment.Status = "Completed";
