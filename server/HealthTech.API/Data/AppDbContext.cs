@@ -14,6 +14,8 @@ namespace HealthTech.API.Data
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Medicine>    Medicines    { get; set; }
         public DbSet<QueueRecord> QueueRecords { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
+        public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

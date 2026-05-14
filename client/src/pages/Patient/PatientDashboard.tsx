@@ -6,7 +6,7 @@ import Home from "./Home";
 import BookAppointment from "./BookAppointment";
 import MyAppointments from "./MyAppointments";
 import QueueStatus from "./QueueStatus";
-import Prescriptions from "./Prescriptions";
+import Prescriptions from "./PrescriptionHistory";
 
 import "./PatientDashboard.css";
 

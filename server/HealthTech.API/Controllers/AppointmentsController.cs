@@ -140,6 +140,29 @@ namespace HealthTech.API.Controllers
                 a.Status
             }));
         }
+
+        [HttpGet("current/{doctorId}")]
+        public async Task<IActionResult> GetCurrentPatient(int doctorId)
+        {
+            var appointment = await _service.GetAppointmentsByDoctorAsync(doctorId, null);
+
+            var current = appointment
+                .FirstOrDefault(a => a.Status == "InConsultation");
+
+            if (current == null)
+            {
+                return NotFound("No patient currently in consultation.");
+            }
+
+            return Ok(new
+            {
+                appointmentId = current.Id,
+                patientId = current.PatientId,
+                patientName = current.Patient?.Name ?? "Unknown",
+                doctorId = current.DoctorId,
+                status = current.Status
+            });
+        }
     }
 
     // Request DTOs 
