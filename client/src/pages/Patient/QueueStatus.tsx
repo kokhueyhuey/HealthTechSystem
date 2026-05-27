@@ -68,10 +68,14 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
   //   2. Last-patient path: no next patient existed, so nowServing resets to 0
   //      but the queue entry itself is marked "Completed" by the backend.
   //      Check the entry directly so the patient still sees "Thanks for visiting!".
+  //
+  //   NOTE: We MUST also match ticketNumber here. Matching patientId alone would
+  //   catch completed entries from previous visits and wrongly show the "thanks"
+  //   message the moment a returning patient gets a new ticket.
   const isCompleted = queueState && myTicket
     ? queueState.nowServing > myTicket
       || queueState.queue.some(
-          (e) => e.patientId === user.id && e.status === "Completed"
+          (e) => e.patientId === user.id && e.ticketNumber === myTicket && e.status === "Completed"
         )
     : false;
 
