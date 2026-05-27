@@ -124,10 +124,10 @@ namespace HealthTech.API.Controllers
             // The normal path (next patient exists) handles this via CallNext() from the
             // doctor's UI; for the last patient there is no "next" call, so we do it here.
             var queueState = await _queueService.GetCurrentStateAsync();
-            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting");
+            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting" && e.DoctorId == appointment.DoctorId);
             if (!hasWaitingPatient)
             {
-                await _queueService.CompleteCurrentPatient();
+                await _queueService.CompleteCurrentPatient(request.AppointmentId);
             }
 
             return Ok(new
@@ -172,12 +172,12 @@ namespace HealthTech.API.Controllers
             await _context.SaveChangesAsync();
 
             // Same last-patient guard as GeneratePrescription:
-            // if no one is waiting, complete the serving queue record and broadcast.
+            // if no one is waiting for this doctor, complete the serving queue record and broadcast.
             var queueState = await _queueService.GetCurrentStateAsync();
-            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting");
+            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting" && e.DoctorId == appointment.DoctorId);
             if (!hasWaitingPatient)
             {
-                await _queueService.CompleteCurrentPatient();
+                await _queueService.CompleteCurrentPatient(request.AppointmentId);
             }
 
             return Ok(new

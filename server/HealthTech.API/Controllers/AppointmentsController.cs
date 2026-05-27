@@ -1,4 +1,5 @@
 using HealthTech.API.Services;
+using HealthTech.API.QueueObserver;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthTech.API.Controllers
@@ -15,7 +16,7 @@ namespace HealthTech.API.Controllers
     //   directly. Those implementation details are fully hidden.
     //
     // SOLID — DIP: depends on AppointmentService injected via constructor
-    //   (in production you'd inject IAppointmentService interface — 
+    //   (in production you'd inject IAppointmentService interface —
     //    shown as a comment below for your reference).
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -24,10 +25,12 @@ namespace HealthTech.API.Controllers
     public class AppointmentsController : ControllerBase
     {
         private readonly AppointmentService _service;
+        private readonly QueueService _queueService;
 
-        public AppointmentsController(AppointmentService service)
+        public AppointmentsController(AppointmentService service, QueueService queueService)
         {
             _service = service;
+            _queueService = queueService;
         }
 
         // ── POST api/appointments/book 
