@@ -6,19 +6,19 @@ using Microsoft.EntityFrameworkCore;
 namespace HealthTech.API.QueueObserver
 {
     // --------------------------------------------------------------------
-    // OBSERVER PATTERN � Concrete Subject: QueueService
+    // OBSERVER PATTERN � Concrete Subject: QueueService
     // --------------------------------------------------------------------
     //
-    // CONCEPT � Encapsulation:
+    // CONCEPT � Encapsulation:
     //   _observers list and _state are private. External callers use only
     //   the public API: EnqueuePatient, CallNext, CompletePatient, etc.
     //
-    // CONCEPT � Modularity:
+    // CONCEPT � Modularity:
     //   Standalone class. No controller, view, or UI logic inside.
     //
-    // SOLID � SRP: manages queue state and fires observer notifications.
-    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
-    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
+    // SOLID � SRP: manages queue state and fires observer notifications.
+    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
+    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
     //
     // Registered as Singleton in Program.cs so ALL HTTP requests and the
     // SignalR hub share the same live queue state.
@@ -48,6 +48,25 @@ namespace HealthTech.API.QueueObserver
                     .ThenInclude(a => a.Patient)
                 .OrderBy(q => q.TicketNumber)
                 .ToListAsync();
+
+            // ── Startup cleanup ──────────────────────────────────────────
+            // A "Serving" queue record whose appointment is already "Completed"
+            // means the doctor finished (wrote a prescription or completed
+            // without one) but the server was restarted before the queue record
+            // was updated.  Fix it now so it does not stay stuck in "Serving"
+            // forever in both the database and the in-memory state.
+            bool dirty = false;
+            foreach (var record in persisted.Where(r => r.Status == "Serving"))
+            {
+                if (record.Appointment?.Status == "Completed")
+                {
+                    record.Status    = "Completed";
+                    record.UpdatedAt = DateTime.UtcNow;
+                    dirty = true;
+                }
+            }
+            if (dirty) await db.SaveChangesAsync();
+            // ─────────────────────────────────────────────────────────────
 
             lock (_lock)
             {
@@ -284,6 +303,10 @@ namespace HealthTech.API.QueueObserver
                 if (serving != null)
                     serving.Status = "Completed";
 
+                // No patient is being served after completion — reset the counter.
+                // Mirrors the else-branch in CallNext() so NowServing is always 0
+                // when nothing is Serving in the queue.
+                _state.NowServing = 0;
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 snapshot = CloneState();
             }

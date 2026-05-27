@@ -62,7 +62,18 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
 
   // ── 4. Derived State & Math ───────────────────────────────────────────
   const isMyTurn = queueState && myTicket ? queueState.nowServing === myTicket : false;
-  const isCompleted = queueState && myTicket ? queueState.nowServing > myTicket : false;
+
+  // Two ways a patient can be "done":
+  //   1. Normal path: another patient was called next — nowServing > myTicket.
+  //   2. Last-patient path: no next patient existed, so nowServing resets to 0
+  //      but the queue entry itself is marked "Completed" by the backend.
+  //      Check the entry directly so the patient still sees "Thanks for visiting!".
+  const isCompleted = queueState && myTicket
+    ? queueState.nowServing > myTicket
+      || queueState.queue.some(
+          (e) => e.patientId === user.id && e.status === "Completed"
+        )
+    : false;
 
   let waitMins = 0;
   if (myTicket && queueState && myTicket > queueState.nowServing) {
