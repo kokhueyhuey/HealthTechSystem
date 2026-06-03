@@ -6,19 +6,19 @@ using Microsoft.EntityFrameworkCore;
 namespace HealthTech.API.QueueObserver
 {
     // --------------------------------------------------------------------
-    // OBSERVER PATTERN � Concrete Subject: QueueService
+    // OBSERVER PATTERN � Concrete Subject: QueueService
     // --------------------------------------------------------------------
     //
-    // CONCEPT � Encapsulation:
+    // CONCEPT � Encapsulation:
     //   _observers list and _state are private. External callers use only
     //   the public API: EnqueuePatient, CallNext, CompletePatient, etc.
     //
-    // CONCEPT � Modularity:
+    // CONCEPT � Modularity:
     //   Standalone class. No controller, view, or UI logic inside.
     //
-    // SOLID � SRP: manages queue state and fires observer notifications.
-    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
-    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
+    // SOLID � SRP: manages queue state and fires observer notifications.
+    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
+    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
     //
     // Registered as Singleton in Program.cs so ALL HTTP requests and the
     // SignalR hub share the same live queue state.
@@ -43,11 +43,37 @@ namespace HealthTech.API.QueueObserver
 
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            // Only load today's records.  Loading all-time records inflates LastIssued
+            // with old Completed/Skipped entries, causing new patients to receive ticket
+            // numbers far above the real queue depth (e.g. ticket 13 when only 1 patient
+            // is active), which in turn makes the frontend show a bogus "12 ahead" count.
+            var todayUtc = DateTime.UtcNow.Date;
             var persisted = await db.QueueRecords
                 .Include(q => q.Appointment)
                     .ThenInclude(a => a.Patient)
+                .Where(q => q.CreatedAt >= todayUtc)
                 .OrderBy(q => q.TicketNumber)
                 .ToListAsync();
+
+            // ── Startup cleanup ──────────────────────────────────────────
+            // A "Serving" queue record whose appointment is already "Completed"
+            // means the doctor finished (wrote a prescription or completed
+            // without one) but the server was restarted before the queue record
+            // was updated.  Fix it now so it does not stay stuck in "Serving"
+            // forever in both the database and the in-memory state.
+            bool dirty = false;
+            foreach (var record in persisted.Where(r => r.Status == "Serving"))
+            {
+                if (record.Appointment?.Status == "Completed")
+                {
+                    record.Status    = "Completed";
+                    record.UpdatedAt = DateTime.UtcNow;
+                    dirty = true;
+                }
+            }
+            if (dirty) await db.SaveChangesAsync();
+            // ─────────────────────────────────────────────────────────────
 
             lock (_lock)
             {
@@ -61,6 +87,7 @@ namespace HealthTech.API.QueueObserver
                         PatientId     = record.Appointment?.PatientId ?? 0,
                         PatientName   = record.Appointment?.Patient?.Name ?? "Unknown",
                         TicketNumber  = record.TicketNumber,
+                        DoctorId      = record.Appointment?.DoctorId ?? 0,
                         Status        = record.Status,
                         CheckedInAt   = record.CreatedAt
                     });
@@ -161,6 +188,7 @@ namespace HealthTech.API.QueueObserver
                     PatientId     = patientId,
                     PatientName   = patientName,
                     TicketNumber  = ticketNumber,
+                    DoctorId      = appointment.DoctorId,
                     Status        = "Waiting",
                     CheckedInAt   = record.CreatedAt
                 };
@@ -174,7 +202,7 @@ namespace HealthTech.API.QueueObserver
             return entry;
         }
 
-        public async Task<QueueState> CallNext()
+        public async Task<QueueState> CallNext(int doctorId)
         {
             await EnsureInitializedAsync();
 
@@ -183,8 +211,10 @@ namespace HealthTech.API.QueueObserver
 
             lock (_lock)
             {
-                currentServing = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
-                nextWaiting = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
+                // Scope both lookups to this doctor's patients so that multiple
+                // doctors can serve concurrently without stepping on each other.
+                currentServing = _state.Queue.FirstOrDefault(e => e.Status == "Serving"  && e.DoctorId == doctorId);
+                nextWaiting    = _state.Queue.FirstOrDefault(e => e.Status == "Waiting"  && e.DoctorId == doctorId);
             }
 
             using var scope = _scopeFactory.CreateScope();
@@ -248,14 +278,16 @@ namespace HealthTech.API.QueueObserver
             return snapshot;
         }
 
-        public async Task<QueueState> CompleteCurrentPatient()
+        public async Task<QueueState> CompleteCurrentPatient(int appointmentId)
         {
             await EnsureInitializedAsync();
 
             QueueEntry? serving;
             lock (_lock)
             {
-                serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
+                // Match by AppointmentId so the correct doctor's patient is completed
+                // even when multiple doctors are serving simultaneously.
+                serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving" && e.AppointmentId == appointmentId);
             }
 
             if (serving != null)
@@ -284,6 +316,10 @@ namespace HealthTech.API.QueueObserver
                 if (serving != null)
                     serving.Status = "Completed";
 
+                // No patient is being served after completion — reset the counter.
+                // Mirrors the else-branch in CallNext() so NowServing is always 0
+                // when nothing is Serving in the queue.
+                _state.NowServing = 0;
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 snapshot = CloneState();
             }
@@ -292,7 +328,7 @@ namespace HealthTech.API.QueueObserver
             return snapshot;
         }
 
-        public async Task<QueueState> SkipCurrentPatient()
+        public async Task<QueueState> SkipCurrentPatient(int doctorId)
         {
             await EnsureInitializedAsync();
 
@@ -301,8 +337,8 @@ namespace HealthTech.API.QueueObserver
 
             lock (_lock)
             {
-                serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
-                nextWaiting = _state.Queue.FirstOrDefault(e => e.Status == "Waiting");
+                serving     = _state.Queue.FirstOrDefault(e => e.Status == "Serving" && e.DoctorId == doctorId);
+                nextWaiting = _state.Queue.FirstOrDefault(e => e.Status == "Waiting" && e.DoctorId == doctorId);
             }
 
             using var scope = _scopeFactory.CreateScope();
@@ -397,6 +433,7 @@ namespace HealthTech.API.QueueObserver
                 PatientId     = e.PatientId,
                 PatientName   = e.PatientName,
                 TicketNumber  = e.TicketNumber,
+                DoctorId      = e.DoctorId,
                 Status        = e.Status,
                 CheckedInAt   = e.CheckedInAt,
                 RoomNumber    = e.RoomNumber

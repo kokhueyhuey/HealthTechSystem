@@ -1,0 +1,402 @@
+/* ══════════════════════════════════════════════════════════════
+   MyAppointments.module.css  — PATIENT view
+   Aesthetic: dark clinical — flat, minimal, no neon borders.
+   Status is communicated through pill badges only.
+   Font: Inter (body) — matches PatientDashboard
+   ══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Page wrapper ─────────────────────────────────────────── */
+.page {
+  padding: 0 0 60px 0;
+  font-family: 'Inter', sans-serif;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* ── Page header ─────────────────────────────────────────── */
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+
+.pageSub {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+}
+
+/* ── Toast notification ──────────────────────────────────── */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.toastSuccess {
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  color: #34d399;
+}
+
+.toastError {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.22);
+  color: #f87171;
+}
+
+/* ── Loading state ───────────────────────────────────────── */
+.loadingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #475569;
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: #475569;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.emptyState {
+  text-align: center;
+  padding: 56px 24px;
+  background: rgba(255,255,255,0.02);
+  border: 1px dashed rgba(255,255,255,0.08);
+  border-radius: 16px;
+  margin-top: 8px;
+}
+
+.emptyIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: #334155;
+}
+
+.emptyTitle {
+  font-size: 17px;
+  font-weight: 500;
+  color: #e2e8f0;
+  margin: 0 0 8px 0;
+}
+
+.emptySub {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Card list ───────────────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Individual card ─────────────────────────────────────── */
+.card {
+  background: #13161f;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.11);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.cardBody {
+  padding: 16px 20px 18px;
+}
+
+/* ── Card top row ────────────────────────────────────────── */
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.apptMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.apptIndex {
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.doctorName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e2e8f0;
+  line-height: 1.2;
+}
+
+/* ── Status pill badge ───────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Info rows (date, notes) ─────────────────────────────── */
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 5px;
+}
+
+.infoIcon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+.notesRow {
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.025);
+  border-radius: 7px;
+  border-left: 2px solid rgba(255,255,255,0.07);
+}
+
+/* ── Action buttons ──────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btnCancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.07);
+  color: #f87171;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btnCancel:hover:not(:disabled) {
+  background: rgba(239,68,68,0.14);
+  border-color: rgba(239,68,68,0.45);
+}
+
+.btnReschedule {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btnReschedule:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  color: #e2e8f0;
+}
+
+.btnRescheduleActive {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.btnRescheduleActive:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+}
+
+.btnCancel:disabled,
+.btnReschedule:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ── Reschedule panel ────────────────────────────────────── */
+.reschedulePanel {
+  margin-top: 12px;
+  padding: 15px 16px;
+  background: rgba(255,255,255,0.025);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  animation: expandIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top;
+}
+
+.reschedulePanelLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 11px;
+}
+
+.rescheduleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.inputField,
+.selectField {
+  background: #0d0f12;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 8px;
+  padding: 8px 11px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputField:focus,
+.selectField:focus {
+  border-color: rgba(16,185,129,0.45);
+}
+
+input[type="date"].inputField {
+  color-scheme: dark;
+}
+
+.selectField option {
+  background: #1a1f2b;
+  color: #fff;
+}
+
+.btnConfirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #10b981;
+  color: white;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.btnConfirm:hover:not(:disabled) {
+  background: #059669;
+}
+
+.btnConfirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes expandIn {
+  from { opacity: 0; transform: scaleY(0.92); }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive tweak ────────────────────────────────────── */
+@media (max-width: 520px) {
+  .rescheduleGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .btnConfirm {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}

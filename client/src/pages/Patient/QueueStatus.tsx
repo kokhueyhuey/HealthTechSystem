@@ -62,24 +62,58 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
 
   // ── 4. Derived State & Math ───────────────────────────────────────────
   const isMyTurn = queueState && myTicket ? queueState.nowServing === myTicket : false;
-  const isCompleted = queueState && myTicket ? queueState.nowServing > myTicket : false;
+
+  // Two ways a patient can be "done":
+  //   1. Normal path: another patient was called next — nowServing > myTicket.
+  //   2. Last-patient path: no next patient existed, so nowServing resets to 0
+  //      but the queue entry itself is marked "Completed" by the backend.
+  //      Check the entry directly so the patient still sees "Thanks for visiting!".
+  //
+  //   NOTE: We MUST also match ticketNumber here. Matching patientId alone would
+  //   catch completed entries from previous visits and wrongly show the "thanks"
+  //   message the moment a returning patient gets a new ticket.
+  const isCompleted = queueState && myTicket
+    ? queueState.nowServing > myTicket
+      || queueState.queue.some(
+          (e) => e.patientId === user.id && e.ticketNumber === myTicket && e.status === "Completed"
+        )
+    : false;
+
+  // Count patients who are either still Waiting OR currently being Served
+  // and have a lower ticket number than mine.
+  // "Serving" must be included: when Patient A transitions from Waiting → Serving
+  // they are still occupying the consultation slot ahead of Patient B.
+  // Excluding them (only checking "Waiting") would incorrectly show 0 ahead
+  // and 100% progress for B while A is mid-consultation.
+  const aheadCount = myTicket && queueState
+    ? queueState.queue.filter(
+        (e) =>
+          (e.status === "Waiting" || e.status === "Serving") &&
+          e.ticketNumber < myTicket
+      ).length
+    : 0;
 
   let waitMins = 0;
-  if (myTicket && queueState && myTicket > queueState.nowServing) {
-    const ahead = myTicket - queueState.nowServing;
+  if (myTicket && queueState && aheadCount > 0) {
     const minutesPerSlot = queueState.minutesPerSlot ?? 5;
-    
+
     const lastUpdated = new Date(queueState.lastUpdatedUtc);
     const elapsedMins = Math.floor((now.getTime() - lastUpdated.getTime()) / 60000);
-    
-    const calculatedWait = (ahead * minutesPerSlot) - elapsedMins;
-    const minimumWait = (ahead - 1) * minutesPerSlot;
-    
+
+    // +1 for the patient currently being served who still has time remaining
+    const calculatedWait = ((aheadCount + 1) * minutesPerSlot) - elapsedMins;
+    const minimumWait = aheadCount * minutesPerSlot;
+
     waitMins = Math.max(minimumWait, calculatedWait);
   }
 
-  const progressPct = queueState && myTicket
-    ? Math.min(100, Math.round((queueState.nowServing / myTicket) * 100))
+  // Progress = how far through the queue this patient is.
+  // (total waiting when checked in is hard to know retroactively, so use
+  // aheadCount == 0 as 100 %, and scale down linearly as more wait ahead.)
+  const progressPct = myTicket && queueState
+    ? aheadCount === 0
+      ? 100
+      : Math.min(99, Math.round(((myTicket - aheadCount) / myTicket) * 100))
     : 0;
 
   return (
@@ -152,9 +186,7 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
                 </div>
                 <div className={styles.statusBox}>
                   <div className={styles.statusBoxValue}>
-                    {myTicket && queueState
-                      ? Math.max(0, myTicket - queueState.nowServing)
-                      : "—"}
+                    {myTicket && queueState ? aheadCount : "—"}
                   </div>
                   <div className={styles.statusBoxLabel}>Ahead of You</div>
                 </div>

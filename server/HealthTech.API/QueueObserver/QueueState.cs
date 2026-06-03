@@ -65,6 +65,14 @@ namespace HealthTech.API.Models
         public int TicketNumber { get; set; }
 
         /// <summary>
+        /// The doctor this patient is booked with.
+        /// Populated from Appointment.DoctorId at enqueue/load time — not stored
+        /// as a separate column; derived from the linked Appointment row.
+        /// Used by CallNext / Skip so each doctor only pulls their own patients.
+        /// </summary>
+        public int DoctorId { get; set; }
+
+        /// <summary>
         /// Waiting | Serving | Completed | Skipped
         /// — State Pattern hook: this field drives the Pharmacy Inventory
         ///   module's state transitions (see State/ folder).
