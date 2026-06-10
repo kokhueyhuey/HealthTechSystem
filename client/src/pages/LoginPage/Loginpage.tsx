@@ -52,11 +52,11 @@ export default function LoginPage({ onLoginSuccess, onGoRegister }: Props) {
             required
           />
 
-          <label style={styles.label}>Password</label>
+          <label style={styles.label}>IC Last 4 Digits</label>
           <input
             style={styles.input}
             type="password"
-            placeholder="••••••••"
+            placeholder="••••"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required

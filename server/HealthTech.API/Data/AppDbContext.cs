@@ -48,6 +48,11 @@ namespace HealthTech.API.Data
             modelBuilder.Entity<Doctor>().HasIndex(d => d.Email).IsUnique();
             modelBuilder.Entity<Pharmacist>().HasIndex(ph => ph.Email).IsUnique();
 
+            // Patients authenticate with IC last-4 digits stored as ICPin
+            modelBuilder.Entity<Patient>()
+                .Property(p => p.PasswordHash)
+                .HasColumnName("ICPin");
+
             //Pharmacist seed acc
             modelBuilder.Entity<Pharmacist>().HasData(new Pharmacist
             {
