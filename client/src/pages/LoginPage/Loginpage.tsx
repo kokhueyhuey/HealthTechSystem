@@ -52,7 +52,7 @@ export default function LoginPage({ onLoginSuccess, onGoRegister }: Props) {
             required
           />
 
-          <label style={styles.label}>IC Last 4 Digits</label>
+          <label style={styles.label}>Password</label>
           <input
             style={styles.input}
             type="password"
