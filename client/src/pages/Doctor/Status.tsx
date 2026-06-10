@@ -54,9 +54,8 @@ export default function Status({ user }: { user: LoginResponse }) {
     setQueueActionLoading(true);
     setMsg(null);
     try {
-      // Pass the doctor's own ID so QueueService only pulls patients booked
-      // with this doctor — multiple doctors can serve concurrently.
-      await callNextPatient(user.token, user.id);
+      // Pushes the command to the backend Subject, which broadcasts to all Observers
+      await callNextPatient(user.token);
       setMsg("✅ Called next patient successfully.");
     } catch (err: any) {
       // Captures the Exception Flow: "Queue is empty"

@@ -148,16 +148,6 @@ namespace HealthTech.API.Services
         }
 
         // ─────────────────────────────────────────────────────────────────
-        // Fetch a single appointment by ID (used by GetCurrentPatient endpoint)
-        // ─────────────────────────────────────────────────────────────────
-        public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId)
-        {
-            return await _context.Appointments
-                .Include(a => a.Patient)
-                .FirstOrDefaultAsync(a => a.Id == appointmentId);
-        }
-
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Cancel Appointment
         // Patient role → 2-hour rule enforced
         // Pharmacist role → no restriction (doctor unavailability use case)

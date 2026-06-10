@@ -2,43 +2,10 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.Builder
 {
-
-// ─────────────────────────────────────────────────────────────────────────
-    // BUILDER PATTERN — Concrete Builder
-    //
-    // CONCEPT — Modularity:
-    //   The prescription creation process is divided into smaller steps,
-    //   such as setting patient information, doctor details, medicines,
-    //   and MC information.
-    //
-    // CONCEPT — Refinement:
-    //   The Prescription object is constructed gradually step-by-step
-    //   instead of being created in one large constructor.
-    //
-    // SOLID — Open/Closed Principle (OCP):
-    //   New prescription building steps can be added without modifying
-    //   existing client code significantly.
-    //
-    // SOLID — Dependency Inversion Principle (DIP):
-    //   The system depends on the abstraction IPrescriptionBuilder instead
-    //   of directly depending on this concrete builder implementation.
-    //
-    // PURPOSE:
-    //   This builder helps doctors create prescriptions step-by-step,
-    //   especially when prescriptions contain multiple medicines,
-    //   dosage instructions, patient preferences, and MC information.
-    //
-    // SYSTEM BEHAVIOUR:
-    //   The doctor selects medicines from the medicine list and gradually
-    //   builds a complete prescription before pharmacist approval.
-    // ─────────────────────────────────────────────────────────────────────────
-
     public class PrescriptionBuilder : IPrescriptionBuilder
     {
-        // Stores the prescription object being constructed.
         private readonly Prescription _prescription = new();
 
-        // Assigns patient information into the prescription.
         public IPrescriptionBuilder SetPatient(
             int patientId,
             string patientName
@@ -50,7 +17,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Assigns doctor information into the prescription.
         public IPrescriptionBuilder SetDoctor(int doctorId)
         {
             _prescription.DoctorId = doctorId;
@@ -58,7 +24,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Assigns appointment information into the prescription.
         public IPrescriptionBuilder SetAppointment(int appointmentId)
         {
             _prescription.AppointmentId = appointmentId;
@@ -66,7 +31,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Adds medicine information into the prescription item list.
         public IPrescriptionBuilder AddMedicine(
             int medicineId,
             string medicineName,
@@ -89,7 +53,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Assigns MC information into the prescription.
         public IPrescriptionBuilder SetMc(
             bool needMc,
             string mcReason,
@@ -103,7 +66,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Sets the prescription status before pharmacist approval.
         public IPrescriptionBuilder SetPendingStatus()
         {
             _prescription.Status = "Pending";
@@ -111,7 +73,6 @@ namespace HealthTech.API.Patterns.Builder
             return this;
         }
 
-        // Returns the fully constructed Prescription object.
         public Prescription Build()
         {
             _prescription.CreatedAt = DateTime.UtcNow;

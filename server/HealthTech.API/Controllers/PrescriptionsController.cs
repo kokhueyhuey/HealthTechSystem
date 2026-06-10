@@ -4,7 +4,6 @@ using HealthTech.API.Patterns.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HealthTech.API.Patterns.State;
-using HealthTech.API.QueueObserver;
 
 namespace HealthTech.API.Controllers
 {
@@ -13,12 +12,10 @@ namespace HealthTech.API.Controllers
     public class PrescriptionsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly QueueService _queueService;
 
-        public PrescriptionsController(AppDbContext context, QueueService queueService)
+        public PrescriptionsController(AppDbContext context)
         {
             _context = context;
-            _queueService = queueService;
         }
 
         [HttpGet("pending")]
@@ -119,17 +116,6 @@ namespace HealthTech.API.Controllers
             appointment.Status = "Completed";
             await _context.SaveChangesAsync();
 
-            // If this was the last patient in the queue (no Waiting entries remain),
-            // complete their QueueRecord (Serving → Completed) and broadcast via SignalR.
-            // The normal path (next patient exists) handles this via CallNext() from the
-            // doctor's UI; for the last patient there is no "next" call, so we do it here.
-            var queueState = await _queueService.GetCurrentStateAsync();
-            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting" && e.DoctorId == appointment.DoctorId);
-            if (!hasWaitingPatient)
-            {
-                await _queueService.CompleteCurrentPatient(request.AppointmentId);
-            }
-
             return Ok(new
             {
                 prescription.Id,
@@ -170,15 +156,6 @@ namespace HealthTech.API.Controllers
 
             appointment.Status = "Completed";
             await _context.SaveChangesAsync();
-
-            // Same last-patient guard as GeneratePrescription:
-            // if no one is waiting for this doctor, complete the serving queue record and broadcast.
-            var queueState = await _queueService.GetCurrentStateAsync();
-            bool hasWaitingPatient = queueState.Queue.Any(e => e.Status == "Waiting" && e.DoctorId == appointment.DoctorId);
-            if (!hasWaitingPatient)
-            {
-                await _queueService.CompleteCurrentPatient(request.AppointmentId);
-            }
 
             return Ok(new
             {

@@ -52,25 +52,25 @@ namespace HealthTech.API.Controllers
 
         // ── POST api/queue/next ────────────────────────────────────────
         [HttpPost("next")]
-        public async Task<ActionResult<QueueState>> CallNext([FromBody] DoctorIdRequest req)
+        public async Task<ActionResult<QueueState>> CallNext()
         {
-            var state = await _queueService.CallNext(req.DoctorId);
+            var state = await _queueService.CallNext();
             return Ok(state);
         }
 
         // ── POST api/queue/complete ────────────────────────────────────
         [HttpPost("complete")]
-        public async Task<ActionResult<QueueState>> Complete([FromBody] AppointmentIdRequest req)
+        public async Task<ActionResult<QueueState>> Complete()
         {
-            var state = await _queueService.CompleteCurrentPatient(req.AppointmentId);
+            var state = await _queueService.CompleteCurrentPatient();
             return Ok(state);
         }
 
         // ── POST api/queue/skip ────────────────────────────────────────
         [HttpPost("skip")]
-        public async Task<ActionResult<QueueState>> Skip([FromBody] DoctorIdRequest req)
+        public async Task<ActionResult<QueueState>> Skip()
         {
-            var state = await _queueService.SkipCurrentPatient(req.DoctorId);
+            var state = await _queueService.SkipCurrentPatient();
             return Ok(state);
         }
 
@@ -83,12 +83,6 @@ namespace HealthTech.API.Controllers
         }
     }
 
-    // ── Request DTOs ───────────────────────────────────────────────────
+    // ── Request DTO ────────────────────────────────────────────────────
     public record EnqueueRequest(int AppointmentId, int PatientId, string PatientName);
-
-    /// <summary>Used by CallNext and Skip — identifies which doctor is acting.</summary>
-    public record DoctorIdRequest(int DoctorId);
-
-    /// <summary>Used by Complete — pinpoints the exact appointment being closed.</summary>
-    public record AppointmentIdRequest(int AppointmentId);
 }
