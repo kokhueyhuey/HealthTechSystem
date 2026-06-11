@@ -33,15 +33,15 @@ export interface Pharmacist extends BaseUser {
 
 export type AnyUser = Patient | Doctor | Pharmacist;
 
-export interface RegisterUserRequest {
-  name: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  role: "Patient" | "Doctor" | "Pharmacist";
-}
+// export interface RegisterUserRequest {
+//   name: string;
+//   email: string;
+//   password: string;
+//   phoneNumber: string;
+//   role: "Patient" | "Doctor" | "Pharmacist";
+// }
 
-export interface CreatePatientRequest {
-  name: string;
-  age: number;
-}
+// export interface CreatePatientRequest {
+//   name: string;
+//   age: number;
+// }

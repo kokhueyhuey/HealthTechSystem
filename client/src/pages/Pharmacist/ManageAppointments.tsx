@@ -1,300 +1,352 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Manage Appointments — Pharmacist
+//
+// Three sections:
+//
+//   A. Walk-in Appointment
+//      Search existing patient by name/IC → pick doctor → add to queue (InQueue)
+//      If patient doesn't exist → link to Manage Patients to create account first
+//
+//   B. Search Appointments
+//      Search by patient name OR appointment ID
+//      View result → cancel / reschedule / enter queue
+//
+//   C. Doctor Unavailability
+//      Select doctor → load affected pending appointments
+//      Cancel / reschedule / enter queue per appointment
+//      SignalR auto-refreshes when that doctor's appointments change
+//
+// Observer Pattern fires on every action (cancel/reschedule/walkin):
+//   NotifyObservers() → PatientObserver + DoctorObserver +
+//                       PharmacistObserver + SignalRObserver (live push)
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect, useState } from "react";
-import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
 import { getDoctors } from "../../services/doctorService";
 import {
-  getAffectedAppointments,
   cancelAppointment,
+  createWalkIn,
+  searchAppointments,
   rescheduleAppointment,
-  type AffectedAppointment,
+  type AppointmentSearchResult,
 } from "../../services/appointmentService";
-
 import { enqueuePatient } from "../../services/queueService";
+import { searchPatients, type PatientRecord } from "../../services/patientService";
 
-type Doctor = {
-  id: number;
-  name: string;
-  specialization: string;
-};
+import "./ManageAppointments.css";
 
-const TIME_SLOTS = ["09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00","19:00",];
+type Doctor = { id: number; name: string; specialization: string };
 
-export default function ManageAppointments({
-  user,
-}: {
-  user: LoginResponse;
-}) {
+const TIME_SLOTS = ["09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+
+function fmtDateOnly(str: string) {
+  return new Date(str).toLocaleDateString("en-CA"); // YYYY-MM-DD
+}
+
+function fmtTimeOnly(str: string) {
+  return new Date(str).toLocaleTimeString("en-MY", { timeStyle: "short" });
+}
+
+function todayLocal(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+export default function ManageAppointments({ user }: { user: LoginResponse }) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [doctorId, setDoctorId] = useState<string>("");
+  useEffect(() => { getDoctors().then(setDoctors).catch(console.error); }, []);
 
-  const [appointments, setAppointments] = useState<AffectedAppointment[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-
-  const [rescheduleId, setRescheduleId] = useState<number | null>(null);
-  const [newDate, setNewDate] = useState("");
-  const [newTime, setNewTime] = useState("");
-
-  const [actionLoading, setActionLoading] = useState(false);
-
+  // ── TABLE SEARCH STATE ─────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchDate, setSearchDate] = useState("");
+  const [searchResults, setSearchResults] = useState<AppointmentSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [enqueuingId, setEnqueuingId] = useState<number | null>(null);
 
-  useEffect(() => {
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:5165/appointmentHub")
-    .withAutomaticReconnect()
-    .build();
+  useEffect(() => { handleApptSearch(); }, []);
 
-  connection.on(
-    "ReceiveAppointmentUpdate",
-    () => {
-
-      if (doctorId) {
-        handleSearch();
-      }
-    }
-  );
-
-  connection.start().catch(err =>
-    console.warn("SignalR connection failed:", err)
-  );
-
-  return () => {
-    connection.stop();
-  };
-}, [doctorId]);
-
-  // LOCAL TODAY (Malaysia timezone safe)
-  const today = new Date();
-
-  const localToday =
-    today.getFullYear() +
-    "-" +
-    String(today.getMonth() + 1).padStart(2, "0") +
-    "-" +
-    String(today.getDate()).padStart(2, "0");
-
-  // Load doctors
-  useEffect(() => {
-    getDoctors()
-      .then(setDoctors)
-      .catch((err) => console.error(err));
-  }, []);
-
-  //Search appointments
-  async function handleSearch() {
-    if (!doctorId) {
-      setMsg("⚠️ Please select a doctor.");
-      return;
-    }
-
-    setLoading(true);
-    setMsg(null);
-
+  async function handleApptSearch() {
+    setSearching(true);
     try {
-      const data = await getAffectedAppointments(Number(doctorId));
-
-      setAppointments(data);
-
-      if (data.length === 0) {
-        setMsg("No appointments found for this doctor.");
-      }
-    } catch (e: any) {
-      setMsg("⚠️ " + e.message);
-    } finally {
-      setLoading(false);
-    }
+      const results = await searchAppointments(searchQuery.trim(), searchDate);
+      setSearchResults(results);
+    } catch (e: any) { console.error(e); }
+    finally { setSearching(false); }
   }
 
-  // Cancel
-  async function handleCancel(id: number) {
-    setActionLoading(true);
-    setMsg(null);
-
-    try {
-      const result = await cancelAppointment(id, "Pharmacist");
-
-      setMsg("✅ " + result);
-
-      setAppointments((prev) => prev.filter((a) => a.id !== id));
-    } catch (e: any) {
-      setMsg("⚠️ " + e.message);
-    } finally {
-      setActionLoading(false);
-    }
-  }
-
-  // Reschedule
-  async function handleReschedule(id: number) {
-    if (!newDate || !newTime) {
-      setMsg("⚠️ Select new date & time.");
-      return;
-    }
-
-    setActionLoading(true);
-    setMsg(null);
-
-    try {
-      // DO NOT USE toISOString()
-      const localDateTime = `${newDate}T${newTime}:00`;
-
-      const result = await rescheduleAppointment(
-        id,
-        localDateTime,
-        "Pharmacist"
-      );
-
-      setMsg("✅ " + result);
-
-      setRescheduleId(null);
-
-      setNewDate("");
-      setNewTime("");
-
-      handleSearch();
-    } catch (e: any) {
-      setMsg("⚠️ " + e.message);
-    } finally {
-      setActionLoading(false);
-    }
-  }
-
-  // Add to Queue
-  async function handleEnqueue(appt: AffectedAppointment) {
+  async function handleEnqueue(appt: AppointmentSearchResult) {
     setEnqueuingId(appt.id);
-    setMsg(null);
-
     try {
-      const entry = await enqueuePatient(
-        user.token,
-        appt.id,
-        appt.patientId,
-        appt.patientName
-      );
-
-      setMsg(
-        `✅ ${appt.patientName} added to Queue — Ticket #${entry.ticketNumber}`
-      );
+      await enqueuePatient(user.token, appt.id, appt.patientId, appt.patientName);
+      alert(`✅ ${appt.patientName} added to queue!`);
+      handleApptSearch();
     } catch (e: any) {
-      setMsg("⚠️ " + (e.message || "Failed to enqueue patient"));
+      alert("⚠️ " + (e.message || "Failed to add to queue."));
     } finally {
       setEnqueuingId(null);
     }
   }
 
+  // ── CANCEL MODAL STATE ─────────────────────────────────────────────
+  const [apptToCancel, setApptToCancel] = useState<AppointmentSearchResult | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  async function confirmCancel() {
+    if (!apptToCancel) return;
+    setActionLoading(true);
+    try {
+      await cancelAppointment(apptToCancel.id, "Pharmacist");
+      handleApptSearch();
+      setApptToCancel(null);
+    } catch (e: any) { alert("⚠️ " + e.message); } 
+    finally { setActionLoading(false); }
+  }
+
+  // ── RESCHEDULE MODAL STATE ─────────────────────────────────────────
+  const [apptToReschedule, setApptToReschedule] = useState<AppointmentSearchResult | null>(null);
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("");
+
+  async function confirmReschedule() {
+    if (!apptToReschedule || !newDate || !newTime) {
+      alert("⚠️ Select a new date and time."); return;
+    }
+    setActionLoading(true);
+    try {
+      await rescheduleAppointment(apptToReschedule.id, `${newDate}T${newTime}:00`, "Pharmacist");
+      alert("✅ Appointment rescheduled.");
+      handleApptSearch();
+      setApptToReschedule(null);
+      setNewDate(""); setNewTime("");
+    } catch (e: any) { alert("⚠️ " + e.message); } 
+    finally { setActionLoading(false); }
+  }
+
+  // ── WALK-IN MODAL STATE (New Appointment) ──────────────────────────
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [walkQuery, setWalkQuery] = useState("");
+  const [walkResults, setWalkResults] = useState<PatientRecord[]>([]);
+  const [walkPatient, setWalkPatient] = useState<PatientRecord | null>(null);
+  const [walkDoctorId, setWalkDoctorId] = useState<number>(0);
+  const [walkNotes, setWalkNotes] = useState("");
+
+  useEffect(() => {
+    if (doctors.length > 0 && walkDoctorId === 0) setWalkDoctorId(doctors[0].id);
+  }, [doctors]);
+
+  async function handleWalkSearch() {
+    if (!walkQuery.trim()) return;
+    try {
+      const results = await searchPatients(walkQuery.trim());
+      setWalkResults(results);
+    } catch (e: any) { console.error(e); }
+  }
+
+  async function handleWalkInSubmit() {
+    if (!walkPatient) return;
+    try {
+      const result = await createWalkIn(walkPatient.id, walkDoctorId, walkNotes);
+      await enqueuePatient(user.token, result.appointmentId, walkPatient.id, walkPatient.name);
+      
+      alert(`✅ Walk-in created and added to Queue for ${walkPatient.name}`);
+      
+      setShowWalkInModal(false);
+      setWalkPatient(null); setWalkQuery(""); setWalkResults([]); setWalkNotes("");
+      handleApptSearch();
+    } catch (e: any) { alert("⚠️ " + e.message); }
+  }
+
   return (
-    <div>
-      <h2>Manage Appointments</h2>
+    <div className="dashboard-container">
+      
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">Appointments</h2>
+      </div>
 
-      <p>
-        Doctor informed pharmacist about unavailability. Select doctor and
-        manage affected appointments.
-      </p>
+      <div className="filter-bar">
+        <input 
+          className="filter-input search-text" 
+          placeholder="🔍 Search Appt ID, Patient or Doctor..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleApptSearch()}
+        />
+        
+        <input 
+          type="date" 
+          className="filter-input search-date" 
+          value={searchDate}
+          onChange={e => setSearchDate(e.target.value)}
+        />
 
-      {/* Doctor Dropdown */}
-      <select
-        value={doctorId}
-        onChange={(e) => setDoctorId(e.target.value)}
-      >
-        <option value="">-- Select Doctor --</option>
+        <button className="search-btn" onClick={handleApptSearch}>
+          Search
+        </button>
 
-        {doctors.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.name} ({d.specialization})
-          </option>
-        ))}
-      </select>
+        <button className="new-appt-btn" onClick={() => setShowWalkInModal(true)}>
+          + New appointment
+        </button>
+      </div>
 
-      <button onClick={handleSearch} disabled={loading}>
-        {loading ? "Loading..." : "Load Appointments"}
-      </button>
+      <div className="table-container">
+        <table className="appointment-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Appt ID</th>
+              <th>Patient</th>
+              <th>Phone Number</th>
+              <th>Doctor Assigned</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {searchResults.length === 0 ? (
+              <tr><td colSpan={8} className="empty-table-state">{searching ? "Loading..." : "No appointments found"}</td></tr>
+            ) : (
+              searchResults.map(a => (
+                <tr key={a.id}>
+                  <td>{fmtDateOnly(a.appointmentDate)}</td>
+                  <td className="time-col">{fmtTimeOnly(a.appointmentDate)}</td>
+                  <td className="appt-id">#{a.id}</td>
+                  <td className="patient-name">{a.patientName}</td>
+                  <td>{a.patientPhone}</td>
+                  <td>{a.doctorName}</td>
+                  <td>
+                    <span className={`status-badge status-${a.status}`}>
+                      {a.status === "InConsultation" ? "In Consult" : a.status}
+                    </span>
+                  </td>
+                  
+                  <td className="actions-cell">
+                    {a.status !== "Cancelled" && a.status !== "Completed" && (
+                      <>
+                        <button className="action-btn" onClick={() => setApptToReschedule(a)}>
+                          Reschedule
+                        </button>
+                        <button className="action-btn danger" onClick={() => setApptToCancel(a)}>
+                          Cancel
+                        </button>
+                        {a.status === "Pending" && (
+                          <button className="action-btn primary" 
+                            disabled={enqueuingId === a.id}
+                            onClick={() => handleEnqueue(a)}>
+                            {enqueuingId === a.id ? "Adding..." : "Enter Queue"}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {msg && <p>{msg}</p>}
+      {apptToCancel && (
+        <div className="modal-overlay">
+          <div className="standard-modal">
+            <h3 className="modal-title">Cancel appointment</h3>
+            <p className="modal-desc">
+              Are you sure you want to cancel <strong>{apptToCancel.patientName}'s</strong> appointment <br/>
+              on <strong>{fmtDateOnly(apptToCancel.appointmentDate)}</strong> at <strong>{fmtTimeOnly(apptToCancel.appointmentDate)}</strong>?
+            </p>
+            <div className="modal-actions">
+              <button className="dismiss-btn" disabled={actionLoading} onClick={() => setApptToCancel(null)}>Dismiss</button>
+              <button className="confirm-btn danger" disabled={actionLoading} onClick={confirmCancel}>
+                {actionLoading ? "Cancelling..." : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Appointment List */}
-      {appointments.map((a) => (
-        <div
-          key={a.id}
-          style={{
-            border: "1px solid #ccc",
-            padding: 10,
-            marginTop: 10,
-          }}
-        >
-          <p>
-            <b>Appointment #{a.id}</b>
-          </p>
-
-          <p>Patient: {a.patientName}</p>
-
-          <p>Phone: {a.patientPhone}</p>
-
-          <p>
-            Date:
-            {" "}
-            {new Date(a.appointmentDate).toLocaleString("en-MY", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
-          </p>
-
-          <button
-            onClick={() => handleCancel(a.id)}
-            disabled={actionLoading || enqueuingId !== null}
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={() => setRescheduleId(a.id)}
-            disabled={actionLoading || enqueuingId !== null}
-            style={{ marginLeft: "5px" }}
-          >
-            Reschedule
-          </button>
-
-          <button
-            onClick={() => handleEnqueue(a)}
-            disabled={actionLoading || enqueuingId === a.id}
-            style={{
-              marginLeft: "5px",
-              backgroundColor: "#34d399",
-              color: "black",
-            }}
-          >
-            {enqueuingId === a.id ? "Adding..." : "Enter Queue"}
-          </button>
-
-          {/* Reschedule Panel */}
-          {rescheduleId === a.id && (
-            <div style={{ marginTop: 10 }}>
-              <input
-                type="date"
-                min={localToday}
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-              />
-
-              <select
-                value={newTime}
-                onChange={(e) => setNewTime(e.target.value)}
-              >
-                <option value="">Time</option>
-
-                {TIME_SLOTS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
+      {apptToReschedule && (
+        <div className="modal-overlay">
+          <div className="standard-modal">
+            <h3 className="modal-title">Reschedule Appointment</h3>
+            <p className="modal-desc">Select a new date and time for <strong>{apptToReschedule.patientName}</strong>.</p>
+            
+            <div className="reschedule-inputs">
+              <input type="date" className="filter-input flex-input" min={todayLocal()}
+                value={newDate} onChange={e => setNewDate(e.target.value)} />
+              <select className="filter-input" value={newTime} onChange={e => setNewTime(e.target.value)}>
+                <option value="">-- time --</option>
+                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
+            </div>
 
-              <button onClick={() => handleReschedule(a.id)}>
+            <div className="modal-actions">
+              <button className="dismiss-btn" disabled={actionLoading} onClick={() => setApptToReschedule(null)}>Dismiss</button>
+              <button className="confirm-btn" disabled={actionLoading} onClick={confirmReschedule}>
                 {actionLoading ? "Saving..." : "Confirm"}
               </button>
             </div>
-          )}
+          </div>
         </div>
-      ))}
+      )}
+
+      {showWalkInModal && (
+        <div className="modal-overlay">
+          <div className="standard-modal walkin-modal">
+            <h3 className="modal-title">Create Walk-in Appointment</h3>
+            
+            {!walkPatient ? (
+              <>
+                <div className="walkin-search-row">
+                  <input className="filter-input search-text" placeholder="Search Patient Name or IC" 
+                    value={walkQuery} onChange={e => setWalkQuery(e.target.value)} />
+                  <button className="confirm-btn fixed-btn" onClick={handleWalkSearch}>Search</button>
+                </div>
+                
+                {walkResults.map(p => (
+                  <div key={p.id} className="walkin-patient-row">
+                    <div>
+                      <strong>{p.name}</strong> <br/>
+                      <span className="patient-ic">{p.icNumber}</span>
+                    </div>
+                    <button className="action-btn primary" onClick={() => setWalkPatient(p)}>Select</button>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="walkin-form">
+                <div className="selected-patient-box">
+                  <strong>Selected Patient:</strong> {walkPatient.name}
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Assign Doctor</label>
+                  <select className="filter-input" value={walkDoctorId} onChange={e => setWalkDoctorId(Number(e.target.value))}>
+                    {doctors.map(d => <option key={d.id} value={d.id}>{d.name} — {d.specialization}</option>)}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Notes (optional)</label>
+                  <input className="filter-input" value={walkNotes} onChange={e => setWalkNotes(e.target.value)} placeholder="e.g. Fever, body check..." />
+                </div>
+
+                <div className="modal-actions mt-10">
+                  <button className="dismiss-btn" onClick={() => setWalkPatient(null)}>Back</button>
+                  <button className="confirm-btn" onClick={handleWalkInSubmit}>Add to Queue</button>
+                </div>
+              </div>
+            )}
+            
+            {!walkPatient && (
+              <button className="dismiss-btn full-width mt-20" onClick={() => {
+                setShowWalkInModal(false); setWalkPatient(null);
+              }}>Close</button>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

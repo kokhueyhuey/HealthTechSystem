@@ -1,0 +1,79 @@
+/* CENTER PAGE (same idea as doctor page wrapper) */
+.pageCenter {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0b0f1a;
+}
+
+/* MAIN CARD (same as ManageDoctor container) */
+.cardBox {
+  width: 500px;
+  padding: 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* TEXT */
+.pageTitle {
+  color: white;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.pageSub {
+  color: #8892a4;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* FORM */
+.formBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formTitle {
+  color: white;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+/* INPUT (same feel as doctor page) */
+input {
+  background: #0f1117;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  outline: none;
+}
+
+/* BUTTON */
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* MESSAGE BOX */
+.msgBox {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}

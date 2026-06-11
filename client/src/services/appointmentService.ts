@@ -213,3 +213,53 @@ export async function getAppointmentsByDate(
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE to your existing appointmentService.ts
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Add this interface alongside the others
+export interface AppointmentSearchResult {
+  id: number;
+  patientId: number;
+  patientName: string;
+  patientPhone: string; 
+  doctorId: number;
+  doctorName: string;
+  appointmentDate: string;
+  status: AppointmentStatus;
+  notes: string;
+}
+
+// GET /api/appointments/search?q=...
+// Search by patient name OR appointment ID
+export async function searchAppointments(q?: string, date?: string) {
+  const params = new URLSearchParams();
+  if (q) params.append("q", q);
+  if (date) params.append("date", date);
+
+  const res = await fetch(`${BASE_URL}/search?${params.toString()}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to search appointments.");
+  }
+
+  return res.json();
+}
+
+// POST /api/appointments/walkin
+// Walk-in appointment — status goes straight to InQueue
+// Observer fires "WalkIn" → all 4 observers including SignalR
+export async function createWalkIn(
+  patientId: number,
+  doctorId: number,
+  notes?: string
+): Promise<{ message: string; appointmentId: number; status: string }> {
+  const res = await fetch(`${BASE_URL}/walkin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ patientId, doctorId, notes }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Walk-in booking failed.");
+  return data;
+}

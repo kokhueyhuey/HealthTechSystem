@@ -2,11 +2,12 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { LoginResponse } from "../../services/api";
 
-import Home from "./Home";
-import Inventory from "./Inventory";
-import Alerts from "./Alerts";
-import ManageAppointments from "./ManageAppointments";
-import ManageDoctor from "./ManageDoctor";
+import Home                from "./Home";
+import Inventory           from "./Inventory";
+import Alerts              from "./Alerts";
+import ManageAppointments  from "./ManageAppointments";
+import ManageDoctor        from "./ManageDoctor";
+import ManagePatients      from "./ManagePatients";
 import PrescriptionManagement from "./PrescriptionManagement";
 
 import "./PharmacistDashboard.css";
@@ -16,18 +17,21 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "inventory" | "alerts" | "queue" | "manage" | "doctors" | "prescriptions";
+type Section =
+  | "home" | "inventory" | "alerts" | "queue"
+  | "appointments" | "doctors" | "patients" | "prescriptions";
 
 export default function PharmacistDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const active: Section =
-    location.pathname.includes("/inventory") ? "inventory"
-    : location.pathname.includes("/alerts")  ? "alerts"
-    : location.pathname.includes("/queue")   ? "queue"
-    : location.pathname.includes("/manage")  ? "manage"
-    : location.pathname.includes("/doctors") ? "doctors"
+    location.pathname.includes("/inventory")     ? "inventory"
+    : location.pathname.includes("/alerts")      ? "alerts"
+    : location.pathname.includes("/queue")       ? "queue"
+    : location.pathname.includes("/appointment")      ? "appointments"
+    : location.pathname.includes("/doctors")     ? "doctors"
+    : location.pathname.includes("/patients")    ? "patients"
     : location.pathname.includes("/prescriptions") ? "prescriptions"
     : "home";
 
@@ -56,19 +60,20 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
         </div>
 
         <nav className="nav">
-          {[
-            { id: "home",      label: "🏠 Overview" },
-            { id: "doctors",   label: "👨‍⚕️ Manage Doctors" },
-            { id: "manage",    label: "📋 Manage Appointments" },
+          {([
+            { id: "home",          label: "🏠 Overview" },
+            { id: "appointments",  label: "📋 Manage Appointments" },
+            { id: "doctors",       label: "👨‍⚕️ Manage Doctors" },
+            { id: "patients",      label: "👤 Manage Patients" },
             { id: "prescriptions", label: "💊 Prescriptions" },
-            { id: "inventory", label: "📦 Inventory" },
-            { id: "alerts",    label: "🚨 Alerts" },
-            { id: "queue",     label: "🔔 Queue" },
-          ].map(item => (
+            { id: "inventory",     label: "📦 Inventory" },
+            { id: "alerts",        label: "🚨 Alerts" },
+            { id: "queue",         label: "🔔 Queue" },
+          ] as { id: Section; label: string }[]).map(item => (
             <button
               key={item.id}
               className={`navBtn ${active === item.id ? "active" : ""}`}
-              onClick={() => go(item.id as Section)}
+              onClick={() => go(item.id)}
             >
               {item.label}
             </button>
@@ -79,13 +84,13 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
       </aside>
 
       <main className="main">
-        {active === "home"      && <Home />}
-        {active === "doctors"   && <ManageDoctor />}
-        {active === "manage"    && <ManageAppointments user={user}/>}
-        {active === "inventory" && <Inventory />}
-        {active === "alerts"    && <Alerts />}
+        {active === "home"          && <Home />}
+        {active === "appointments"  && <ManageAppointments user={user} />}
+        {active === "doctors"       && <ManageDoctor />}
+        {active === "patients"      && <ManagePatients />}
         {active === "prescriptions" && <PrescriptionManagement />}
-        {/* {active === "queue"     && <Queue user={user} />} */}
+        {active === "inventory"     && <Inventory />}
+        {active === "alerts"        && <Alerts />}
       </main>
     </div>
   );

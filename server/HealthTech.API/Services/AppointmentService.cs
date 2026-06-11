@@ -123,6 +123,33 @@ namespace HealthTech.API.Services
             return (true, "Appointment booked successfully.", appointment);
         }
 
+        public async Task<(bool Success, string Message, Appointment? Result)>
+            CreateWalkInAsync(int patientId, int doctorId, string notes)
+        {
+            var patient = await _context.Patients.FindAsync(patientId);
+            if (patient == null)
+                return (false, "Patient not found.", null);
+
+            var doctor = await _context.Doctors.FindAsync(doctorId);
+            if (doctor == null)
+                return (false, "Doctor not found.", null);
+
+            var appointment = new Appointment
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                AppointmentDate = DateTime.UtcNow,
+                Status = "Pending",
+                Notes = notes
+            };
+
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync();
+
+            NotifyObservers(appointment, "WalkIn");
+
+            return (true, "Walk-in created.", appointment);
+        }
         // ─────────────────────────────────────────────────────────────────
         // USE CASE: View Appointment Status (Patient) / View Daily Appointments (Doctor)
         // ─────────────────────────────────────────────────────────────────

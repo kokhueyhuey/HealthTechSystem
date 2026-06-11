@@ -19,6 +19,7 @@ namespace HealthTech.API.Factories
                 PasswordHash = lastFourIC, 
                 PhoneNumber = request.PhoneNumber,
                 Role = "Patient",
+                Age = request.Age,
                 ICNumber = request.ICNumber,
                 Allergies = "None",
                 BloodType = "Unknown",
