@@ -22,9 +22,31 @@ namespace HealthTech.API.Controllers
 
         // GET: api/patients
         [HttpGet]
-        public async Task<IActionResult> GetPatients()
+        public async Task<IActionResult> GetPatients([FromQuery] string? search)
         {
-            var patients = await _context.Patients.ToListAsync();
+            var query = _context.Patients.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                p.Name.Contains(search) ||
+                p.ICNumber.Contains(search));
+            }
+
+            var patients = await query
+                .OrderBy(p => p.Name)
+                .Select(p => new {
+                    p.Id,
+                    p.Name,
+                    p.Email,
+                    p.PhoneNumber,
+                    p.ICNumber,
+                    p.Age,
+                    p.BloodType,
+                    p.Allergies,
+                })
+                .ToListAsync();
+
             return Ok(patients);
         }
 
@@ -35,8 +57,6 @@ namespace HealthTech.API.Controllers
             _context.Patients.Add(patient);
             await _context.SaveChangesAsync();
 
-            Console.WriteLine("🔥 SignalR triggered");
-
             // fortesting SignalR notification
             await _hub.Clients.All.SendAsync(
                 "ReceivePatientUpdate",
@@ -45,17 +65,91 @@ namespace HealthTech.API.Controllers
             return Ok(patient);
         }
 
-        /// UPDATE (PUT): api/patients/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePatient(int id, Patient updatedPatient)
+        // GET: api/patients/{id}/details
+        [HttpGet("{id}/details")]
+        public async Task<IActionResult> GetPatientDetails(int id)
         {
             var patient = await _context.Patients.FindAsync(id);
 
             if (patient == null)
-                return NotFound();
+                return NotFound(new { message = "Patient not found." });
 
+            // Visit summary only
+            var totalVisits = await _context.Appointments
+                .CountAsync(a => a.PatientId == id);
+
+            var lastVisit = await _context.Appointments
+                .Where(a => a.PatientId == id)
+                .OrderByDescending(a => a.AppointmentDate)
+                .Select(a => (DateTime?)a.AppointmentDate)
+                .FirstOrDefaultAsync();
+
+            // Prescription history
+            var prescriptions = await _context.Prescriptions
+                .Include(p => p.Items)
+                .Where(p => p.PatientId == id)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.AppointmentId,
+                    p.Status,
+                    p.NeedMc,
+                    p.McReason,
+                    p.McDays,
+                    p.CreatedAt,
+
+                    Items = p.Items.Select(item => new
+                    {
+                        item.Id,
+                        item.MedicineName,
+                        item.Dosage,
+                        item.Quantity,
+                        item.Preference,
+                        item.UsageInstruction
+                    })
+                })
+                .ToListAsync();
+
+            return Ok(new
+            {
+                patient.Id,
+                patient.Name,
+                patient.Email,
+                patient.PhoneNumber,
+                patient.ICNumber,
+                patient.Age,
+                patient.BloodType,
+                patient.Allergies,
+
+                prescriptions,
+
+                totalVisits,
+                totalPrescriptions = prescriptions.Count,
+                lastVisit
+            });
+        }
+        /// UPDATE (PUT): api/patients/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePatient(int id, Patient updatedPatient)
+        {
+            // 1. Validation to prevent ID mismatch
+            if (id != updatedPatient.Id)
+                return BadRequest(new { message = "ID mismatch." });
+
+            var patient = await _context.Patients.FindAsync(id);
+
+            if (patient == null)
+                return NotFound(new { message = "Patient not found." });
+
+            // 2. Update all editable fields (Fixed)
             patient.Name = updatedPatient.Name;
             patient.Age = updatedPatient.Age;
+            patient.Email = updatedPatient.Email;
+            patient.PhoneNumber = updatedPatient.PhoneNumber;
+            patient.ICNumber = updatedPatient.ICNumber;
+            patient.BloodType = updatedPatient.BloodType;
+            patient.Allergies = updatedPatient.Allergies;
 
             await _context.SaveChangesAsync();
 

@@ -129,6 +129,7 @@ namespace HealthTech.API.Controllers
         public string PhoneNumber { get; set; } = string.Empty;
         public string Role        { get; set; } = string.Empty;
         public string? ICNumber   { get; set; } 
+        public int Age { get; set; }
     }
 
     public class LoginRequest

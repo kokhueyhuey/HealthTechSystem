@@ -1,6 +1,9 @@
 using HealthTech.API.Services;
 using HealthTech.API.QueueObserver;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using HealthTech.API.Data;
+using HealthTech.API.Models;
 
 namespace HealthTech.API.Controllers
 {
@@ -26,11 +29,13 @@ namespace HealthTech.API.Controllers
     {
         private readonly AppointmentService _service;
         private readonly QueueService _queueService;
+        private readonly AppDbContext _context;
 
-        public AppointmentsController(AppointmentService service, QueueService queueService)
+        public AppointmentsController(AppointmentService service, QueueService queueService, AppDbContext context)
         {
             _service = service;
             _queueService = queueService;
+            _context = context;
         }
 
         // ── POST api/appointments/book 
@@ -57,6 +62,85 @@ namespace HealthTech.API.Controllers
             });
         }
 
+        [HttpPost("walkin")]
+        public async Task<IActionResult> WalkIn(
+            [FromBody] WalkInRequest req)
+        {
+            var (success, message, result)
+                = await _service.CreateWalkInAsync(
+                    req.PatientId,
+                    req.DoctorId,
+                    req.Notes ?? "");
+
+            if (!success)
+                return BadRequest(new { message });
+
+            return Ok(new
+            {
+                message,
+                appointmentId = result!.Id,
+                status = result.Status,
+                appointmentDate = result.AppointmentDate
+            });
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string? q, [FromQuery] DateTime? date)
+        {
+            IQueryable<Appointment> query = _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor);
+
+            // 1. Filter by Name (Patient/Doctor) or ID (Appt/Doctor)
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                if (int.TryParse(q, out int searchId))
+                {
+                    // Search by either Appointment ID OR Doctor ID
+                    query = query.Where(a => a.Id == searchId || a.DoctorId == searchId);
+                }
+                else
+                {
+                    var lower = q.ToLower();
+                    // Search by either Patient Name OR Doctor Name
+                    query = query.Where(a => 
+                        (a.Patient != null && a.Patient.Name.ToLower().Contains(lower)) ||
+                        (a.Doctor != null && a.Doctor.Name.ToLower().Contains(lower))
+                    );
+                }
+            }
+
+            // 2. Filter by Date
+            if (date.HasValue)
+            {
+                query = query.Where(a => a.AppointmentDate.Date == date.Value.Date);
+            }
+
+            // Default to today if no filters are provided to prevent loading the whole database
+            if (string.IsNullOrWhiteSpace(q) && !date.HasValue)
+            {
+                var today = DateTime.UtcNow.Date;
+                query = query.Where(a => a.AppointmentDate.Date >= today);
+            }
+
+            var result = await query
+                .OrderByDescending(a => a.AppointmentDate)
+                .Take(50)
+                .ToListAsync();
+
+            return Ok(result.Select(a => new
+            {
+                a.Id,
+                a.PatientId,
+                patientName = a.Patient!.Name,
+                patientPhone = a.Patient!.PhoneNumber ?? "—",
+                a.DoctorId,
+                doctorName = a.Doctor!.Name,
+                a.AppointmentDate,
+                a.Status,
+                a.Notes
+            }));
+        }
         // ── GET api/appointments/patient/{patientId}
         // USE CASE: View Appointment Status — Basic Flow step 3-4
         [HttpGet("patient/{patientId}")]
@@ -195,5 +279,11 @@ namespace HealthTech.API.Controllers
     {
         public int    DoctorId  { get; set; }
         public string NewStatus { get; set; } = string.Empty; // Pending | InProgress | Completed
+    }
+    public class WalkInRequest
+    {
+        public int PatientId { get; set; }
+        public int DoctorId { get; set; }
+        public string? Notes { get; set; }
     }
 }

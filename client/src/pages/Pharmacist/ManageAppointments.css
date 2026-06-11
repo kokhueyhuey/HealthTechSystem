@@ -1,0 +1,313 @@
+/* ── DASHBOARD LAYOUT ── */
+.dashboard-container {
+  padding: 30px;
+  background-color: #f4f7fb;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1e2d;
+  margin: 0;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-input {
+  padding: 10px 16px;
+  border: 1px solid #e0e4f0;
+  border-radius: 8px;
+  background: white;
+  color: #4a5568;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-text { 
+  flex: 1; 
+  min-width: 250px; 
+}
+
+.search-date { 
+  min-width: 150px; 
+}
+
+.search-btn {
+  background-color: white;
+  color: #4a5568;
+  border: 1px solid #e0e4f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.new-appt-btn {
+  background-color: #5a67d8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* ── TABLE STYLING ── */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.appointment-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.appointment-table th {
+  padding: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a0aec0;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e0e4f0;
+}
+
+.appointment-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #2d3748;
+  border-bottom: 1px solid #e0e4f0;
+  vertical-align: middle;
+}
+
+.time-col { 
+  font-weight: 600; 
+  color: #1a1e2d; 
+}
+
+.patient-name { 
+  font-weight: 500; 
+}
+
+.appt-id { 
+  font-size: 12px; 
+  color: #a0aec0; 
+}
+
+/* ── STATUS BADGES ── */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-Pending { background: #fef3c7; color: #d97706; }
+.status-InQueue { background: #ede9fe; color: #7c3aed; }
+.status-InConsultation { background: #e0f2fe; color: #0284c7; }
+.status-Completed { background: #d1fae5; color: #059669; }
+.status-Cancelled { background: #fee2e2; color: #dc2626; }
+
+/* ── ACTION BUTTONS ── */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid #e0e4f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #4a5568;
+}
+
+.action-btn:hover { background: #f4f7fb; }
+.action-btn.danger { color: #e53e3e; }
+.action-btn.danger:hover { background: #fff5f5; border-color: #feb2b2; }
+.action-btn.primary { background: #ebf4ff; color: #5a67d8; border: none; }
+.action-btn.primary:hover { background: #e0edff; }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.standard-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 450px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.standard-modal h3 { 
+  margin-top: 0; 
+  color: #1a1e2d; 
+  text-align: center; 
+}
+
+.standard-modal p { 
+  color: #4a5568; 
+  font-size: 14px; 
+  margin-bottom: 24px; 
+  text-align: center; 
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.dismiss-btn {
+  background: white;
+  color: rgb(182, 22, 22);
+  border: 1px solid #e0e4f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+}
+
+.confirm-btn {
+  background: #5a67d8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+}
+
+.confirm-btn.danger { background: #fc8181; }
+.confirm-btn.danger:hover { background: #f56565; }
+
+/* ── INLINE STYLE REPLACEMENTS ── */
+
+.empty-table-state {
+  text-align: center;
+  padding: 30px;
+}
+
+.modal-title {
+  margin-top: 0;
+  color: #1a1e2d;
+  text-align: center;
+}
+
+.modal-desc {
+  color: #4a5568;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Reschedule Modal Classes */
+.reschedule-inputs {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.flex-input {
+  flex: 1;
+}
+
+/* Walk-in Modal Classes */
+.walkin-modal {
+  width: 500px;
+}
+
+.walkin-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.fixed-btn {
+  flex: none;
+}
+
+.walkin-patient-row {
+  padding: 10px;
+  border-bottom: 1px solid #e0e4f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patient-ic {
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.walkin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.selected-patient-box {
+  background: #f4f7fb;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+/* Utility Margins */
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.full-width {
+  width: 100%;
+}

@@ -6,6 +6,15 @@ import type { DoctorAppointmentSummary } from "../../services/appointmentService
 
 import "./Appointments.css";
 
+function fmtTimeOnly(str: string) {
+  return new Date(str).toLocaleTimeString("en-MY", { timeStyle: "short" });
+}
+
+function fmtFriendlyDate(dateStr: string) {
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateStr).toLocaleDateString("en-MY", options);
+}
+
 export default function Appointments({ user }: { user: LoginResponse }) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -32,78 +41,103 @@ export default function Appointments({ user }: { user: LoginResponse }) {
   }, [user.id, date]);
 
   useEffect(() => {
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:5165/appointmentHub")
-    .withAutomaticReconnect()
-    .build();
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5165/appointmentHub")
+      .withAutomaticReconnect()
+      .build();
 
-  connection.on(
-    "ReceiveAppointmentUpdate",
-    (payload: { doctorId: number; eventType: string }) => {
-
-      if (payload.doctorId === user.id) {
-        load();
+    connection.on(
+      "ReceiveAppointmentUpdate",
+      (payload: { doctorId: number; eventType: string }) => {
+        if (payload.doctorId === user.id) {
+          load();
+        }
       }
-    }
-  );
+    );
 
-  connection.start().catch(err =>
-    console.warn("SignalR connection failed:", err)
-  );
+    connection.start().catch((err) =>
+      console.warn("SignalR connection failed:", err)
+    );
 
-  return () => {
-    connection.stop();
-  };
-}, [user.id, date]);
+    return () => {
+      connection.stop();
+    };
+  }, [user.id, date]);
 
   return (
-    <div>
-      <h2 className="pageTitle">Today's Appointments</h2>
+    <div className="pageContainer">
+      
+      {/* ── HEADER ── */}
+      <h2 className="pageTitle">Daily Schedule</h2>
+      <p className="pageSub">{fmtFriendlyDate(date)}</p>
 
-      <p className="pageSub">
-        {new Date().toLocaleDateString()} 
-      </p>
-
-      <div className="filterRow">
+      {/* ── SEARCH & FILTER ── */}
+      <div className="searchRow">
         <input
           type="date"
-          className="input"
+          className="searchInput"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
-
-        <button className="primaryBtn" onClick={load}>
-          Refresh
+        <button className="searchBtn" onClick={load} disabled={loading}>
+          {loading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
 
-      {loading && <p className="mutedText">Loading…</p>}
-      {error && <div className="errorBox">{error}</div>}
+      {error && <div className="errorBox">⚠️ {error}</div>}
 
-      {!loading && appointments.length === 0 && (
-        <div className="emptyState">
-          No appointments scheduled for this date.
-        </div>
-      )}
+      {/* ── DATA TABLE ── */}
+      <div className="tableContainer">
+        <table className="dataTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Appt ID</th>
+              <th>Patient Name</th>
+              <th>Notes</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={5} className="emptyState">
+                  <div className="loadingRow">
+                    <div className="spinner"></div> Loading appointments...
+                  </div>
+                </td>
+              </tr>
+            )}
 
-      {appointments.map((a) => (
-        <div key={a.id} className="apptRow">
-          <div className="apptTime">
-            {new Date(a.appointmentDate).toLocaleTimeString("en-MY", {
-              timeStyle: "short",
-            })}
-          </div>
+            {!loading && appointments.length === 0 && !error && (
+              <tr>
+                <td colSpan={5} className="emptyState">
+                  No appointments scheduled for this date.
+                </td>
+              </tr>
+            )}
 
-          <div className="apptInfo">
-            <div className="apptPatient">{a.patientName}</div>
-            {a.notes && <div className="apptNotes">{a.notes}</div>}
-          </div>
+            {!loading && appointments.map((a) => (
+              <tr key={a.id} className={a.status === 'Cancelled' ? 'cancelledRow' : ''}>
+                <td className="timeCell">{fmtTimeOnly(a.appointmentDate)}</td>
+                <td className="idCell">#{a.id}</td>
+                <td className="patientCell">
+                  <div className="patientName">{a.patientName}</div>
+                </td>
+                <td className="notesCell">
+                  {a.notes ? a.notes : <span className="emptyNotes">No notes provided</span>}
+                </td>
+                <td>
+                  <span className={`statusBadge status-${a.status}`}>
+                    {a.status === "InConsultation" ? "In Consult" : a.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-          <div className={`statusBadge status-${a.status.toLowerCase()}`}>
-            {a.status}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

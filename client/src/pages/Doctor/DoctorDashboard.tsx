@@ -6,6 +6,7 @@ import Home from "./Home";
 import Appointments from "./Appointments";
 import Status from "./Status";
 import Prescription from "./Prescription";
+import Patients     from "./ViewPatientDetails";
 
 import "./DoctorDashboard.css";
 
@@ -14,7 +15,7 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "appointments" | "status" | "prescription";
+type Section = "home" | "appointments" | "status" | "prescription" | "patients";
 
 export default function DoctorDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
       ? "status"
       : location.pathname.includes("/prescription")
       ? "prescription"
+      : location.pathname.includes("/patients")     
+      ? "patients"
+
       : "home";
 
   useEffect(() => {
@@ -63,6 +67,8 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
             { id: "appointments", label: "📋 Today's Appointments" },
             { id: "status", label: "✏️ Update Status" },
             { id: "prescription", label: "💊 Prescription" },
+            { id: "patients",     label: "👤 Patient Records" },
+
           ].map((item) => (
             <button
               key={item.id}
@@ -84,6 +90,7 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
         {active === "appointments" && <Appointments user={user} />}
         {active === "status" && <Status user={user} />}
         {active === "prescription" && <Prescription />}
+        {active === "patients"     && <Patients />}
       </main>
     </div>
   );

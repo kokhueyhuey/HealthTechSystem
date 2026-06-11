@@ -27,6 +27,7 @@ export interface RegisterRequest {
   phoneNumber: string;
   role: "Patient" | "Doctor" | "Pharmacist";
   icNumber?: string;
+  age?: number;
 }
 
 
