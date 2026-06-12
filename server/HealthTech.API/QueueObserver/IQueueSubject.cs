@@ -28,10 +28,8 @@ namespace HealthTech.API.Observer.Queue
         void RegisterObserver(IQueueObserver observer);
         void RemoveObserver(IQueueObserver observer);
 
-        /// <summary>
         /// Fans out the current QueueState to every registered observer.
         /// Always called internally by QueueService after mutating state.
-        /// </summary>
         Task NotifyObservers(Models.QueueState queueState, string eventType);
     }
 }

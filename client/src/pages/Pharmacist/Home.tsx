@@ -8,7 +8,7 @@ export default function Home() {
     { label: "Manage Appointments",   icon: "📋", color: "#f59e0b", desc: "Handle doctor unavailability — reschedule or cancel on behalf of patients", id: "manage" },
     { label: "Medicine Inventory",    icon: "📦", color: "#10b981", desc: "Add, update and monitor medicine stock levels", id: "inventory" },
     { label: "Alerts",                icon: "🚨", color: "#ef4444", desc: "Low stock and expiry date alerts", id: "alerts" },
-    { label: "Queue",                 icon: "🔔", color: "#8b5cf6", desc: "Patient check-in and queue management", id: "queue" },
+    // { label: "Queue",                 icon: "🔔", color: "#8b5cf6", desc: "Patient check-in and queue management", id: "queue" },
   ];
 
   return (

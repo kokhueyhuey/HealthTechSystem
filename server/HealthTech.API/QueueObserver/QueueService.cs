@@ -44,19 +44,20 @@ namespace HealthTech.API.QueueObserver
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // Only load today's records.  Loading all-time records inflates LastIssued
-            // with old Completed/Skipped entries, causing new patients to receive ticket
-            // numbers far above the real queue depth (e.g. ticket 13 when only 1 patient
-            // is active), which in turn makes the frontend show a bogus "12 ahead" count.
             var todayUtc = DateTime.UtcNow.Date;
+
+            // Load only today's active records into the in-memory queue.
             var persisted = await db.QueueRecords
                 .Include(q => q.Appointment)
-                    .ThenInclude(a => a.Patient)
+                    .ThenInclude(a => a!.Patient)
                 .Where(q => q.CreatedAt >= todayUtc)
                 .OrderBy(q => q.TicketNumber)
                 .ToListAsync();
 
-            // ── Startup cleanup ──────────────────────────────────────────
+            // LastIssued must reflect the absolute highest ticket ever issued so that
+            // ticket numbers never reset between days.
+            var globalMaxTicket = await db.QueueRecords.MaxAsync(q => (int?)q.TicketNumber) ?? 0;
+
             // A "Serving" queue record whose appointment is already "Completed"
             // means the doctor finished (wrote a prescription or completed
             // without one) but the server was restarted before the queue record
@@ -73,7 +74,6 @@ namespace HealthTech.API.QueueObserver
                 }
             }
             if (dirty) await db.SaveChangesAsync();
-            // ─────────────────────────────────────────────────────────────
 
             lock (_lock)
             {
@@ -93,6 +93,8 @@ namespace HealthTech.API.QueueObserver
                     });
                     _state.LastIssued = Math.Max(_state.LastIssued, record.TicketNumber);
                 }
+
+                _state.LastIssued = Math.Max(_state.LastIssued, globalMaxTicket);
 
                 var serving = _state.Queue.FirstOrDefault(e => e.Status == "Serving");
                 if (serving != null)
@@ -114,7 +116,7 @@ namespace HealthTech.API.QueueObserver
             if (!_initialized) await InitializeAsync();
         }
 
-        // -- IQueueSubject ----------------------------------------------
+        // -- IQueueSubject -
 
         public void RegisterObserver(IQueueObserver observer)
         {

@@ -68,7 +68,7 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
             { id: "prescriptions", label: "💊 Prescriptions" },
             { id: "inventory",     label: "📦 Inventory" },
             { id: "alerts",        label: "🚨 Alerts" },
-            { id: "queue",         label: "🔔 Queue" },
+            // { id: "queue",         label: "🔔 Queue" },
           ] as { id: Section; label: string }[]).map(item => (
             <button
               key={item.id}

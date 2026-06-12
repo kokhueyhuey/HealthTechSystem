@@ -5,8 +5,7 @@ export default function Home({ name }: { name: string }) {
 
   const cards = [
     { label: "Today's Appointments", icon: "📋", color: "#10b981", desc: "View your patient schedule for today", id: "appointments" },
-    { label: "Update Status",        icon: "✏️", color: "#3b82f6", desc: "Mark appointments in progress or done", id: "status" },
-    { label: "Prescription",         icon: "💊", color: "#8b5cf6", desc: "Generate prescriptions for patients", id: "prescription" },
+    { label: "Consultation",          icon: "🩺", color: "#3b82f6", desc: "Call patients and manage prescriptions", id: "consultation" },
     { label: "Patient Records",      icon: "👤", color: "#f59e0b", desc: "View and manage patient profiles and history", id: "patients" },
   ];
 
