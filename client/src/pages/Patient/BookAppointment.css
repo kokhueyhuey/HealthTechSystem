@@ -1,68 +1,116 @@
-/* CENTER FORM */
+/* ── Page wrapper ────────────────────────────────────────────────── */
 .formPage {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 50px;
+  padding-top: 40px;
 }
 
-/* FORM CARD */
+/* ── Card ────────────────────────────────────────────────────────── */
 .formCard {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   padding: 28px;
-  width: 420px;
-
+  width: 440px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* INPUTS */
-.input, .select {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: #fff;
-  outline: none;
+/* ── Text ────────────────────────────────────────────────────────── */
+.pageTitle {
+  color: #121c2a;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
 }
 
-/* FIX CALENDAR ICON + DARK PICKER */
-input[type="date"] {
-  color-scheme: dark;
-}
-
-/* FIX DROPDOWN VISIBILITY */
-.select option {
-  background: #1a1f2b;
-  color: #fff;
-}
-
-/* BUTTON */
-.primaryBtn {
-  background: #10b981;
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.primaryBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* HOVER */
-.input:hover, .select:hover {
-  border-color: #10b981;
-}
-
-/* LABEL */
-label {
-  color: #8892a4;
+.pageSub {
+  color: #64748b;
   font-size: 13px;
+  margin: 0 0 18px;
+}
+
+/* ── Labels ──────────────────────────────────────────────────────── */
+label {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────── */
+.input,
+.select {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: #121c2a;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.12s;
+}
+
+.input:hover,
+.select:hover { border-color: #d1d5db; }
+
+.input:focus,
+.select:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+input[type="date"] { color-scheme: light; }
+
+.select option {
+  background: #ffffff;
+  color: #121c2a;
+}
+
+/* ── Button ──────────────────────────────────────────────────────── */
+.primaryBtn {
+  margin-top: 20px;
+  width: 100%;
+  background: #d97706;
+  border: none;
+  border-radius: 6px;
+  padding: 11px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.primaryBtn:hover    { background: #b45309; }
+.primaryBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Feedback ────────────────────────────────────────────────────── */
+.successBox {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #166534;
+  font-size: 13.5px;
+}
+
+.errorBox {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #991b1b;
+  font-size: 13.5px;
 }

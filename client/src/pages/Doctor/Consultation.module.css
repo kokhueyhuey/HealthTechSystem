@@ -1,75 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-
-/* ── Page ─────────────────────────────────────────────────── */
+/* ── Page ────────────────────────────────────────────────────────── */
 .page {
-  min-height: 100vh;
-  padding: 36px 32px 60px;
-  background: #080a0d;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
+  color: #121c2a;
   max-width: 820px;
   margin: 0 auto;
 }
 
 .pageTitle {
-  font-family: 'Syne', sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
-  color: #eff6ff;
-  letter-spacing: -0.3px;
-  margin-bottom: 4px;
-  animation: appear 0.4s ease both;
+  letter-spacing: -0.01em;
+  color: #121c2a;
+  margin: 0 0 4px;
 }
 
 .pageMeta {
   font-size: 13px;
-  color: #3b4a63;
-  font-weight: 300;
-  margin-bottom: 28px;
-  animation: appear 0.4s ease 0.05s both;
+  color: #64748b;
+  margin-bottom: 24px;
 }
 
-/* ── Feedback banners ─────────────────────────────────────── */
+/* ── Feedback banners ─────────────────────────────────────────────── */
 .successBox {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-left: 3px solid #22c55e;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 12px 16px;
   font-size: 13px;
-  color: #4ade80;
+  color: #166534;
   margin-bottom: 20px;
-  animation: appear 0.3s ease both;
 }
 
 .errorBox {
-  background: rgba(239, 68, 68, 0.07);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-left: 3px solid #ef4444;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 12px 16px;
   font-size: 13px;
-  color: #f87171;
+  color: #991b1b;
   margin-bottom: 20px;
-  animation: appear 0.3s ease both;
 }
 
-/* ── Queue card ───────────────────────────────────────────── */
+/* ── Queue card ───────────────────────────────────────────────────── */
 .queueCard {
-  background: #0d1117;
-  border: 1px solid rgba(34, 197, 94, 0.15);
-  border-top: 3px solid #22c55e;
-  border-radius: 14px;
-  padding: 22px 24px;
-  margin-bottom: 24px;
-  animation: appear 0.4s ease 0.08s both;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-top: 3px solid #2563eb;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
 }
 
 .queueCardTitle {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #4ade80;
-  margin: 0 0 16px 0;
+  color: #2563eb;
+  margin: 0 0 14px;
 }
 
 .queueContent {
@@ -80,245 +68,211 @@
   flex-wrap: wrap;
 }
 
-.queueInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.queueInfo { display: flex; flex-direction: column; gap: 4px; }
 
 .nowServing {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.4rem;
+  font-size: 18px;
   font-weight: 700;
-  color: #ecfdf5;
+  color: #121c2a;
+  letter-spacing: -0.01em;
 }
 
 .waitingCount {
   font-size: 13px;
-  color: #22c55e;
-  font-weight: 400;
+  color: #2563eb;
 }
 
 .servingPatient {
   font-size: 13px;
-  color: #4ade80;
-  font-weight: 300;
-  margin-top: 4px;
+  color: #64748b;
 }
 
 .callBtn {
-  padding: 12px 22px;
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-  background: #22c55e;
+  font-family: 'Inter', sans-serif;
+  background: #2563eb;
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: background 0.12s;
   white-space: nowrap;
 }
 
-.callBtn:hover:not(:disabled) {
-  background: #16a34a;
-}
+.callBtn:hover:not(:disabled) { background: #1d4ed8; }
+.callBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.callBtn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* ── Consultation section ─────────────────────────────────── */
+/* ── States ───────────────────────────────────────────────────────── */
 .loadingState {
   padding: 40px 0;
   text-align: center;
-  color: #3b4a63;
+  color: #94a3b8;
   font-size: 14px;
-  font-weight: 300;
 }
 
 .emptyState {
-  background: #0d1117;
-  border: 1px dashed rgba(255, 255, 255, 0.07);
-  border-radius: 14px;
+  background: #f8f9ff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
   padding: 48px 24px;
   text-align: center;
-  animation: appear 0.4s ease 0.1s both;
 }
 
 .emptyState p {
   margin: 4px 0;
   font-size: 14px;
-  color: #3b4a63;
-  font-weight: 300;
+  color: #94a3b8;
 }
 
-/* ── Cards ────────────────────────────────────────────────── */
+/* ── Content cards ────────────────────────────────────────────────── */
 .card {
-  background: #0d1117;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
-  padding: 22px 24px;
-  margin-bottom: 18px;
-  animation: appear 0.4s ease 0.1s both;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
 }
 
 .cardTitle {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #bfdbfe;
-  margin: 0 0 14px 0;
+  color: #121c2a;
+  margin: 0 0 12px;
 }
 
 .card p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 6px 0;
+  font-size: 14px;
+  color: #374151;
+  margin: 5px 0;
 }
 
-.card p strong {
-  color: #94a3b8;
-}
+.card p strong { color: #121c2a; }
 
 .decisionText {
   font-size: 13px;
   color: #64748b;
   line-height: 1.6;
-  margin-bottom: 16px !important;
+  margin-bottom: 14px !important;
 }
 
-/* ── Prescription form ────────────────────────────────────── */
+/* ── Prescription form ────────────────────────────────────────────── */
 .itemBox {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 16px;
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  border-radius: 12px;
-  margin-bottom: 14px;
-  background: rgba(59, 130, 246, 0.03);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #f8f9ff;
 }
 
 .input,
 .select,
 .textarea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #080a0d;
-  color: #e2e8f0;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #121c2a;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.12s;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
-.select option {
-  background: #0d1117;
-}
+.textarea { min-height: 72px; resize: vertical; }
 
-.textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-/* ── Buttons ──────────────────────────────────────────────── */
+/* ── Buttons ──────────────────────────────────────────────────────── */
 .addBtn {
-  padding: 10px 18px;
-  border: 1px solid rgba(37, 99, 235, 0.4);
-  border-radius: 8px;
-  background: rgba(37, 99, 235, 0.12);
-  color: #93c5fd;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  padding: 9px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s ease;
-  margin-right: 10px;
+  transition: background 0.12s;
+  margin-right: 8px;
 }
 
-.addBtn:hover {
-  background: rgba(37, 99, 235, 0.22);
-}
+.addBtn:hover { background: #f1f5f9; }
 
 .removeBtn {
-  padding: 8px 14px;
+  padding: 7px 12px;
   border: none;
-  border-radius: 8px;
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
-  font-family: 'DM Sans', sans-serif;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   align-self: flex-start;
-  transition: background 0.15s ease;
+  transition: background 0.12s;
 }
 
-.removeBtn:hover {
-  background: rgba(239, 68, 68, 0.22);
-}
+.removeBtn:hover { background: #fecaca; }
 
 .submitBtn {
   display: block;
   width: 100%;
-  padding: 13px;
+  padding: 12px;
   border: none;
-  border-radius: 10px;
-  background: #22c55e;
+  border-radius: 6px;
+  background: #2563eb;
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 14px;
-  transition: background 0.15s ease;
+  transition: background 0.12s;
 }
 
-.submitBtn:hover {
-  background: #16a34a;
-}
+.submitBtn:hover { background: #1d4ed8; }
 
 .completeBtn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(245, 158, 11, 0.12);
-  color: #fcd34d;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  padding: 9px 16px;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #92400e;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.12s;
 }
 
-.completeBtn:hover {
-  background: rgba(245, 158, 11, 0.22);
-}
+.completeBtn:hover { background: #fef3c7; }
 
-/* ── MC section ───────────────────────────────────────────── */
+/* ── MC section ───────────────────────────────────────────────────── */
 .mcBox {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .mcLabel {
-  font-size: 13px;
-  color: #94a3b8;
+  font-size: 13.5px;
+  color: #374151;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -326,13 +280,7 @@
 }
 
 .mcLabel input[type="checkbox"] {
-  accent-color: #3b82f6;
+  accent-color: #2563eb;
   width: 15px;
   height: 15px;
-}
-
-/* ── Animations ───────────────────────────────────────────── */
-@keyframes appear {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
 }

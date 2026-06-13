@@ -1,105 +1,107 @@
-/* ── Page Layout ────────────────────────────────────────────────────────── */
+/* ── Page ────────────────────────────────────────────────────────── */
 .pageContainer {
-  padding: 30px;
-  background-color: #0b1121; /* Deep black/slate background */
-  min-height: 100vh;
   font-family: 'Inter', sans-serif;
-  color: #fff;
+  color: #121c2a;
 }
 
-.pageTitle { 
-  color: #fff; 
-  font-size: 26px; 
-  font-weight: 700; 
-  margin: 0 0 6px; 
+.pageTitle {
+  color: #121c2a;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
 }
 
-.pageSub { 
-  color: #8892a4; 
-  font-size: 14px; 
-  margin-bottom: 28px; 
+.pageSub {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0 0 24px;
 }
 
-.emptyState { 
-  color: #8892a4; 
-  font-size: 14px; 
-  padding: 40px 0; 
-  text-align: center; 
+.emptyState {
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
 }
 
-/* ── Feedback & Loading ─────────────────────────────────────────────────── */
-.errorBox { 
-  background: rgba(248,113,113,0.1); 
-  border: 1px solid rgba(248,113,113,0.3); 
-  border-radius: 10px; 
-  padding: 12px 16px; 
-  color: #f87171; 
-  font-size: 14px; 
-  margin-bottom: 20px; 
+/* ── Feedback ────────────────────────────────────────────────────── */
+.errorBox {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #991b1b;
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .loadingRow {
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  color: #8892a4; 
+  color: #64748b;
   font-size: 14px;
 }
 
 .spinner {
-  width: 18px; 
-  height: 18px; 
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.1);
-  border-top-color: #10b981;
+  border: 2px solid #e5e7eb;
+  border-top-color: #2563eb;
   animation: spin 0.7s linear infinite;
 }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Search & Filters ───────────────────────────────────────────────────── */
+/* ── Search row ──────────────────────────────────────────────────── */
 .searchRow {
-  display: flex; 
-  gap: 12px; 
-  margin-bottom: 24px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
 }
 
 .searchInput {
-  width: 200px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px; 
-  padding: 10px 16px;
-  color: #fff; 
-  font-size: 14px; 
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 9px 14px;
+  color: #121c2a;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
   outline: none;
-  color-scheme: dark; /* Native dark mode for the calendar popup */
-  transition: border-color 0.2s;
+  transition: border-color 0.12s;
+  width: 180px;
 }
-.searchInput:focus { border-color: rgba(6,182,212,0.5); }
+
+.searchInput:focus { border-color: #2563eb; }
 
 .searchBtn {
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  color: #fff; 
-  border: none; 
-  border-radius: 10px;
-  padding: 10px 24px; 
-  font-size: 14px; 
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 20px;
+  font-size: 14px;
   font-weight: 600;
-  cursor: pointer; 
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.2s;
+  transition: background 0.12s;
 }
-.searchBtn:hover { opacity: 0.9; }
-.searchBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── Data Table ─────────────────────────────────────────────────────────── */
+.searchBtn:hover    { background: #1d4ed8; }
+.searchBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Table ───────────────────────────────────────────────────────── */
 .tableContainer {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .dataTable {
@@ -109,96 +111,48 @@
 }
 
 .dataTable th {
-  padding: 16px 20px;
-  font-size: 12px;
+  padding: 12px 16px;
+  font-size: 11px;
   font-weight: 600;
-  color: #8892a4;
+  color: #64748b;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.02);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
 }
 
 .dataTable td {
-  padding: 16px 20px;
+  padding: 14px 16px;
   font-size: 14px;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: #374151;
+  border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
 }
 
-.dataTable tr:last-child td {
-  border-bottom: none;
-}
+.dataTable tr:last-child td { border-bottom: none; }
+.dataTable tr:hover td { background: #f8f9ff; }
 
-.dataTable tr:hover td {
-  background: rgba(255,255,255,0.015);
-}
+.cancelledRow { opacity: 0.5; }
 
-/* Dim cancelled rows */
-.cancelledRow {
-  opacity: 0.4;
-}
+/* ── Cell types ──────────────────────────────────────────────────── */
+.timeCell    { color: #2563eb; font-weight: 600; white-space: nowrap; }
+.idCell      { color: #94a3b8; font-size: 13px; }
+.patientName { font-weight: 600; color: #121c2a; }
+.notesCell   { color: #64748b; font-size: 13px; max-width: 260px; }
+.emptyNotes  { font-style: italic; color: #cbd5e1; }
 
-/* ── Table Cell Styles ──────────────────────────────────────────────────── */
-.timeCell {
-  color: #10b981; /* Emerald green accent */
-  font-weight: 700;
+/* ── Status badges ───────────────────────────────────────────────── */
+.statusBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
   white-space: nowrap;
 }
 
-.idCell {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.patientName {
-  font-weight: 600;
-  color: #fff;
-}
-
-.notesCell {
-  color: #9ca3af;
-  font-size: 13px;
-  max-width: 300px;
-}
-
-.emptyNotes {
-  font-style: italic;
-  color: #4b5563;
-}
-
-/* ── Status Badges ──────────────────────────────────────────────────────── */
-.statusBadge { 
-  font-size: 12px; 
-  font-weight: 600; 
-  padding: 6px 14px; 
-  border-radius: 20px; 
-  white-space: nowrap; 
-  display: inline-block;
-}
-
-.status-Pending { 
-  background: rgba(245,158,11,0.1); 
-  color: #fcd34d; 
-  border: 1px solid rgba(245,158,11,0.2); 
-}
-.status-InQueue { 
-  background: rgba(139,92,246,0.1); 
-  color: #c4b5fd; 
-  border: 1px solid rgba(139,92,246,0.2); 
-}
-.status-InConsultation { 
-  background: rgba(14,165,233,0.1); 
-  color: #7dd3fc; 
-  border: 1px solid rgba(14,165,233,0.2); 
-}
-.status-Completed { 
-  background: rgba(16,185,129,0.1); 
-  color: #6ee7b7; 
-  border: 1px solid rgba(16,185,129,0.2); 
-}
-.status-Cancelled { 
-  background: rgba(239,68,68,0.1); 
-  color: #fca5a5; 
-  border: 1px solid rgba(239,68,68,0.2); 
-}
+.status-Pending        { background: #fef3c7; color: #92400e; }
+.status-InQueue        { background: #ede9fe; color: #5b21b6; }
+.status-InConsultation { background: #dbeafe; color: #1e40af; }
+.status-Completed      { background: #dcfce7; color: #166534; }
+.status-Cancelled      { background: #fee2e2; color: #991b1b; }

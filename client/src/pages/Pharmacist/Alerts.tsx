@@ -179,23 +179,23 @@ function getStatusStyle(status: string): React.CSSProperties {
   if (status === "Expired") {
     return {
       ...styles.status,
-      background: "#7f1d1d",
-      color: "#fecaca",
+      background: "#fee2e2",
+      color: "#991b1b",
     };
   }
 
   if (status === "Out of Stock") {
     return {
       ...styles.status,
-      background: "#991b1b",
-      color: "#fee2e2",
+      background: "#fef2f2",
+      color: "#dc2626",
     };
   }
 
   return {
     ...styles.status,
-    background: "#78350f",
-    color: "#fde68a",
+    background: "#fef3c7",
+    color: "#92400e",
   };
 }
 
@@ -207,45 +207,61 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: "24px",
   },
   card: {
-    background: "#1f2937",
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
     padding: "20px",
-    borderRadius: "14px",
+    borderRadius: "10px",
     textAlign: "center",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   alertBox: {
-    background: "#1f2937",
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
     padding: "20px",
-    borderRadius: "14px",
+    borderRadius: "10px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   row: {
+    display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "20px",
+    background: "#f8f9ff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    padding: "12px 16px",
+    marginTop: "10px",
   },
   desc: {
-    color: "#9ca3af",
+    color: "#64748b",
     margin: "4px 0",
+    fontSize: "13px",
   },
   status: {
-    padding: "8px 12px",
-    borderRadius: "999px",
-    fontWeight: "bold",
+    padding: "5px 12px",
+    borderRadius: "20px",
+    fontWeight: "600",
+    fontSize: "12px",
     textAlign: "center",
   },
   restockBtn: {
-    padding: "8px 12px",
+    padding: "7px 14px",
     border: "none",
-    borderRadius: "8px",
-    background: "#22c55e",
-    color: "white",
+    borderRadius: "6px",
+    background: "#dcfce7",
+    color: "#166534",
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
   },
   deleteBtn: {
-    padding: "8px 12px",
+    padding: "7px 14px",
     border: "none",
-    borderRadius: "8px",
-    background: "#ef4444",
-    color: "white",
+    borderRadius: "6px",
+    background: "#fee2e2",
+    color: "#dc2626",
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
   },
 };
