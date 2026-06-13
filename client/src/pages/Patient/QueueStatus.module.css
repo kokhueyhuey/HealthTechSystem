@@ -1,254 +1,220 @@
-/* ══════════════════════════════════════════════════════════════
-   QueueStatus.module.css  — PATIENT view
-   Aesthetic: calm waiting-room warmth. Soft amber/cream tones,
-   large readable numbers, gentle pulse animation to signal live.
-   Font: Playfair Display (numerals) + DM Sans (labels)
-   ══════════════════════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-
-/* ── Page ─────────────────────────────────────────────────── */
+/* ── Page ────────────────────────────────────────────────────────── */
 .page {
-  min-height: 100vh;
-  padding: 40px 24px 60px;
-  background: #0d0f12;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
+  color: #121c2a;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
+  gap: 20px;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-/* ── Header ───────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────── */
 .header {
-  text-align: center;
-  animation: fadeDown 0.5s ease both;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px 24px;
 }
 
 .pageTitle {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 600;
-  color: #f0ece3;
-  letter-spacing: -0.2px;
-  margin-bottom: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #121c2a;
+  margin: 0 0 2px;
 }
 
 .pageSubtitle {
   font-size: 13px;
-  font-weight: 300;
-  color: #5a5a52;
-  letter-spacing: 0.4px;
+  color: #64748b;
+  margin: 0;
 }
 
-/* ── Live indicator ───────────────────────────────────────── */
+/* ── Live indicator ──────────────────────────────────────────────── */
 .liveChip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 20px;
   padding: 4px 12px;
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.8px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #fbbf24;
-  margin-top: 10px;
+  color: #166534;
 }
 
 .liveDot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #fbbf24;
+  background: #22c55e;
   animation: pulse 1.8s ease-in-out infinite;
 }
 
-/* ── Your ticket card ─────────────────────────────────────── */
-.ticketCard {
-  width: 100%;
-  max-width: 340px;
-  background: linear-gradient(145deg, #1a1710 0%, #14120d 100%);
-  border: 1px solid rgba(251, 191, 36, 0.2);
-  border-radius: 24px;
-  padding: 40px 32px 36px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(251,191,36,0.05),
-    0 20px 60px rgba(0,0,0,0.5);
-  animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+/* ── Muted text ──────────────────────────────────────────────────── */
+.mutedText {
+  color: #64748b;
+  font-size: 14px;
+  padding: 20px 0;
 }
 
-/* Corner accent */
-.ticketCard::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
-  pointer-events: none;
+/* ── Ticket card ─────────────────────────────────────────────────── */
+.ticketCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-top: 4px solid #d97706;
+  border-radius: 10px;
+  padding: 32px 24px;
+  text-align: center;
+  animation: fadeUp 0.4s ease both;
 }
 
 .ticketEyebrow {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #6b6347;
-  margin-bottom: 18px;
+  color: #94a3b8;
+  margin-bottom: 16px;
 }
 
 .ticketNumber {
-  font-family: 'Playfair Display', serif;
-  font-size: 80px;
+  font-size: 64px;
   font-weight: 700;
-  color: #fbbf24;
+  color: #d97706;
   line-height: 1;
   letter-spacing: -2px;
-  text-shadow: 0 0 40px rgba(251,191,36,0.3);
 }
 
 .ticketLabel {
   font-size: 12px;
-  font-weight: 300;
-  color: #5a5a52;
+  color: #94a3b8;
   margin-top: 10px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
-/* ── Status row ───────────────────────────────────────────── */
+/* ── Status row ──────────────────────────────────────────────────── */
 .statusRow {
-  width: 100%;
-  max-width: 340px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  animation: fadeUp 0.4s ease 0.1s both;
 }
 
 .statusBox {
-  background: #13120e;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 20px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px 16px;
   text-align: center;
 }
 
 .statusBoxValue {
-  font-family: 'Playfair Display', serif;
-  font-size: 32px;
-  font-weight: 600;
-  color: #e8e0cc;
+  font-size: 28px;
+  font-weight: 700;
+  color: #121c2a;
   line-height: 1;
 }
 
 .statusBoxLabel {
   font-size: 11px;
-  font-weight: 400;
-  color: #4a4840;
+  font-weight: 500;
+  color: #64748b;
   margin-top: 6px;
-  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* ── Wait time estimate ───────────────────────────────────── */
+/* ── Wait time ───────────────────────────────────────────────────── */
 .waitCard {
-  width: 100%;
-  max-width: 340px;
-  background: #13120e;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 20px 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+  animation: fadeUp 0.4s ease 0.15s both;
 }
 
-.waitLabel {
-  font-size: 12px;
-  font-weight: 400;
-  color: #4a4840;
-}
+.waitLabel { font-size: 13px; color: #64748b; }
 
 .waitValue {
-  font-family: 'Playfair Display', serif;
   font-size: 22px;
-  font-weight: 600;
-  color: #fbbf24;
+  font-weight: 700;
+  color: #d97706;
 }
 
-/* ── Alert: it's your turn ────────────────────────────────── */
+/* ── Alert: it's your turn ───────────────────────────────────────── */
 .alertBanner {
-  width: 100%;
-  max-width: 340px;
-  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.05));
-  border: 1px solid rgba(251,191,36,0.4);
-  border-radius: 16px;
-  padding: 20px 24px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 18px 22px;
   text-align: center;
-  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .alertTitle {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  color: #fbbf24;
-  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 4px;
 }
 
 .alertSub {
   font-size: 13px;
-  color: #a89060;
-  font-weight: 300;
+  color: #b45309;
 }
 
-/* ── Queue position bar ───────────────────────────────────── */
+/* ── Queue progress bar ──────────────────────────────────────────── */
 .positionBar {
-  width: 100%;
-  max-width: 340px;
-  animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.35s both;
+  animation: fadeUp 0.4s ease 0.2s both;
 }
 
 .positionBarLabel {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
-  color: #4a4840;
+  font-size: 12px;
+  color: #64748b;
   margin-bottom: 8px;
 }
 
 .positionBarTrack {
   height: 6px;
-  background: #1e1c18;
+  background: #e5e7eb;
   border-radius: 10px;
   overflow: hidden;
 }
 
 .positionBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #92600a, #fbbf24);
+  background: linear-gradient(90deg, #f59e0b, #d97706);
   border-radius: 10px;
-  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+  transition: width 0.7s ease;
 }
 
-/* ── Animations ───────────────────────────────────────────── */
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ── Animations ──────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.4; transform: scale(0.7); }
 }
+
 @keyframes popIn {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.92); }
   to   { opacity: 1; transform: scale(1); }
 }

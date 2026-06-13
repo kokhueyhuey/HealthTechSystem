@@ -61,41 +61,41 @@ export default function ManageDoctors() {
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: 640, margin: "0 auto" }}>
       <h2 className="pageTitle">Manage Doctors</h2>
       <p className="pageSub">Add new doctors to the system or remove existing ones.</p>
 
       {actionMsg && (
-        <div style={{ padding: 16, borderRadius: 8, marginBottom: 20, background: actionMsg.includes("✅") ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: actionMsg.includes("✅") ? "#34d399" : "#f87171" }}>
+        <div style={{ padding: 16, borderRadius: 8, marginBottom: 20, background: actionMsg.includes("✅") ? "#f0fdf4" : "#fef2f2", color: actionMsg.includes("✅") ? "#166534" : "#dc2626", border: `1px solid ${actionMsg.includes("✅") ? "#bbf7d0" : "#fecaca"}` }}>
           {actionMsg}
         </div>
       )}
 
       {/* CREATE FORM */}
-      <form onSubmit={handleCreate} style={{ background: "rgba(255,255,255,0.05)", padding: 24, borderRadius: 12, display: "flex", flexDirection: "column", gap: 12, maxWidth: 500, marginBottom: 30 }}>
+      <form onSubmit={handleCreate} style={{ background: "#ffffff", border: "1px solid #e5e7eb", padding: 24, borderRadius: 12, display: "flex", flexDirection: "column", gap: 12, maxWidth: 500, marginBottom: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
         <h3>Add New Doctor</h3>
-        
+
         <input style={styles.input} placeholder="Full Name (e.g. Dr. John Doe)" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
         <input style={styles.input} type="email" placeholder="Email Address" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
         <input style={styles.input} placeholder="Phone Number" value={form.phoneNumber} onChange={e => setForm({...form, phoneNumber: e.target.value})} required />
         <input style={styles.input} type="password" placeholder="Temporary Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
-        
+
         <button style={styles.btn} type="submit" disabled={loading}>
           {loading ? "Creating..." : "Create Doctor Account"}
         </button>
       </form>
 
       {/* DOCTOR LIST */}
-      <div style={{ background: "rgba(255,255,255,0.05)", padding: 24, borderRadius: 12 }}>
+      <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", padding: 24, borderRadius: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
         <h3>Current Doctors</h3>
         {doctors.length === 0 ? <p>No doctors found.</p> : (
           doctors.map(d => (
-            <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #e5e7eb" }}>
               <div>
-                <strong>{d.name}</strong> <span style={{ color: "#8892a4", fontSize: 12 }}>({d.specialization})</span>
-                <div style={{ fontSize: 13, color: "#8892a4" }}>{d.email} | {d.phoneNumber}</div>
+                <strong>{d.name}</strong> <span style={{ color: "#64748b", fontSize: 12 }}>({d.specialization})</span>
+                <div style={{ fontSize: 13, color: "#64748b" }}>{d.email} | {d.phoneNumber}</div>
               </div>
-              <button onClick={() => handleDelete(d.id, d.name)} style={{ background: "#ef4444", color: "#fff", border: "none", padding: "8px 12px", borderRadius: 8, cursor: "pointer" }}>
+              <button onClick={() => handleDelete(d.id, d.name)} style={{ background: "#fee2e2", color: "#dc2626", border: "none", padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
                 Remove
               </button>
             </div>
@@ -107,6 +107,6 @@ export default function ManageDoctors() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  input: { background: "#0f1117", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", padding: 12, borderRadius: 8 },
-  btn: { background: "#3b82f6", color: "#fff", border: "none", padding: 12, borderRadius: 8, fontWeight: "bold", cursor: "pointer" }
+  input: { background: "#ffffff", border: "1px solid #e5e7eb", color: "#121c2a", padding: 12, borderRadius: 8, fontSize: 14, fontFamily: "Inter, sans-serif", outline: "none" },
+  btn: { background: "#0d9488", color: "#fff", border: "none", padding: 12, borderRadius: 8, fontWeight: "bold", cursor: "pointer", fontSize: 14, fontFamily: "Inter, sans-serif" },
 };
