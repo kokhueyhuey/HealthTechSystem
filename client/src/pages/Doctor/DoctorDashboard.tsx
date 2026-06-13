@@ -4,8 +4,7 @@ import type { LoginResponse } from "../../services/api";
 
 import Home from "./Home";
 import Appointments from "./Appointments";
-import Status from "./Status";
-import Prescription from "./Prescription";
+import Consultation from "./Consultation";
 import Patients     from "./ViewPatientDetails";
 
 import "./DoctorDashboard.css";
@@ -15,7 +14,7 @@ interface Props {
   onLogout: () => void;
 }
 
-type Section = "home" | "appointments" | "status" | "prescription" | "patients";
+type Section = "home" | "appointments" | "consultation" | "patients";
 
 export default function DoctorDashboard({ user, onLogout }: Props) {
   const navigate = useNavigate();
@@ -24,11 +23,9 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
   const active: Section =
     location.pathname.includes("/appointments")
       ? "appointments"
-      : location.pathname.includes("/status")
-      ? "status"
-      : location.pathname.includes("/prescription")
-      ? "prescription"
-      : location.pathname.includes("/patients")     
+      : location.pathname.includes("/consultation")
+      ? "consultation"
+      : location.pathname.includes("/patients")
       ? "patients"
 
       : "home";
@@ -65,8 +62,7 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
           {[
             { id: "home", label: "🏠 Overview" },
             { id: "appointments", label: "📋 Today's Appointments" },
-            { id: "status", label: "✏️ Update Status" },
-            { id: "prescription", label: "💊 Prescription" },
+            { id: "consultation", label: "🩺 Consultation" },
             { id: "patients",     label: "👤 Patient Records" },
 
           ].map((item) => (
@@ -88,8 +84,7 @@ export default function DoctorDashboard({ user, onLogout }: Props) {
       <main className="main">
         {active === "home" && <Home name={user.name} />}
         {active === "appointments" && <Appointments user={user} />}
-        {active === "status" && <Status user={user} />}
-        {active === "prescription" && <Prescription />}
+        {active === "consultation" && <Consultation user={user} />}
         {active === "patients"     && <Patients />}
       </main>
     </div>
