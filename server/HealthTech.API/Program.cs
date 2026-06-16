@@ -1,9 +1,7 @@
 using HealthTech.API.Data;
 using HealthTech.API.Hubs;
-using HealthTech.API.Observer.Queue;
-using HealthTech.API.QueueObserver;
-using HealthTech.API.Observer;
-using HealthTech.API.Services;          
+using HealthTech.API.Patterns.QueueObserver;
+using HealthTech.API.Patterns.AppointmentObserver;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 

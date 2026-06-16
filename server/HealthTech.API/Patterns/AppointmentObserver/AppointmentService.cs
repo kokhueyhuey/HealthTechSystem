@@ -1,10 +1,8 @@
 using HealthTech.API.Data;
 using HealthTech.API.Models;
-using HealthTech.API.Observer;
 using Microsoft.EntityFrameworkCore;
 
-namespace HealthTech.API.Services
-{
+namespace HealthTech.API.Patterns.AppointmentObserver{
     // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — The Subject (Concrete)
     //

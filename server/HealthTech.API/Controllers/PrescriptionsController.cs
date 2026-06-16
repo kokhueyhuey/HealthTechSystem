@@ -4,7 +4,7 @@ using HealthTech.API.Patterns.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HealthTech.API.Patterns.State;
-using HealthTech.API.QueueObserver;
+using HealthTech.API.Patterns.QueueObserver;
 
 namespace HealthTech.API.Controllers
 {

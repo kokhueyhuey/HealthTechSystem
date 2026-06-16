@@ -1,9 +1,8 @@
 using HealthTech.API.Data;
 using HealthTech.API.Models;
-using HealthTech.API.Observer.Queue;
 using Microsoft.EntityFrameworkCore;
 
-namespace HealthTech.API.QueueObserver
+namespace HealthTech.API.Patterns.QueueObserver
 {
     // --------------------------------------------------------------------
     // OBSERVER PATTERN � Concrete Subject: QueueService

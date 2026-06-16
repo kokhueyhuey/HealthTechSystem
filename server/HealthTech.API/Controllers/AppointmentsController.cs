@@ -1,5 +1,5 @@
-using HealthTech.API.Services;
-using HealthTech.API.QueueObserver;
+using HealthTech.API.Patterns.AppointmentObserver;
+using HealthTech.API.Patterns.QueueObserver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HealthTech.API.Data;

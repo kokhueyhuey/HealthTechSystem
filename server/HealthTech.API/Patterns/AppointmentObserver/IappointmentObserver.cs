@@ -1,6 +1,6 @@
 using HealthTech.API.Models;
 
-namespace HealthTech.API.Observer
+namespace HealthTech.API.Patterns.AppointmentObserver
 {
     // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Step 1: the Observer interface

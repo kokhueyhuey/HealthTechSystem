@@ -1,4 +1,4 @@
-namespace HealthTech.API.Observer
+namespace HealthTech.API.Patterns.AppointmentObserver
 {
     // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Step 2: the Subject interface

@@ -1,9 +1,6 @@
 using HealthTech.API.Models;
-using HealthTech.API.Observer.Queue;
 using Microsoft.AspNetCore.Mvc;
-
-// ── Explicit using so the compiler can resolve QueueService ───────────
-using HealthTech.API.QueueObserver;
+using HealthTech.API.Patterns.QueueObserver;
 
 namespace HealthTech.API.Controllers
 {

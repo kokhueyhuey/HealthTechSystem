@@ -2,7 +2,7 @@ using HealthTech.API.Data;
 using HealthTech.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HealthTech.API.Services;
+using HealthTech.API.Patterns.AppointmentObserver;
 
 namespace HealthTech.API.Controllers
 {
