@@ -23,7 +23,7 @@ namespace HealthTech.API.Factories
                 ICNumber = request.ICNumber,
                 Allergies = "None",
                 BloodType = "Unknown",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
         }
     }

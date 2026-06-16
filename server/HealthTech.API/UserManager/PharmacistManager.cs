@@ -17,7 +17,7 @@ namespace HealthTech.API.Factories
                 Role = "Pharmacist",
                 ShiftSchedule = "Mon-Sun 9:00am-5:00pm",
                 CanApproveInventory = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
         }
     }
