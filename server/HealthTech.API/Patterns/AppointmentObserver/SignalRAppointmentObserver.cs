@@ -2,7 +2,7 @@ using HealthTech.API.Hubs;
 using HealthTech.API.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace HealthTech.API.Observer
+namespace HealthTech.API.Patterns.AppointmentObserver
 {
     // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Concrete Observer #4: SignalR Broadcaster

@@ -13,3 +13,7 @@ export async function getDoctorById(id: number): Promise<Doctor> {
   if (!res.ok) throw new Error("Doctor not found");
   return res.json();
 }
+
+export function parseHour(timeSpan: string): number {
+  return parseInt(timeSpan.split(":")[0], 10);
+}

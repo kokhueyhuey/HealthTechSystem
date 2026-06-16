@@ -1,5 +1,4 @@
-namespace HealthTech.API.Observer.Queue
-{
+namespace HealthTech.API.Patterns.QueueObserver{
     // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Step 2: the Subject interface (Queue module)
     // ════════════════════════════════════════════════════════════════════

@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
 import type { AppointmentSummary } from "../../services/appointmentService";
-import { getPatientAppointments, cancelAppointment, rescheduleAppointment } from "../../services/appointmentService";
-import styles from "./MyAppointments.module.css";
+import { getPatientAppointments, cancelAppointment, rescheduleAppointment, generateTimeSlots, getBookedSlots, getUnavailableSlots } from "../../services/appointmentService";
+import { getDoctors, parseHour } from "../../services/doctorService";
+import type { Doctor } from "../../types/types";
 
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+import styles from "./MyAppointments.module.css";
 
 // Per-status: badge text color + background only (accent bar removed)
 const STATUS_META: Record<string, { color: string; bg: string }> = {
@@ -117,7 +118,56 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
   const [newDate,       setNewDate]       = useState("");
   const [newTime,       setNewTime]       = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
+  useEffect(() => { getDoctors().then(setDoctors).catch(console.error); }, []);
+
+  useEffect(() => {
+    if (!rescheduleId || !newDate) { setAvailableSlots([]); return; }
+
+    const appt = appointments.find(a => a.id === rescheduleId);
+    if (!appt) return;
+
+    const doctor = doctors.find(d => d.id === appt.doctorId);
+    if (!doctor) return;
+
+    const allSlots = generateTimeSlots(parseHour(doctor.workStartTime), parseHour(doctor.workEndTime));
+
+    const fetchSlots = async () => {
+      try {
+        const [bookedSlots, unavailableSlots] = await Promise.all([
+          getBookedSlots(appt.doctorId, newDate),
+          getUnavailableSlots(appt.doctorId, newDate),
+        ]);
+        
+        const blocked = new Set([...bookedSlots, ...unavailableSlots]);
+
+        // Get original date and time to handle same-day rescheduling correctly
+        const originalDateObj = new Date(appt.appointmentDate);
+        const originalDateStr = `${originalDateObj.getFullYear()}-${String(originalDateObj.getMonth()+1).padStart(2,"0")}-${String(originalDateObj.getDate()).padStart(2,"0")}`;
+        const currentSlot = originalDateObj.toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+        setAvailableSlots(allSlots.filter(s => {
+          if (blocked.has(s)) {
+            // Unblock only if it's the exact same day AND the exact current time slot
+            if (newDate === originalDateStr && s === currentSlot) {
+              return true; 
+            }
+            return false; 
+          }
+          return true;
+        }));
+
+        setNewTime("");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSlots();
+  }, [rescheduleId, newDate, appointments, doctors]);
+  
   const load = useCallback(async () => {
     try {
       setAppointments(await getPatientAppointments(user.id));
@@ -192,11 +242,11 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
   function toggleReschedule(id: number) {
     if (rescheduleId === id) {
       setRescheduleId(null);
-      setNewDate(""); setNewTime("");
+      setNewDate(""); setNewTime(""); setAvailableSlots([]);  
     } else {
       setRescheduleId(id);
-      setNewDate(""); setNewTime("");
-    }
+      setNewDate(""); setNewTime(""); setAvailableSlots([]);  
+    } 
   }
 
   // These statuses cannot be modified by the patient
@@ -349,9 +399,10 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
                           onChange={e => setNewTime(e.target.value)}
                         >
                           <option value="">— time —</option>
-                          {TIME_SLOTS.map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
+                          {availableSlots.length === 0 && newDate
+                            ? <option disabled>No slots available</option>
+                            : availableSlots.map(t => <option key={t} value={t}>{t}</option>)
+                          }
                         </select>
                         <button
                           className={styles.btnConfirm}

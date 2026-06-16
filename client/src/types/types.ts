@@ -20,6 +20,8 @@ export interface Doctor extends BaseUser {
   specialization: string;
   licenseNumber: string;
   workSchedule: string;
+  workStartTime: string;  
+  workEndTime: string; 
   consultationFee: number;
 }
 

@@ -1,7 +1,6 @@
 using HealthTech.API.Models;
 
-namespace HealthTech.API.Observer.Queue
-{
+namespace HealthTech.API.Patterns.QueueObserver{
     // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer #1: Patient (Queue module)
     // ════════════════════════════════════════════════════════════════════

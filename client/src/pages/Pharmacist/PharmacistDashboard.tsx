@@ -63,8 +63,8 @@ export default function PharmacistDashboard({ user, onLogout }: Props) {
           {([
             { id: "home",          label: "🏠 Overview" },
             { id: "appointments",  label: "📋 Manage Appointments" },
-            { id: "doctors",       label: "👨‍⚕️ Manage Doctors" },
             { id: "patients",      label: "👤 Manage Patients" },
+            { id: "doctors",       label: "👨‍⚕️ Manage Doctors" },
             { id: "prescriptions", label: "💊 Prescriptions" },
             { id: "inventory",     label: "📦 Inventory" },
             { id: "alerts",        label: "🚨 Alerts" },

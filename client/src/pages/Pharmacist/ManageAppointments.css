@@ -311,3 +311,16 @@
 .full-width {
   width: 100%;
 }
+
+.tab-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid #334155; background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.875rem; }
+.tab-btn.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+.tab-badge { margin-left: 6px; background: #ef4444; color: #fff; border-radius: 99px; padding: 1px 7px; font-size: 0.75rem; }
+.affected-row td { background: rgba(239, 68, 68, 0.08); }
+.affected-row:hover td { background: rgba(239, 68, 68, 0.15); }
+.reason-col { font-size: 0.8rem; color: #fca5a5; max-width: 140px; }
+
+/* Doctor unavailability modal rows */
+.unavail-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #1e293b; font-size: 0.85rem; }
+.unavail-reason { color: #94a3b8; }
+.unavail-msg { color: #fbbf24; font-size: 0.85rem; margin-bottom: 10px; }

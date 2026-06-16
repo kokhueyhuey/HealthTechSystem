@@ -2,7 +2,7 @@ using HealthTech.API.Models;
 using HealthTech.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-namespace HealthTech.API.Observer.Queue
+namespace HealthTech.API.Patterns.QueueObserver
 {
     // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer: SignalR Broadcaster
