@@ -22,23 +22,27 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
+import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
-import { getDoctors } from "../../services/doctorService";
+import { getDoctors, parseHour } from "../../services/doctorService";
 import {
   cancelAppointment,
   createWalkIn,
   searchAppointments,
   rescheduleAppointment,
+  getAllAffectedAppointments,
   type AppointmentSearchResult,
+  generateTimeSlots,
+  getBookedSlots,
+  getUnavailableSlots,
 } from "../../services/appointmentService";
 import { enqueuePatient } from "../../services/queueService";
 import { searchPatients, type PatientRecord } from "../../services/patientService";
+import type { Doctor } from "../../types/types";
 
 import "./ManageAppointments.css";
 
-type Doctor = { id: number; name: string; specialization: string };
-
-const TIME_SLOTS = ["09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+// type Doctor = { id: number; name: string; specialization: string; workStartTime: string; workEndTime: string; };
 
 function fmtDateOnly(str: string) {
   return new Date(str).toLocaleDateString("en-CA"); // YYYY-MM-DD
@@ -57,6 +61,29 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   useEffect(() => { getDoctors().then(setDoctors).catch(console.error); }, []);
 
+  const [activeTab, setActiveTab]             = useState<"all" | "affected">("all");
+  const [affectedResults, setAffectedResults] = useState<(AppointmentSearchResult & { unavailabilityReason: string })[]>([]);
+  const [loadingAffected, setLoadingAffected] = useState(false);
+
+  const loadAffectedAppointments = async () => {
+    try {
+      setLoadingAffected(true);
+
+      const data = await getAllAffectedAppointments();
+
+      setAffectedResults(data);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAffected(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAffectedAppointments();
+  }, []);
+
   // ── TABLE SEARCH STATE ─────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDate, setSearchDate] = useState("");
@@ -65,6 +92,37 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
   const [enqueuingId, setEnqueuingId] = useState<number | null>(null);
 
   useEffect(() => { handleApptSearch(); }, []);
+
+  useEffect(() => {
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5165/appointmentHub")
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on(
+      "ReceiveAppointmentUpdate",
+      async (payload) => {
+
+        console.log("SignalR update:", payload);
+
+        // refresh badge
+        await loadAffectedAppointments();
+
+        // refresh appointment table
+        await handleApptSearch();
+      }
+    );
+
+    connection.start()
+      .then(() => console.log("SignalR Connected"))
+      .catch(console.error);
+
+    return () => {
+      connection.stop();
+    };
+
+  }, []);
 
   async function handleApptSearch() {
     setSearching(true);
@@ -107,6 +165,47 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
   const [apptToReschedule, setApptToReschedule] = useState<AppointmentSearchResult | null>(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
+  const [rescheduleSlots, setRescheduleSlots] = useState<string[]>([]);
+
+  // When apptToReschedule changes (modal opens), load doctor's slots
+  useEffect(() => {
+    if (!apptToReschedule || !newDate) { 
+      setRescheduleSlots([]); 
+      return; 
+    }
+    
+    const doctor = doctors.find(d => d.id === apptToReschedule.doctorId);
+    if (!doctor) return;
+
+    const allSlots = generateTimeSlots(parseHour(doctor.workStartTime), parseHour(doctor.workEndTime));
+
+    // Define an async function inside the useEffect
+    const fetchAvailableSlots = async () => {
+      try {
+        const [bookedSlots, unavailableSlots] = await Promise.all([
+          getBookedSlots(apptToReschedule.doctorId, newDate),
+          getUnavailableSlots(apptToReschedule.doctorId, newDate),
+        ]);
+        
+        // Combine both lists into a Set for fast checking
+        const blocked = new Set([...bookedSlots, ...unavailableSlots]);
+        
+        // We don't want to block the appointment's own current slot
+        const currentSlot = fmtTimeOnly(apptToReschedule.appointmentDate); 
+
+        // Filter: Keep it if it's NOT blocked, OR if it's their current slot
+        setRescheduleSlots(allSlots.filter(s => !blocked.has(s) || s === currentSlot));
+        setNewTime("");
+
+      } catch (error) {
+        console.error("Failed to fetch slots:", error);
+      }
+    };
+
+    // Call the async function
+    fetchAvailableSlots();
+
+  }, [apptToReschedule, newDate, doctors]);
 
   async function confirmReschedule() {
     if (!apptToReschedule || !newDate || !newTime) {
@@ -162,6 +261,16 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
       
       <div className="dashboard-header">
         <h2 className="dashboard-title">Appointments</h2>
+      </div>
+      
+      <div className="tab-bar">
+        <button className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
+          onClick={() => setActiveTab("all")}>All Appointments</button>
+        <button className={`tab-btn ${activeTab === "affected" ? "active" : ""}`}
+          onClick={() => setActiveTab("affected")}>
+          Affected Appointments
+          {affectedResults.length > 0 && <span className="tab-badge">{affectedResults.length}</span>}
+        </button>
       </div>
 
       <div className="filter-bar">
@@ -222,7 +331,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
                   </td>
                   
                   <td className="actions-cell">
-                    {a.status !== "Cancelled" && a.status !== "Completed" && (
+                    {a.status == "Pending"  && (
                       <>
                         <button className="action-btn" onClick={() => setApptToReschedule(a)}>
                           Reschedule
@@ -230,13 +339,11 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
                         <button className="action-btn danger" onClick={() => setApptToCancel(a)}>
                           Cancel
                         </button>
-                        {a.status === "Pending" && (
-                          <button className="action-btn primary" 
-                            disabled={enqueuingId === a.id}
-                            onClick={() => handleEnqueue(a)}>
-                            {enqueuingId === a.id ? "Adding..." : "Enter Queue"}
-                          </button>
-                        )}
+                        <button className="action-btn primary" 
+                          disabled={enqueuingId === a.id}
+                          onClick={() => handleEnqueue(a)}>
+                          {enqueuingId === a.id ? "Adding..." : "Enter Queue"}
+                        </button>
                       </>
                     )}
                   </td>
@@ -246,6 +353,41 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
           </tbody>
         </table>
       </div>
+
+      {activeTab === "affected" && (
+        <div className="table-container">
+          <table className="appointment-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Time</th><th>Appt ID</th><th>Patient</th>
+                <th>Phone</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loadingAffected ? (
+                <tr><td colSpan={9} className="empty-table-state">Loading...</td></tr>
+              ) : affectedResults.length === 0 ? (
+                <tr><td colSpan={9} className="empty-table-state">No affected appointments.</td></tr>
+              ) : affectedResults.map(a => (
+                <tr key={a.id} className="affected-row">
+                  <td>{fmtDateOnly(a.appointmentDate)}</td>
+                  <td className="time-col">{fmtTimeOnly(a.appointmentDate)}</td>
+                  <td className="appt-id">#{a.id}</td>
+                  <td className="patient-name">{a.patientName}</td>
+                  <td>{a.patientPhone}</td>
+                  <td>{a.doctorName}</td>
+                  <td className="reason-col">{a.unavailabilityReason || "—"}</td>
+                  <td><span className={`status-badge status-${a.status}`}>{a.status}</span></td>
+                  <td className="actions-cell">
+                    <button className="action-btn" onClick={() => setApptToReschedule(a)}>Reschedule</button>
+                    <button className="action-btn danger" onClick={() => setApptToCancel(a)}>Cancel</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {apptToCancel && (
         <div className="modal-overlay">
@@ -276,7 +418,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
                 value={newDate} onChange={e => setNewDate(e.target.value)} />
               <select className="filter-input" value={newTime} onChange={e => setNewTime(e.target.value)}>
                 <option value="">-- time --</option>
-                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                {rescheduleSlots.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
 

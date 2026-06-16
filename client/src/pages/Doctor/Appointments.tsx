@@ -3,6 +3,7 @@ import * as signalR from "@microsoft/signalr";
 import type { LoginResponse } from "../../services/api";
 import { getDoctorAppointments } from "../../services/appointmentService";
 import type { DoctorAppointmentSummary } from "../../services/appointmentService";
+import { getUnavailabilities, createUnavailability, deleteUnavailability, type DoctorUnavailability } from "../../services/appointmentService";
 
 import "./Appointments.css";
 
@@ -22,6 +23,38 @@ export default function Appointments({ user }: { user: LoginResponse }) {
   const [appointments, setAppointments] = useState<DoctorAppointmentSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [showUnavailModal, setShowUnavailModal] = useState(false);
+  const [unavailabilities, setUnavailabilities] = useState<DoctorUnavailability[]>([]);
+  const [unavailDate, setUnavailDate]           = useState("");
+  const [unavailStart, setUnavailStart]         = useState<number>(9);
+  const [unavailEnd, setUnavailEnd]             = useState<number>(10);
+  const [unavailReason, setUnavailReason]       = useState("");
+  const [unavailMsg, setUnavailMsg]             = useState<string | null>(null);
+  const [doctorWorkHours, setDoctorWorkHours]   = useState({ start: 9, end: 19 });
+
+  useEffect(() => {
+    getUnavailabilities(user.id).then(setUnavailabilities).catch(console.error);
+    // get doctor's own work hours for the hour selects
+    fetch(`http://localhost:5165/api/doctors/${user.id}`)
+      .then(r => r.json())
+      .then(d => setDoctorWorkHours({
+        start: parseInt(d.workStartTime.split(":")[0]),
+        end:   parseInt(d.workEndTime.split(":")[0])
+      }));
+  }, [user.id]);
+
+  async function handleSaveUnavailability() {
+    if (!unavailDate || unavailStart >= unavailEnd) {
+      setUnavailMsg("Please select a valid date and time range."); return;
+    }
+    try {
+      const result = await createUnavailability(user.id, unavailDate, unavailStart, unavailEnd, unavailReason);
+      setUnavailMsg(result.warning ?? result.message);
+      getUnavailabilities(user.id).then(setUnavailabilities);
+      setUnavailDate(""); setUnavailReason("");
+    } catch (e: any) { setUnavailMsg(e.message); }
+  }
 
   async function load() {
     setLoading(true);
@@ -82,6 +115,10 @@ export default function Appointments({ user }: { user: LoginResponse }) {
         <button className="searchBtn" onClick={load} disabled={loading}>
           {loading ? "Refreshing..." : "Refresh"}
         </button>
+
+        <button className="searchBtn" onClick={() => setShowUnavailModal(true)}>
+          Mark Unavailability
+        </button>
       </div>
 
       {error && <div className="errorBox">⚠️ {error}</div>}
@@ -137,6 +174,63 @@ export default function Appointments({ user }: { user: LoginResponse }) {
           </tbody>
         </table>
       </div>
+
+      {showUnavailModal && (
+          <div className="modal-overlay" onClick={() => setShowUnavailModal(false)}>
+            <div className="standard-modal" onClick={e => e.stopPropagation()}>
+              <h3>Mark Unavailability</h3>
+
+              {unavailMsg && <p className="unavail-msg">{unavailMsg}</p>}
+
+              <label>Date</label>
+              <input type="date" className="searchInput"
+                min={new Date().toISOString().split("T")[0]}
+                value={unavailDate} onChange={e => setUnavailDate(e.target.value)} />
+
+              <label>From (hour)</label>
+              <select className="searchInput" value={unavailStart}
+                onChange={e => setUnavailStart(Number(e.target.value))}>
+                {Array.from({ length: doctorWorkHours.end - doctorWorkHours.start }, (_, i) => {
+                  const h = doctorWorkHours.start + i;
+                  return <option key={h} value={h}>{String(h).padStart(2,"0")}:00</option>;
+                })}
+              </select>
+
+              <label>To (hour)</label>
+              <select className="searchInput" value={unavailEnd}
+                onChange={e => setUnavailEnd(Number(e.target.value))}>
+                {Array.from({ length: doctorWorkHours.end - doctorWorkHours.start }, (_, i) => {
+                  const h = doctorWorkHours.start + i + 1;
+                  return <option key={h} value={h}>{String(h).padStart(2,"0")}:00</option>;
+                })}
+              </select>
+
+              <label>Reason</label>
+              <input className="searchInput" placeholder="e.g. Medical conference"
+                value={unavailReason} onChange={e => setUnavailReason(e.target.value)} />
+
+              <div style={{ marginTop: "1rem" }}>
+                <h4>Current unavailabilities</h4>
+                {unavailabilities.length === 0 && <p>None set.</p>}
+                {unavailabilities.map(u => (
+                  <div key={u.id} className="unavail-row">
+                    <span>{u.date} · {u.startTime}–{u.endTime}</span>
+                    {u.reason && <span className="unavail-reason"> — {u.reason}</span>}
+                    <button className="action-btn danger" onClick={async () => {
+                      await deleteUnavailability(u.id);
+                      getUnavailabilities(user.id).then(setUnavailabilities);
+                    }}>Remove</button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="modal-actions" style={{ marginTop: "1.5rem" }}>
+                <button className="dismiss-btn" onClick={() => { setShowUnavailModal(false); setUnavailMsg(null); }}>Close</button>
+                <button className="confirm-btn" onClick={handleSaveUnavailability}>Save</button>
+              </div>
+            </div>
+          </div>
+        )}
 
     </div>
   );

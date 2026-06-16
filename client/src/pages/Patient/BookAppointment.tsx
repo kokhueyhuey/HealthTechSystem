@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 import type { LoginResponse } from "../../services/api";
-import { bookAppointment } from "../../services/appointmentService";
-import { getDoctors } from "../../services/doctorService";
+import { bookAppointment, generateTimeSlots, getBookedSlots, getUnavailableSlots } from "../../services/appointmentService";
+import { getDoctors, parseHour } from "../../services/doctorService";
+import type { Doctor } from "../../types/types";
 
 import "./BookAppointment.css";
 
-type Doctor = {
-  id: number;
-  name: string;
-  specialization: string;
-};
- 
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
- 
+// type Doctor = { id: number; name: string; specialization: string; workStartTime: string; workEndTime: string; };
+
 export default function BookAppointment({ user }: { user: LoginResponse }) {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorId, setDoctorId] = useState<number>(0);
@@ -22,6 +17,33 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!doctorId || !date) { setAvailableSlots([]); return; }
+    const doctor = doctors.find(d => d.id === doctorId);
+    if (!doctor) return;
+
+    const allSlots = generateTimeSlots(parseHour(doctor.workStartTime), parseHour(doctor.workEndTime));
+
+    const fetchSlots = async () => {
+      try {
+        const [bookedSlots, unavailableSlots] = await Promise.all([
+          getBookedSlots(doctorId, date),
+          getUnavailableSlots(doctorId, date),
+        ]);
+        
+        const blocked = new Set([...bookedSlots, ...unavailableSlots]);
+        setAvailableSlots(allSlots.filter(s => !blocked.has(s)));
+        setTime("");  // reset time when slots change
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSlots();
+  }, [doctorId, date, doctors]);
+
   useEffect(() => {
     getDoctors()
       .then((data) => {
@@ -88,7 +110,7 @@ export default function BookAppointment({ user }: { user: LoginResponse }) {
           onChange={(e) => setTime(e.target.value)}
         >
           <option value="">Select</option>
-          {TIME_SLOTS.map((t) => (
+          {availableSlots.map((t) => (
             <option key={t} value={t}>
               {t}
             </option>

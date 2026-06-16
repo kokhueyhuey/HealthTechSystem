@@ -4,11 +4,12 @@ export default function Home() {
   const navigate = useNavigate();
 
   const cards = [
+    { label: "Manage Appointments",   icon: "📋", color: "#f59e0b", desc: "Handle doctor unavailability — reschedule or cancel on behalf of patients, and register walk-in patients.", id: "appointments" },
+    { label: "Manage Patients",       icon: "👥", color: "#f59e0b", desc: "Register new patients", id: "patients" },
     { label: "Manage Doctors",        icon: "👨‍⚕️", color: "#3b82f6", desc: "Add or remove doctor accounts", id: "doctors" },
-    { label: "Manage Appointments",   icon: "📋", color: "#f59e0b", desc: "Handle doctor unavailability — reschedule or cancel on behalf of patients", id: "manage" },
+    { label: "Manage Prescriptions",  icon: "💊", color: "#8b5cf6", desc: "Review and approve patient prescriptions", id: "prescriptions" },
     { label: "Medicine Inventory",    icon: "📦", color: "#10b981", desc: "Add, update and monitor medicine stock levels", id: "inventory" },
     { label: "Alerts",                icon: "🚨", color: "#ef4444", desc: "Low stock and expiry date alerts", id: "alerts" },
-    // { label: "Queue",                 icon: "🔔", color: "#8b5cf6", desc: "Patient check-in and queue management", id: "queue" },
   ];
 
   return (

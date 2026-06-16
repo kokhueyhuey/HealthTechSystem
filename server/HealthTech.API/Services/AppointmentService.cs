@@ -296,5 +296,25 @@ namespace HealthTech.API.Services
                 .OrderBy(a => a.AppointmentDate)
                 .ToListAsync();
         }
+
+        // ─────────────────────────────────────────────────────────────────
+        // Doctor Unavailability Notification
+        // Used when unavailable slots are created or removed.
+        // Triggers all observers including SignalR.
+        // ─────────────────────────────────────────────────────────────────
+        public void NotifyAffectedAppointmentsChanged(int doctorId)
+        {
+            var appointment = new Appointment
+            {
+                Id = 0,
+                DoctorId = doctorId,
+                PatientId = 0,
+                AppointmentDate = DateTime.UtcNow,
+                Status = "Pending",
+                Notes = "Doctor unavailability changed"
+            };
+
+            NotifyObservers(appointment, "AffectedAppointmentsUpdated");
+        }
     }
 }

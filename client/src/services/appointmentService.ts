@@ -263,3 +263,86 @@ export async function createWalkIn(
   if (!res.ok) throw new Error(data.message || "Walk-in booking failed.");
   return data;
 }
+
+/* ─────────────────────────────────────────────
+   GENERATE TIME SLOTS from doctor's work hours
+   startHour / endHour are 24h integers (e.g. 9, 19)
+   Returns ["09:00", "10:00", ..., "18:00"]
+───────────────────────────────────────────── */
+export function generateTimeSlots(startHour: number, endHour: number): string[] {
+  const slots: string[] = [];
+  for (let h = startHour; h < endHour; h++) {
+    slots.push(`${String(h).padStart(2, "0")}:00`);
+  }
+  return slots;
+}
+
+/* ─────────────────────────────────────────────
+   GET BOOKED SLOTS for a doctor on a given date
+   Returns ["09:00", "14:00", ...]
+───────────────────────────────────────────── */
+export async function getBookedSlots(doctorId: number, date: string): Promise<string[]> {
+  if (!doctorId || !date) return [];
+  const res = await fetch(`${BASE_URL}/booked-slots?doctorId=${doctorId}&date=${date}`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
+
+const UNAVAILABLE_URL = "http://localhost:5165/api/doctorunavailabilities";
+
+export interface DoctorUnavailability {
+  id: number;
+  doctorId: number;
+  date: string;       // "yyyy-MM-dd"
+  startTime: string;  // "HH:mm"
+  endTime: string;    // "HH:mm"
+  reason: string;
+}
+
+export async function getUnavailabilities(doctorId: number): Promise<DoctorUnavailability[]> {
+  const res = await fetch(`${UNAVAILABLE_URL}?doctorId=${doctorId}`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function createUnavailability(
+  doctorId: number,
+  date: string,
+  startHour: number,
+  endHour: number,
+  reason: string
+): Promise<{ message: string; affectedBookings: number; warning?: string }> {
+  const res = await fetch(UNAVAILABLE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ doctorId, date, startHour, endHour, reason }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to save unavailability.");
+  return data;
+}
+
+export async function deleteUnavailability(id: number): Promise<void> {
+  await fetch(`${UNAVAILABLE_URL}/${id}`, { method: "DELETE" });
+}
+
+// Pharmacist: fetch all affected appointments across all doctors
+export async function getAllAffectedAppointments() {
+  const res = await fetch("http://localhost:5165/api/appointments/all-affected");
+  if (!res.ok) throw new Error("Failed to load affected appointments.");
+  return res.json();
+}
+
+export async function getUnavailableSlots(doctorId: number, date: string): Promise<string[]> {
+  const all = await getUnavailabilities(doctorId);
+  const forDate = all.filter(u => u.date === date);
+  const blocked: string[] = [];
+  for (const u of forDate) {
+    const start = parseInt(u.startTime.split(":")[0]);
+    const end   = parseInt(u.endTime.split(":")[0]);
+    for (let h = start; h < end; h++)
+      blocked.push(`${String(h).padStart(2, "0")}:00`);
+  }
+  return blocked;
+}

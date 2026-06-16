@@ -250,6 +250,118 @@ namespace HealthTech.API.Controllers
                 status = current.Status
             });
         }
+
+        // GET: api/appointments/booked-slots?doctorId=1&date=2025-01-15
+        [HttpGet("booked-slots")]
+        public IActionResult GetBookedSlots([FromQuery] int doctorId, [FromQuery] string date)
+        {
+            if (!DateOnly.TryParse(date, out var parsedDate))
+                return BadRequest("Invalid date.");
+
+            var bookedTimes = _context.Appointments
+                .Where(a => a.DoctorId == doctorId
+                        && DateOnly.FromDateTime(a.AppointmentDate) == parsedDate
+                        && a.Status != "Cancelled") // <-- FIXED: Changed to string "Cancelled"
+                .Select(a => a.AppointmentDate.ToString("HH:mm"))
+                .ToList();
+
+            return Ok(bookedTimes);
+        }
+
+        // GET: api/appointments/affected-by-unavailability?doctorId=1
+        [HttpGet("affected-by-unavailability")]
+        public async Task<IActionResult> GetAffectedByUnavailability([FromQuery] int doctorId)
+        {
+            // Load all future unavailability windows for this doctor
+            var unavailabilities = await _context.DoctorUnavailabilities
+                .Where(u => u.DoctorId == doctorId && u.Date >= DateOnly.FromDateTime(DateTime.UtcNow))
+                .ToListAsync();
+
+            if (!unavailabilities.Any())
+                return Ok(new List<object>());
+
+            // Load all non-cancelled future appointments for this doctor
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Where(a => a.DoctorId == doctorId &&
+                            a.Status != "Cancelled" &&
+                            a.AppointmentDate >= DateTime.UtcNow)
+                .ToListAsync();
+
+            // Filter: appointments whose date+hour fall inside any unavailability window
+            var affected = appointments.Where(a => unavailabilities.Any(u =>
+                DateOnly.FromDateTime(a.AppointmentDate) == u.Date &&
+                TimeSpan.FromHours(a.AppointmentDate.Hour) >= u.StartTime &&
+                TimeSpan.FromHours(a.AppointmentDate.Hour) < u.EndTime
+            )).ToList();
+
+            return Ok(affected.Select(a => new {
+                a.Id,
+                a.PatientId,
+                patientName  = a.Patient?.Name ?? "—",
+                patientPhone = a.Patient?.PhoneNumber ?? "—",
+                a.DoctorId,
+                doctorName   = a.Doctor?.Name ?? "—",
+                a.AppointmentDate,
+                a.Status,
+                a.Notes,
+                unavailabilityReason = unavailabilities
+                    .Where(u =>
+                        DateOnly.FromDateTime(a.AppointmentDate) == u.Date &&
+                        TimeSpan.FromHours(a.AppointmentDate.Hour) >= u.StartTime &&
+                        TimeSpan.FromHours(a.AppointmentDate.Hour) < u.EndTime)
+                    .Select(u => u.Reason)
+                    .FirstOrDefault() ?? ""
+            }));
+        }
+
+        // GET: api/appointments/all-affected — all doctors (pharmacist overview)
+        [HttpGet("all-affected")]
+        public async Task<IActionResult> GetAllAffected()
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            var unavailabilities = await _context.DoctorUnavailabilities
+                .Where(u => u.Date >= today)
+                .ToListAsync();
+
+            if (!unavailabilities.Any()) return Ok(new List<object>());
+
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Where(a => a.Status != "Cancelled" && a.AppointmentDate >= DateTime.UtcNow)
+                .ToListAsync();
+
+            var affected = appointments.Where(a => unavailabilities.Any(u =>
+                a.DoctorId == u.DoctorId &&
+                DateOnly.FromDateTime(a.AppointmentDate) == u.Date &&
+                TimeSpan.FromHours(a.AppointmentDate.Hour) >= u.StartTime &&
+                TimeSpan.FromHours(a.AppointmentDate.Hour) < u.EndTime
+            )).ToList();
+
+            return Ok(affected.Select(a => {
+                var reason = unavailabilities
+                    .Where(u =>
+                        a.DoctorId == u.DoctorId &&
+                        DateOnly.FromDateTime(a.AppointmentDate) == u.Date &&
+                        TimeSpan.FromHours(a.AppointmentDate.Hour) >= u.StartTime &&
+                        TimeSpan.FromHours(a.AppointmentDate.Hour) < u.EndTime)
+                    .Select(u => u.Reason)
+                    .FirstOrDefault() ?? "";
+                return new {
+                    a.Id, a.PatientId,
+                    patientName  = a.Patient?.Name ?? "—",
+                    patientPhone = a.Patient?.PhoneNumber ?? "—",
+                    a.DoctorId,
+                    doctorName   = a.Doctor?.Name ?? "—",
+                    a.AppointmentDate,
+                    a.Status, a.Notes,
+                    unavailabilityReason = reason
+                };
+            }));
+        }
     }
 
     // Request DTOs 

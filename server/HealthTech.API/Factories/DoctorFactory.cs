@@ -19,6 +19,8 @@ namespace HealthTech.API.Factories
                 Role = "Doctor",
                 Specialization = "General Practice",
                 WorkSchedule = "Mon-Sun 9:00am-5:00pm",
+                WorkStartTime = new TimeSpan(9, 0, 0),  
+                WorkEndTime = new TimeSpan(19, 0, 0), 
                 ConsultationFee = 30.00m,
                 CreatedAt = DateTime.UtcNow
             };

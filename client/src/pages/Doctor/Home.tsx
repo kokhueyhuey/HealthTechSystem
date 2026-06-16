@@ -4,7 +4,7 @@ export default function Home({ name }: { name: string }) {
   const navigate = useNavigate();
 
   const cards = [
-    { label: "Today's Appointments", icon: "📋", color: "#10b981", desc: "View your patient schedule for today", id: "appointments" },
+    { label: "Today's Appointments", icon: "📋", color: "#10b981", desc: "View and manage appointment schedules", id: "appointments" },
     { label: "Consultation",          icon: "🩺", color: "#3b82f6", desc: "Call patients and manage prescriptions", id: "consultation" },
     { label: "Patient Records",      icon: "👤", color: "#f59e0b", desc: "View and manage patient profiles and history", id: "patients" },
   ];
