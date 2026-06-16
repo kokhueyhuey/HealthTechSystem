@@ -16,7 +16,7 @@ namespace HealthTech.API.Models
         public string McReason { get; set; } = "";
         public int McDays { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public List<PrescriptionItem> Items { get; set; } = new();
     }

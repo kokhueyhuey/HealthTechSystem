@@ -119,7 +119,7 @@ namespace HealthTech.API.Controllers
             // Default to today if no filters are provided to prevent loading the whole database
             if (string.IsNullOrWhiteSpace(q) && !date.HasValue)
             {
-                var today = DateTime.UtcNow.Date;
+                var today = DateTime.Now.Date;
                 query = query.Where(a => a.AppointmentDate.Date >= today);
             }
 
@@ -274,7 +274,7 @@ namespace HealthTech.API.Controllers
         {
             // Load all future unavailability windows for this doctor
             var unavailabilities = await _context.DoctorUnavailabilities
-                .Where(u => u.DoctorId == doctorId && u.Date >= DateOnly.FromDateTime(DateTime.UtcNow))
+                .Where(u => u.DoctorId == doctorId && u.Date >= DateOnly.FromDateTime(DateTime.Now))
                 .ToListAsync();
 
             if (!unavailabilities.Any())
@@ -286,7 +286,7 @@ namespace HealthTech.API.Controllers
                 .Include(a => a.Doctor)
                 .Where(a => a.DoctorId == doctorId &&
                             a.Status != "Cancelled" &&
-                            a.AppointmentDate >= DateTime.UtcNow)
+                            a.AppointmentDate >= DateTime.Now)
                 .ToListAsync();
 
             // Filter: appointments whose date+hour fall inside any unavailability window
@@ -320,7 +320,7 @@ namespace HealthTech.API.Controllers
         [HttpGet("all-affected")]
         public async Task<IActionResult> GetAllAffected()
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var today = DateOnly.FromDateTime(DateTime.Now);
 
             var unavailabilities = await _context.DoctorUnavailabilities
                 .Where(u => u.Date >= today)
@@ -331,7 +331,7 @@ namespace HealthTech.API.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
-                .Where(a => a.Status != "Cancelled" && a.AppointmentDate >= DateTime.UtcNow)
+                .Where(a => a.Status != "Cancelled" && a.AppointmentDate >= DateTime.Now)
                 .ToListAsync();
 
             var affected = appointments.Where(a => unavailabilities.Any(u =>

@@ -35,7 +35,7 @@ namespace HealthTech.API.Models
         public List<QueueEntry> Queue { get; set; } = new();
 
         /// <summary>UTC timestamp of the last state mutation.</summary>
-        public DateTime LastUpdatedUtc { get; set; } = DateTime.UtcNow;
+        public DateTime LastUpdatedUtc { get; set; } = DateTime.Now;
 
         // ── Computed helpers used by the frontend ──────────────────────
 

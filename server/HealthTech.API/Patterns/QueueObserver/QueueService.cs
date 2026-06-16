@@ -43,7 +43,7 @@ namespace HealthTech.API.Patterns.QueueObserver
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var todayUtc = DateTime.UtcNow.Date;
+            var todayUtc = DateTime.Now.Date;
 
             // Load only today's active records into the in-memory queue.
             var persisted = await db.QueueRecords
@@ -68,7 +68,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (record.Appointment?.Status == "Completed")
                 {
                     record.Status    = "Completed";
-                    record.UpdatedAt = DateTime.UtcNow;
+                    record.UpdatedAt = DateTime.Now;
                     dirty = true;
                 }
             }
@@ -105,7 +105,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                     _state.NowServing = 0;
                 }
 
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 _initialized = true;
             }
         }
@@ -171,8 +171,8 @@ namespace HealthTech.API.Patterns.QueueObserver
                 AppointmentId = appointmentId,
                 TicketNumber  = ticketNumber,
                 Status        = "Waiting",
-                CreatedAt     = DateTime.UtcNow,
-                UpdatedAt     = DateTime.UtcNow
+                CreatedAt     = DateTime.Now,
+                UpdatedAt     = DateTime.Now
             };
 
             db.QueueRecords.Add(record);
@@ -195,7 +195,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 };
 
                 _state.Queue.Add(entry);
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 snapshot = CloneState();
             }
 
@@ -227,7 +227,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (currentRecord != null)
                 {
                     currentRecord.Status = "Completed";
-                    currentRecord.UpdatedAt = DateTime.UtcNow;
+                    currentRecord.UpdatedAt = DateTime.Now;
                 }
 
                 var currentAppointment = await db.Appointments.FindAsync(currentServing.AppointmentId);
@@ -243,7 +243,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (nextRecord != null)
                 {
                     nextRecord.Status = "Serving";
-                    nextRecord.UpdatedAt = DateTime.UtcNow;
+                    nextRecord.UpdatedAt = DateTime.Now;
                 }
 
                 var nextAppointment = await db.Appointments.FindAsync(nextWaiting.AppointmentId);
@@ -271,7 +271,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                     _state.NowServing = 0;
                 }
 
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 snapshot = CloneState();
             }
 
@@ -299,7 +299,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (record != null)
                 {
                     record.Status = "Completed";
-                    record.UpdatedAt = DateTime.UtcNow;
+                    record.UpdatedAt = DateTime.Now;
                 }
 
                 var appointment = await db.Appointments.FindAsync(serving.AppointmentId);
@@ -321,7 +321,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 // Mirrors the else-branch in CallNext() so NowServing is always 0
                 // when nothing is Serving in the queue.
                 _state.NowServing = 0;
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 snapshot = CloneState();
             }
 
@@ -351,7 +351,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (record != null)
                 {
                     record.Status = "Skipped";
-                    record.UpdatedAt = DateTime.UtcNow;
+                    record.UpdatedAt = DateTime.Now;
                 }
             }
 
@@ -361,7 +361,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 if (nextRecord != null)
                 {
                     nextRecord.Status = "Serving";
-                    nextRecord.UpdatedAt = DateTime.UtcNow;
+                    nextRecord.UpdatedAt = DateTime.Now;
                 }
 
                 var nextAppointment = await db.Appointments.FindAsync(nextWaiting.AppointmentId);
@@ -389,7 +389,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                     _state.NowServing = 0;
                 }
 
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 snapshot = CloneState();
             }
 
@@ -412,7 +412,7 @@ namespace HealthTech.API.Patterns.QueueObserver
                 _state.Queue.Clear();
                 _state.NowServing = 0;
                 _state.LastIssued = 0;
-                _state.LastUpdatedUtc = DateTime.UtcNow;
+                _state.LastUpdatedUtc = DateTime.Now;
                 snapshot = CloneState();
             }
 

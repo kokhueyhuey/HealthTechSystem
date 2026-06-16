@@ -24,7 +24,7 @@ namespace HealthTech.API.Controllers
         public async Task<IActionResult> GetByDoctor([FromQuery] int doctorId)
         {
             var list = await _context.DoctorUnavailabilities
-                .Where(u => u.DoctorId == doctorId && u.Date >= DateOnly.FromDateTime(DateTime.UtcNow))
+                .Where(u => u.DoctorId == doctorId && u.Date >= DateOnly.FromDateTime(DateTime.Now))
                 .OrderBy(u => u.Date).ThenBy(u => u.StartTime)
                 .ToListAsync();
 

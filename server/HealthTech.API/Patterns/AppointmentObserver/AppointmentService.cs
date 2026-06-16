@@ -100,7 +100,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 return (false, "No available slots — doctor not found.", null);
 
             // Appointment date must be in the future
-            if (appointmentDate <= DateTime.UtcNow)
+            if (appointmentDate <= DateTime.Now)
                 return (false, "Appointment date must be in the future.", null);
 
             var appointment = new Appointment
@@ -136,7 +136,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             {
                 PatientId = patientId,
                 DoctorId = doctorId,
-                AppointmentDate = DateTime.UtcNow,
+                AppointmentDate = DateTime.Now,
                 Status = "Pending",
                 Notes = notes
             };
@@ -201,7 +201,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             // Alternative Flow A1: patient 2-hour restriction
             if (requestedByRole == "Patient")
             {
-                var hoursUntil = (appointment.AppointmentDate - DateTime.UtcNow).TotalHours;
+                var hoursUntil = (appointment.AppointmentDate - DateTime.Now).TotalHours;
                 if (hoursUntil < 2)
                     return (false, "Cannot cancel — appointment is less than 2 hours away. Please call the clinic.");
             }
@@ -228,7 +228,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
 
             if (requestedByRole == "Patient")
             {
-                var hoursUntil = (appointment.AppointmentDate - DateTime.UtcNow).TotalHours;
+                var hoursUntil = (appointment.AppointmentDate - DateTime.Now).TotalHours;
                 if (hoursUntil < 2)
                     return (false, "Cannot reschedule — appointment is less than 2 hours away.");
             }
@@ -290,7 +290,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 .Include(a => a.Patient)
                 .Where(a => a.DoctorId == doctorId &&
                             a.Status == "Pending" &&
-                            a.AppointmentDate > DateTime.UtcNow)
+                            a.AppointmentDate > DateTime.Now)
                 .OrderBy(a => a.AppointmentDate)
                 .ToListAsync();
         }
@@ -307,7 +307,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 Id = 0,
                 DoctorId = doctorId,
                 PatientId = 0,
-                AppointmentDate = DateTime.UtcNow,
+                AppointmentDate = DateTime.Now,
                 Status = "Pending",
                 Notes = "Doctor unavailability changed"
             };

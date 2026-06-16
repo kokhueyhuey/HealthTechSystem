@@ -9,6 +9,6 @@ namespace HealthTech.API.Models
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
         public string Reason { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

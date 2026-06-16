@@ -114,7 +114,7 @@ namespace HealthTech.API.Patterns.Builder
         // Returns the fully constructed Prescription object.
         public Prescription Build()
         {
-            _prescription.CreatedAt = DateTime.UtcNow;
+            _prescription.CreatedAt = DateTime.Now;
 
             return _prescription;
         }
