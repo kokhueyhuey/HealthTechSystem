@@ -13,7 +13,7 @@ import type { LoginResponse } from "./services/api";
 
 import connection from "./services/signalR";
 
-/* ---------------- App ---------------- */
+/* App */
 
 export default function App() {
   const [user, setUser] = useState<LoginResponse | null>(null);
@@ -21,13 +21,13 @@ export default function App() {
 
   const navigate = useNavigate();
 
-  /* ---------------- Load session ---------------- */
+  /* Load session */
   useEffect(() => {
     const saved = getSession();
     if (saved) setUser(saved);
   }, []);
 
-  /* ---------------- SignalR ---------------- */
+  /*  SignalR */
   const refreshPatients = useCallback(() => {
     // kept for future expansion (doctor/pharmacist features)
     console.log("SignalR refresh triggered");
@@ -62,7 +62,7 @@ export default function App() {
     };
   }, [user, refreshPatients]);
 
-  /* ---------------- Login ---------------- */
+  /* Login */
   function handleLoginSuccess(loggedInUser: LoginResponse) {
     saveSession(loggedInUser);
     setUser(loggedInUser);
@@ -77,7 +77,7 @@ export default function App() {
     }
   }
 
-  /* ---------------- Logout ---------------- */
+  /* Logout */
   function handleLogout() {
     clearSession();
     setUser(null);
@@ -85,7 +85,7 @@ export default function App() {
     navigate("/login");
   }
 
-  /* ---------------- AUTH (NOT LOGGED IN) ---------------- */
+  /* AUTH (NOT LOGGED IN) */
   if (!user) {
     if (authScreen === "register") {
       return (
@@ -104,7 +104,7 @@ export default function App() {
     );
   }
 
-  /* ---------------- ROUTES (LOGGED IN) ---------------- */
+  /* ROUTES (LOGGED IN) */
   return (
     <Routes>
 

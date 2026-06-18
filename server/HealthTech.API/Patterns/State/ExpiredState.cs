@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — Concrete State: Expired State
     //
     // CONCEPT — Encapsulation:
@@ -16,7 +14,6 @@ namespace HealthTech.API.Patterns.State
     // SYSTEM BEHAVIOUR:
     //   Medicines in this state should not be dispensed or used because
     //   the expiry date has already passed.
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Represents the medicine state when the expiry date has passed.
     public class ExpiredState : IMedicineState

@@ -2,7 +2,6 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.AppointmentObserver
 {
-    // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Step 1: the Observer interface
     //
     // CONCEPT — Abstraction:
@@ -23,7 +22,6 @@ namespace HealthTech.API.Patterns.AppointmentObserver
     // SOLID — Interface Segregation Principle (ISP):
     //   The interface has exactly ONE method. Observers are never forced
     //   to implement methods they don't use.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public interface IAppointmentObserver
     {

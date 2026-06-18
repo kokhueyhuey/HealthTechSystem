@@ -2,8 +2,6 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.Builder
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // BUILDER PATTERN — Builder Interface
     //
     // CONCEPT — Modularity:
@@ -30,10 +28,12 @@ namespace HealthTech.API.Patterns.Builder
     // SYSTEM BEHAVIOUR:
     //   Doctors use the builder process to gradually construct a prescription
     //   before the pharmacist reviews and approves it.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public interface IPrescriptionBuilder
     {
+        // Creates a fresh Prescription product to begin a new build.
+        IPrescriptionBuilder Reset();
+
         // Assigns patient information to the prescription.
         IPrescriptionBuilder SetPatient(
             int patientId,

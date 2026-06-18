@@ -1,4 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
 // Manage Appointments — Pharmacist
 //
 // Three sections:
@@ -19,7 +18,6 @@
 // Observer Pattern fires on every action (cancel/reschedule/walkin):
 //   NotifyObservers() → PatientObserver + DoctorObserver +
 //                       PharmacistObserver + SignalRObserver (live push)
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
@@ -84,7 +82,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
     loadAffectedAppointments();
   }, []);
 
-  // ── TABLE SEARCH STATE ─────────────────────────────────────────────
+  // TABLE SEARCH STATE 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDate, setSearchDate] = useState("");
   const [searchResults, setSearchResults] = useState<AppointmentSearchResult[]>([]);
@@ -146,7 +144,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
     }
   }
 
-  // ── CANCEL MODAL STATE ─────────────────────────────────────────────
+  // CANCEL MODAL STATE 
   const [apptToCancel, setApptToCancel] = useState<AppointmentSearchResult | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -161,7 +159,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
     finally { setActionLoading(false); }
   }
 
-  // ── RESCHEDULE MODAL STATE ─────────────────────────────────────────
+  // RESCHEDULE MODAL STATE 
   const [apptToReschedule, setApptToReschedule] = useState<AppointmentSearchResult | null>(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
@@ -222,7 +220,7 @@ export default function ManageAppointments({ user }: { user: LoginResponse }) {
     finally { setActionLoading(false); }
   }
 
-  // ── WALK-IN MODAL STATE (New Appointment) ──────────────────────────
+  // WALK-IN MODAL STATE (New Appointment) 
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [walkQuery, setWalkQuery] = useState("");
   const [walkResults, setWalkResults] = useState<PatientRecord[]>([]);

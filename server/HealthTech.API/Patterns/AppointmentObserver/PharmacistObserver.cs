@@ -2,7 +2,6 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.AppointmentObserver
 {
-    // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Concrete Observer #3: Pharmacist
     //
     // This observer is especially important for your use case:
@@ -18,7 +17,6 @@ namespace HealthTech.API.Patterns.AppointmentObserver
     // SOLID — OCP:
     //   If tomorrow you add a "WaitingList" event type, you only add a case here.
     //   The Subject (AppointmentService) and other observers are unchanged.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class PharmacistObserver : IAppointmentObserver
     {

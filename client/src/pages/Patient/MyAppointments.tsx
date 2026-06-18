@@ -25,7 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
   Cancelled:      "Cancelled",
 };
 
-// ── SVG icon helpers (no external package) ──────────────────────────────────
+// SVG icon helpers (no external package) 
 function CalendarIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -106,7 +106,7 @@ function AlertIcon() {
     </svg>
   );
 }
-// ────────────────────────────────────────────────────────────────────────────
+
 
 export default function MyAppointments({ user }: { user: LoginResponse }) {
   const [appointments,  setAppointments]  = useState<AppointmentSummary[]>([]);
@@ -181,7 +181,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
   // Initial load
   useEffect(() => { load(); }, [load]);
 
-  // ── SignalR — real-time auto-refresh ───────────────────────────────────
+  // SignalR — real-time auto-refresh 
   // OBSERVER PATTERN (frontend side):
   //   When SignalRAppointmentObserver fires on the backend, it pushes
   //   "ReceiveAppointmentUpdate" here. We check if it involves this patient
@@ -255,7 +255,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
   return (
     <div className={styles.page}>
 
-      {/* ── Page header ──────────────────────────────────────── */}
+      {/* Page header  */}
       <div className={styles.pageHeader}>
         <h2 className={styles.pageTitle}>My Appointments</h2>
         <p className={styles.pageSub}>
@@ -263,7 +263,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
         </p>
       </div>
 
-      {/* ── Toast notification ───────────────────────────────── */}
+      {/* Toast notification */}
       {actionMsg && (
         <div className={`${styles.toast} ${actionSuccess ? styles.toastSuccess : styles.toastError}`}>
           {actionSuccess ? <CheckCircleIcon /> : <AlertIcon />}
@@ -271,7 +271,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
         </div>
       )}
 
-      {/* ── Error from initial load ──────────────────────────── */}
+      {/* Error from initial load */}
       {error && (
         <div className={`${styles.toast} ${styles.toastError}`}>
           <AlertIcon />
@@ -279,7 +279,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
         </div>
       )}
 
-      {/* ── Loading ──────────────────────────────────────────── */}
+      {/* Loading */}
       {loading && (
         <div className={styles.loadingRow}>
           <div className={styles.spinner} />
@@ -287,7 +287,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
         </div>
       )}
 
-      {/* ── Empty state ──────────────────────────────────────── */}
+      {/* Empty state  */}
       {!loading && appointments.length === 0 && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
@@ -304,7 +304,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
         </div>
       )}
 
-      {/* ── Appointment list ─────────────────────────────────── */}
+      {/* Appointment list */}
       {!loading && appointments.length > 0 && (
         <div className={styles.list}>
           {appointments.map((appt, idx) => {
@@ -359,7 +359,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
                     </div>
                   )}
 
-                  {/* ── Action buttons (only for modifiable statuses) ── */}
+                  {/* Action buttons (only for modifiable statuses) */}
                   {!lockedStatuses.includes(appt.status) && (
                     <div className={styles.actions}>
                       <button
@@ -381,7 +381,7 @@ export default function MyAppointments({ user }: { user: LoginResponse }) {
                     </div>
                   )}
 
-                  {/* ── Reschedule panel ─────────────────────────────── */}
+                  {/* Reschedule panel */}
                   {isRescheduleOpen && (
                     <div className={styles.reschedulePanel}>
                       <div className={styles.reschedulePanelLabel}>Choose a new date & time</div>

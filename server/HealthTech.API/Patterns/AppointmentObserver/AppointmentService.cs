@@ -3,9 +3,7 @@ using HealthTech.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthTech.API.Patterns.AppointmentObserver{
-    // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — The Subject (Concrete)
-    //
     // Maintains the observer list and notifies all observers on every
     // appointment lifecycle event.
     //
@@ -28,7 +26,6 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
     // SOLID — SRP: owns appointment lifecycle only.
     // SOLID — DIP: depends on IAppointmentObserver (interface), not concrete classes.
     // SOLID — OCP: register new observers without changing this class.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class AppointmentService : IAppointmentSubject
     {
@@ -54,7 +51,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             RegisterObserver(signalRObserver);            // SignalR  — real-time frontend push
         }
 
-        // ── IAppointmentSubject ───────────────────────────────────────────
+        // IAppointmentSubject
 
         public void RegisterObserver(IAppointmentObserver observer)
         {
@@ -79,9 +76,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Book Appointment — Basic Flow steps 3-6
-        // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message, Appointment? Result)>
             BookAppointmentAsync(int patientId, int doctorId, DateTime appointmentDate, string notes = "")
         {
@@ -148,9 +143,8 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
 
             return (true, "Walk-in created.", appointment);
         }
-        // ─────────────────────────────────────────────────────────────────
+         
         // USE CASE: View Appointment Status (Patient) / View Daily Appointments (Doctor)
-        // ─────────────────────────────────────────────────────────────────
         public async Task<List<Appointment>> GetAppointmentsByPatientAsync(int patientId)
         {
             return await _context.Appointments
@@ -172,9 +166,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             return await query.OrderBy(a => a.AppointmentDate).ToListAsync();
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // Fetch a single appointment by ID (used by GetCurrentPatient endpoint)
-        // ─────────────────────────────────────────────────────────────────
         public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId)
         {
             return await _context.Appointments
@@ -182,11 +174,9 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 .FirstOrDefaultAsync(a => a.Id == appointmentId);
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Cancel Appointment
         // Patient role → 2-hour rule enforced
         // Pharmacist role → no restriction (doctor unavailability use case)
-        // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             CancelAppointmentAsync(int appointmentId, string requestedByRole)
         {
@@ -213,9 +203,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             return (true, "Appointment cancelled successfully.");
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Reschedule Appointment
-        // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             RescheduleAppointmentAsync(int appointmentId, DateTime newDate, string requestedByRole)
         {
@@ -251,11 +239,9 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             return (true, "Appointment rescheduled successfully.");
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Update Appointment Status (Doctor — steps 1-4)
         // Allowed manual statuses: Pending → Cancelled only.
         // InQueue, InConsultation, Completed are set by QueueService.
-        // ─────────────────────────────────────────────────────────────────
         public async Task<(bool Success, string Message)>
             UpdateStatusAsync(int appointmentId, string newStatus, int doctorId)
         {
@@ -281,9 +267,7 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             return (true, $"Status updated to '{newStatus}'.");
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // USE CASE: Manage Appointment Due to Doctor Unavailability (Pharmacist)
-        // ─────────────────────────────────────────────────────────────────
         public async Task<List<Appointment>> GetAffectedAppointmentsAsync(int doctorId)
         {
             return await _context.Appointments
@@ -295,11 +279,9 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 .ToListAsync();
         }
 
-        // ─────────────────────────────────────────────────────────────────
         // Doctor Unavailability Notification
         // Used when unavailable slots are created or removed.
         // Triggers all observers including SignalR.
-        // ─────────────────────────────────────────────────────────────────
         public void NotifyAffectedAppointmentsChanged(int doctorId)
         {
             var appointment = new Appointment

@@ -1,4 +1,4 @@
-/* ── Page ────────────────────────────────────────────────────────── */
+/* Page  */
 .page {
   font-family: 'Inter', sans-serif;
   color: #121c2a;
@@ -20,7 +20,7 @@
   margin-bottom: 24px;
 }
 
-/* ── Feedback banners ─────────────────────────────────────────────── */
+/* feedback banners  */
 .successBox {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -43,7 +43,7 @@
   margin-bottom: 20px;
 }
 
-/* ── Queue card ───────────────────────────────────────────────────── */
+/* queue card */
 .queueCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -104,7 +104,7 @@
 .callBtn:hover:not(:disabled) { background: #1d4ed8; }
 .callBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ── States ───────────────────────────────────────────────────────── */
+/* states  */
 .loadingState {
   padding: 40px 0;
   text-align: center;
@@ -126,7 +126,7 @@
   color: #94a3b8;
 }
 
-/* ── Content cards ────────────────────────────────────────────────── */
+/* content cards  */
 .card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -157,7 +157,7 @@
   margin-bottom: 14px !important;
 }
 
-/* ── Prescription form ────────────────────────────────────────────── */
+/* prescription form */
 .itemBox {
   display: flex;
   flex-direction: column;
@@ -194,7 +194,7 @@
 
 .textarea { min-height: 72px; resize: vertical; }
 
-/* ── Buttons ──────────────────────────────────────────────────────── */
+/* buttons */
 .addBtn {
   padding: 9px 16px;
   border: 1px solid #e5e7eb;
@@ -260,7 +260,7 @@
 
 .completeBtn:hover { background: #fef3c7; }
 
-/* ── MC section ───────────────────────────────────────────────────── */
+/* MC section */
 .mcBox {
   display: flex;
   flex-direction: column;

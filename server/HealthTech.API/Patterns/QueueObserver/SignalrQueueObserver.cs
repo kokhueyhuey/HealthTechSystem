@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace HealthTech.API.Patterns.QueueObserver
 {
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer: SignalR Broadcaster
-    // ════════════════════════════════════════════════════════════════════
-    //
+  
     // CONCEPT — Refinement:
     //   This observer specialises the abstract OnQueueUpdated() contract
     //   into a real-time WebSocket broadcast via SignalR. It translates
@@ -29,7 +27,6 @@ namespace HealthTech.API.Patterns.QueueObserver
     // SOLID — Dependency Inversion Principle (DIP):
     //   Depends on IHubContext<QueueHub> (abstraction), not a concrete hub
     //   instance. Fully testable with a mocked hub context.
-    // ════════════════════════════════════════════════════════════════════
 
     public class SignalRQueueObserver : IQueueObserver
     {
@@ -43,10 +40,7 @@ namespace HealthTech.API.Patterns.QueueObserver
 
         public async Task OnQueueUpdated(QueueState queueState, string eventType)
         {
-            // Broadcast to ALL connected clients 
-            // "ReceiveQueueUpdate" is the event name the React frontend
-            // subscribes to: connection.on("ReceiveQueueUpdate", handler)
-            // BREAKPOINT HERE
+
             await _hubContext.Clients.All.SendAsync("ReceiveQueueUpdate", new
             {
                 eventType,

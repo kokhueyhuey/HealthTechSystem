@@ -1,10 +1,7 @@
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.QueueObserver{
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer #3: Pharmacist (Queue module)
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Refinement:
     //   The pharmacist's role at the queue is admin/operational: they add
     //   patients ("PatientEnqueued"), monitor throughput, and act on
@@ -22,8 +19,6 @@ namespace HealthTech.API.Patterns.QueueObserver{
     // SOLID — OCP:
     //   A new event type (e.g. "LatePatientAlert") can be added here
     //   without modifying IQueueObserver, QueueService, or any other observer.
-    // ════════════════════════════════════════════════════════════════════
-
     public class PharmacistQueueObserver : IQueueObserver
     {
         // BREAKPOINT HERE

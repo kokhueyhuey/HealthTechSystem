@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — State Interface
     //
     // CONCEPT — Abstraction:
@@ -24,7 +22,6 @@ namespace HealthTech.API.Patterns.State
     // PURPOSE:
     //   Every medicine state must implement GetStatus() to define
     //   its own status behaviour.
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Interface for all medicine states.
     // Each state class must define its own medicine status.

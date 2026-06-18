@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace HealthTech.API.Patterns.AppointmentObserver
 {
-    // ─────────────────────────────────────────────────────────────────────────
     // OBSERVER PATTERN — Concrete Observer #4: SignalR Broadcaster
     //
     // This is the observer that makes ALL dashboards update automatically
@@ -34,7 +33,6 @@ namespace HealthTech.API.Patterns.AppointmentObserver
     //     connection.on("ReceiveAppointmentUpdate", (payload) => { ... })
     //   payload contains: { eventType, appointmentId, patientId, doctorId,
     //                       appointmentDate, status, notes }
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class SignalRAppointmentObserver : IAppointmentObserver
     {

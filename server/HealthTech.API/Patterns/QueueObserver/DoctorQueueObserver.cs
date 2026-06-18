@@ -1,10 +1,7 @@
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.QueueObserver{
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer #2: Doctor (Queue module)
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Functional Independence:
     //   DoctorQueueObserver has zero knowledge of what PatientQueueObserver
     //   or PharmacistQueueObserver do. It reacts only to changes that are
@@ -22,13 +19,11 @@ namespace HealthTech.API.Patterns.QueueObserver{
     // SOLID — Open/Closed Principle (OCP):
     //   Adding a new event (e.g. "EmergencyInserted") only adds a case here;
     //   the Subject and all other observers stay untouched.
-    // ════════════════════════════════════════════════════════════════════
 
     public class DoctorQueueObserver : IQueueObserver
     {
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
-            // BREAKPOINT HERE
             var next = queueState.Queue.FirstOrDefault(e => e.Status == "Waiting");
 
             var msg = eventType switch

@@ -2,10 +2,7 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.Builder
 {
-
-// ─────────────────────────────────────────────────────────────────────────
     // BUILDER PATTERN — Concrete Builder
-    //
     // CONCEPT — Modularity:
     //   The prescription creation process is divided into smaller steps,
     //   such as setting patient information, doctor details, medicines,
@@ -31,12 +28,23 @@ namespace HealthTech.API.Patterns.Builder
     // SYSTEM BEHAVIOUR:
     //   The doctor selects medicines from the medicine list and gradually
     //   builds a complete prescription before pharmacist approval.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class PrescriptionBuilder : IPrescriptionBuilder
     {
         // Stores the prescription object being constructed.
-        private readonly Prescription _prescription = new();
+        // Created lazily by Reset() so the product is born only after the
+        // Director begins construction, not when the builder is instantiated.
+        private Prescription _prescription = null!;
+
+        // Creates a fresh Prescription product to begin a new build.
+        public IPrescriptionBuilder Reset()
+        {
+            // BREAKPOINT HERE — Prescription product is born, after the Director has started
+            Console.WriteLine("[BUILDER CONCRETE] Reset() — new Prescription product created");
+            _prescription = new Prescription();
+
+            return this;
+        }
 
         // Assigns patient information into the prescription.
         public IPrescriptionBuilder SetPatient(

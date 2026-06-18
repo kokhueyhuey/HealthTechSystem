@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace HealthTech.API.Hubs
 {
-    // ─────────────────────────────────────────────────────────────────────────
     // CONCEPT — Modularity:
     //   AppointmentHub is a dedicated hub ONLY for appointment events.
     //   It does NOT handle queue events (that is QueueHub's job).
@@ -22,7 +21,6 @@ namespace HealthTech.API.Hubs
     //   When AppointmentService calls NotifyObservers(), the SignalR observer
     //   uses that context to push "ReceiveAppointmentUpdate" to all clients.
     //   This hub itself is passive — it just keeps connections alive.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class AppointmentHub : Hub
     {

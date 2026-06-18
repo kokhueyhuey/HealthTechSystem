@@ -1,10 +1,7 @@
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.QueueObserver{
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Step 1: the Observer interface (Queue module)
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Abstraction:
     //   Defines the WHAT without the HOW. Every concrete observer
     //   (PatientQueueObserver, DoctorQueueObserver, PharmacistQueueObserver)
@@ -24,15 +21,12 @@ namespace HealthTech.API.Patterns.QueueObserver{
     //   QueueService depends on this abstraction, not on any concrete class.
     //   High-level policy (broadcasting queue updates) is decoupled from
     //   low-level detail (how each role receives the notification).
-    // ════════════════════════════════════════════════════════════════════
 
     public interface IQueueObserver
     {
-        /// <summary>
         /// Called by the Subject (QueueService) whenever the queue state changes.
         /// eventType values: "PatientEnqueued" | "NextCalled" | "PatientCompleted"
         ///                   | "PatientSkipped" | "QueueReset"
-        /// </summary>
         Task OnQueueUpdated(QueueState queueState, string eventType);
     }
 }

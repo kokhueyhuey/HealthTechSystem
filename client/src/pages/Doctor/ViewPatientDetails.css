@@ -1,4 +1,4 @@
-/* ── Page ────────────────────────────────────────────────────────── */
+/* Page  */
 .pageTitle {
   color: #121c2a;
   font-size: 20px;
@@ -20,7 +20,7 @@
   text-align: center;
 }
 
-/* ── Feedback ────────────────────────────────────────────────────── */
+/*  Feedback  */
 .errorBox {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -41,7 +41,7 @@
   margin-bottom: 16px;
 }
 
-/* ── Search ──────────────────────────────────────────────────────── */
+/*  Search  */
 .searchRow {
   display: flex;
   gap: 10px;
@@ -81,7 +81,7 @@
 .searchBtn:hover    { background: #1d4ed8; }
 .searchBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Patient card ────────────────────────────────────────────────── */
+/*  Patient card  */
 .patientCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -134,7 +134,7 @@
 .detailBtn:hover    { background: #e5e7eb; }
 .detailBtnActive    { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
 
-/* ── Detail panel ────────────────────────────────────────────────── */
+/*  Detail panel  */
 .detailPanel {
   border-top: 1px solid #f1f5f9;
   padding: 20px;
@@ -156,7 +156,7 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* ── Profile grid ────────────────────────────────────────────────── */
+/*  Profile grid  */
 .profileGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -168,7 +168,7 @@
 .profileLabel  { color: #94a3b8; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .profileValue  { color: #121c2a; font-size: 14px; }
 
-/* ── Stats row ───────────────────────────────────────────────────── */
+/*  Stats row  */
 .statRow {
   display: flex;
   gap: 12px;
@@ -188,7 +188,7 @@
 .statNum   { color: #2563eb; font-size: 20px; font-weight: 700; }
 .statLabel { color: #64748b; font-size: 12px; margin-top: 2px; }
 
-/* ── Prescription cards ──────────────────────────────────────────── */
+/*  Prescription cards  */
 .prescCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -220,7 +220,7 @@
   display: inline-block;
 }
 
-/* ── Medicine list ───────────────────────────────────────────────── */
+/*  Medicine list  */
 .medicineList { display: flex; flex-direction: column; gap: 8px; }
 
 .medicineRow {
@@ -234,7 +234,7 @@
 .medicineMeta  { color: #64748b; font-size: 13px; margin-top: 2px; }
 .medicineUsage { color: #94a3b8; font-size: 12px; margin-top: 3px; font-style: italic; }
 
-/* ── Loading ─────────────────────────────────────────────────────── */
+/*  Loading  */
 .loadingRow {
   display: flex;
   align-items: center;

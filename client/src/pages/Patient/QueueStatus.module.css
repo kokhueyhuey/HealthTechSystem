@@ -1,4 +1,4 @@
-/* ── Page ────────────────────────────────────────────────────────── */
+/* Page */
 .page {
   font-family: 'Inter', sans-serif;
   color: #121c2a;
@@ -9,7 +9,7 @@
   margin: 0 auto;
 }
 
-/* ── Header ──────────────────────────────────────────────────────── */
+/* Header */
 .header {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -31,7 +31,7 @@
   margin: 0;
 }
 
-/* ── Live indicator ──────────────────────────────────────────────── */
+/* Live indicator */
 .liveChip {
   display: inline-flex;
   align-items: center;
@@ -55,14 +55,14 @@
   animation: pulse 1.8s ease-in-out infinite;
 }
 
-/* ── Muted text ──────────────────────────────────────────────────── */
+/* Muted text */
 .mutedText {
   color: #64748b;
   font-size: 14px;
   padding: 20px 0;
 }
 
-/* ── Ticket card ─────────────────────────────────────────────────── */
+/* Ticket card */
 .ticketCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -97,7 +97,7 @@
   letter-spacing: 0.3px;
 }
 
-/* ── Status row ──────────────────────────────────────────────────── */
+/* Status row */
 .statusRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -129,7 +129,7 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Wait time ───────────────────────────────────────────────────── */
+/* Wait time */
 .waitCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -149,7 +149,7 @@
   color: #d97706;
 }
 
-/* ── Alert: it's your turn ───────────────────────────────────────── */
+/* Alert: it's your turn */
 .alertBanner {
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -171,7 +171,7 @@
   color: #b45309;
 }
 
-/* ── Queue progress bar ──────────────────────────────────────────── */
+/* Queue progress bar */
 .positionBar {
   animation: fadeUp 0.4s ease 0.2s both;
 }
@@ -198,7 +198,7 @@
   transition: width 0.7s ease;
 }
 
-/* ── Animations ──────────────────────────────────────────────────── */
+/* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }

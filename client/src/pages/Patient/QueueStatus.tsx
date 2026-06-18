@@ -11,20 +11,20 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
   
   const [now, setNow] = useState(new Date());
 
-  // ── 1. Live Clock Tick ────────────────────────────────────────────────
+  // 1. Live Clock Tick 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(timer);
   }, []);
 
-  // ── 2. Initial HTTP GET ────────────────────────────────────────────────
+  // 2. Initial HTTP GET 
   useEffect(() => {
     async function loadInitialQueue() {
       try {
         const data = await getQueueState(user.token);
         setQueueState(data);
         
-        // FIX: Only grab the ticket if it is NOT Completed and NOT Skipped.
+        // Only grab the ticket if it is NOT Completed and NOT Skipped.
         // This ensures if they log back in after finishing, myTicket stays null.
         const activeTicket = data?.queue?.find(
           (e) => e.patientId === user.id && e.status !== "Completed" && e.status !== "Skipped"
@@ -44,7 +44,7 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
     loadInitialQueue();
   }, [user.id, user.token]);
 
-  // ── 3. SignalR subscription ───────────────────────────────────────────
+  // 3. SignalR subscription 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(`http://localhost:5165/hubs/queue?access_token=${user.token}`)
@@ -60,7 +60,7 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
     return () => { connection.stop(); };
   }, [user.token]);
 
-  // ── 4. Derived State & Math ───────────────────────────────────────────
+  // 4. Derived State & Math 
   const isMyTurn = queueState && myTicket ? queueState.nowServing === myTicket : false;
 
   // Two ways a patient can be "done":
@@ -143,7 +143,7 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
         <p className={styles.mutedText}>Loading your queue status...</p>
       ) : !myTicket ? (
         
-        /* ── NEW: Empty State (Not Checked In Yet) ─────────────────────── */
+        /*  Empty State (Not Checked In Yet) */
         <div style={{ padding: '32px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', marginTop: '24px' }}>
           <div style={{ fontSize: '3rem', marginBottom: '16px' }}>👋</div>
           <h3 style={{ color: '#0f172a', margin: '0 0 12px 0', fontSize: '1.5rem' }}>Welcome to the Clinic</h3>
@@ -155,7 +155,7 @@ export default function QueueStatus({ user }: { user: LoginResponse }) {
 
       ) : (
 
-        /* ── CONDITIONAL UI: Completed vs Waiting ─────────────────────── */
+        /* CONDITIONAL UI: Completed vs Waiting  */
         <>
           <div className={styles.ticketCard}>
             <div className={styles.ticketEyebrow}>Your Ticket</div>

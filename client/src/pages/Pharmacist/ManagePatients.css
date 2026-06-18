@@ -1,4 +1,4 @@
-/* ── Page ────────────────────────────────────────────────────────── */
+/* Page  */
 .pageCenter {
   min-height: 100vh;
   display: flex;
@@ -17,7 +17,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Text ────────────────────────────────────────────────────────── */
+/* Text */
 .pageTitle {
   color: #121c2a;
   font-size: 20px;
@@ -32,7 +32,7 @@
   margin: 0 0 20px;
 }
 
-/* ── Form ────────────────────────────────────────────────────────── */
+/* Form */
 .formBox { display: flex; flex-direction: column; gap: 10px; }
 
 .formTitle {
@@ -42,7 +42,7 @@
   margin-bottom: 6px;
 }
 
-/* ── Scoped inputs (NOT global) ─────────────────────────────────── */
+/* Scoped inputs (NOT global) */
 .formBox input,
 .cardBox input {
   background: #ffffff;
@@ -64,7 +64,7 @@
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
-/* ── Scoped buttons (NOT global) ────────────────────────────────── */
+/* Scoped buttons (NOT global) */
 .formBox button,
 .cardBox button {
   background: #0d9488;
@@ -85,7 +85,7 @@
 .formBox button:disabled,
 .cardBox button:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Message ─────────────────────────────────────────────────────── */
+/* Message */
 .msgBox {
   margin-bottom: 12px;
   padding: 12px 14px;

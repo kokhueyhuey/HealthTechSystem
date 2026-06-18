@@ -1,4 +1,4 @@
-/* ── Page wrapper ────────────────────────────────────────────────── */
+/* Page wrapper  */
 .formPage {
   display: flex;
   justify-content: center;
@@ -6,7 +6,7 @@
   padding-top: 40px;
 }
 
-/* ── Card ────────────────────────────────────────────────────────── */
+/*  Card  */
 .formCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -19,7 +19,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Text ────────────────────────────────────────────────────────── */
+/* Text  */
 .pageTitle {
   color: #121c2a;
   font-size: 20px;
@@ -34,7 +34,7 @@
   margin: 0 0 18px;
 }
 
-/* ── Labels ──────────────────────────────────────────────────────── */
+/* Labels  */
 label {
   color: #374151;
   font-size: 13px;
@@ -45,7 +45,7 @@ label {
   margin-bottom: 4px;
 }
 
-/* ── Inputs ──────────────────────────────────────────────────────── */
+/* Inputs */
 .input,
 .select {
   width: 100%;
@@ -77,7 +77,7 @@ input[type="date"] { color-scheme: light; }
   color: #121c2a;
 }
 
-/* ── Button ──────────────────────────────────────────────────────── */
+/* Button */
 .primaryBtn {
   margin-top: 20px;
   width: 100%;
@@ -96,7 +96,7 @@ input[type="date"] { color-scheme: light; }
 .primaryBtn:hover    { background: #b45309; }
 .primaryBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Feedback ────────────────────────────────────────────────────── */
+/* Feedback */
 .successBox {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;

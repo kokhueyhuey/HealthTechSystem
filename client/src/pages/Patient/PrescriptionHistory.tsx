@@ -6,7 +6,7 @@ import {
 } from "../../services/api";
 import styles from "./PrescriptionHistory.module.css";
 
-// ── Status badge colours (text + background) ─────────────────────────────────
+// Status badge colours (text + background) 
 const STATUS_META: Record<string, { color: string; bg: string }> = {
   Pending:   { color: "#fbbf24", bg: "rgba(251,191,36,0.12)"  },
   Dispensed: { color: "#34d399", bg: "rgba(52,211,153,0.12)"  },
@@ -18,7 +18,7 @@ function getStatusMeta(status: string) {
   return STATUS_META[status] ?? { color: "#94a3b8", bg: "rgba(148,163,184,0.10)" };
 }
 
-// ── Inline SVG icons ─────────────────────────────────────────────────────────
+// Inline SVG icons 
 function ClipboardIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -38,7 +38,6 @@ function AlertCircleIcon() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function PrescriptionHistory() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
@@ -68,13 +67,13 @@ export default function PrescriptionHistory() {
   return (
     <div className={styles.page}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className={styles.pageHeader}>
         <h2 className={styles.pageTitle}>Prescription History</h2>
         <p className={styles.pageSub}>Your past and current prescriptions from clinic visits.</p>
       </div>
 
-      {/* ── Loading ── */}
+      {/* Loading */}
       {loading && (
         <div className={styles.loadingRow}>
           <span className={styles.spinner} />
@@ -82,7 +81,7 @@ export default function PrescriptionHistory() {
         </div>
       )}
 
-      {/* ── Empty ── */}
+      {/* Empty */}
       {!loading && prescriptions.length === 0 && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
@@ -95,7 +94,7 @@ export default function PrescriptionHistory() {
         </div>
       )}
 
-      {/* ── List ── */}
+      {/* List */}
       {!loading && prescriptions.length > 0 && (
         <div className={styles.list}>
           {prescriptions.map((prescription, index) => {
@@ -104,7 +103,7 @@ export default function PrescriptionHistory() {
               <div key={prescription.id} className={styles.card}>
                 <div className={styles.cardBody}>
 
-                  {/* ── Card top row: label + date left, status badge right ── */}
+                  {/* Card top row: label + date left, status badge right */}
                   <div className={styles.cardTop}>
                     <div className={styles.cardMeta}>
                       <span className={styles.cardIndex}>
@@ -129,7 +128,7 @@ export default function PrescriptionHistory() {
                     </span>
                   </div>
 
-                  {/* ── MC section ── */}
+                  {/* MC section */}
                   {prescription.needMc && (
                     <div className={styles.mcSection}>
                       <div className={styles.mcHeader}>
@@ -154,7 +153,7 @@ export default function PrescriptionHistory() {
 
                   <div className={styles.divider} />
 
-                  {/* ── Medicine list ── */}
+                  {/* Medicine list */}
                   <p className={styles.sectionLabel}>
                     Medicine details &mdash; {prescription.items.length} item{prescription.items.length !== 1 ? "s" : ""}
                   </p>

@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — Concrete State: In Stock State
     //
     // CONCEPT — Encapsulation:
@@ -14,7 +12,6 @@ namespace HealthTech.API.Patterns.State
     //
     // SYSTEM BEHAVIOUR:
     //   Medicines in this state are available for dispensing and normal use.
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Represents the medicine state when stock quantity is sufficient.
     public class InStockState : IMedicineState
