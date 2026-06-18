@@ -131,6 +131,7 @@ namespace HealthTech.API.Patterns.QueueObserver
             lock (_lock) { _observers.Remove(observer); }
         }
 
+        // BREAKPOINT HERE to see all observers notified on every queue change
         public async Task NotifyObservers(QueueState queueState, string eventType)
         {
             List<IQueueObserver> snapshot;

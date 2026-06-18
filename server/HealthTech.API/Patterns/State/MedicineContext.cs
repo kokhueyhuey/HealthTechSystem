@@ -46,6 +46,7 @@ namespace HealthTech.API.Patterns.State
         // Constructor that decides which state should be assigned.
         public MedicineContext(int quantity, int threshold, DateTime expiryDate)
         {
+            // BREAKPOINT here
             if (expiryDate.Date < DateTime.Today)
             {
                 _state = new ExpiredState();

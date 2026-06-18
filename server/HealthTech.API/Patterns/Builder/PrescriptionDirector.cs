@@ -53,6 +53,13 @@ namespace HealthTech.API.Patterns.Builder
             List<PrescriptionItem> items
         )
         {
+            // BREAKPOINT HERE — Director takes control; pattern entered before any builder step runs
+            Console.WriteLine($"[BUILDER DIRECTOR] ConstructPrescription started | PatientId={patientId} | Items={items.Count}");
+
+            // Starts a fresh build — the Prescription product is created here,
+            // after the Director has taken control of the construction process.
+            _builder.Reset();
+
             // Assigns general prescription information.
             _builder
                 .SetPatient(patientId, patientName)

@@ -34,6 +34,9 @@ namespace HealthTech.API.Patterns.Builder
 
     public interface IPrescriptionBuilder
     {
+        // Creates a fresh Prescription product to begin a new build.
+        IPrescriptionBuilder Reset();
+
         // Assigns patient information to the prescription.
         IPrescriptionBuilder SetPatient(
             int patientId,
