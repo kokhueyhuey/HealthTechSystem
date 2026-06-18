@@ -1,4 +1,4 @@
-/* ── Page wrapper ────────────────────────────────────────────────── */
+/* Page wrapper */
 .page {
   padding: 0 0 60px;
   font-family: 'Inter', sans-serif;
@@ -6,7 +6,7 @@
   margin: 0 auto;
 }
 
-/* ── Page header ─────────────────────────────────────────────────── */
+/* Page header */
 .pageHeader { margin-bottom: 24px; }
 
 .pageTitle {
@@ -23,7 +23,7 @@
   margin: 0;
 }
 
-/* ── Loading ─────────────────────────────────────────────────────── */
+/* Loading */
 .loadingRow {
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
   flex-shrink: 0;
 }
 
-/* ── Empty state ─────────────────────────────────────────────────── */
+/* Empty state */
 .emptyState {
   text-align: center;
   padding: 48px 24px;
@@ -56,10 +56,10 @@
 .emptyTitle { font-size: 16px; font-weight: 600; color: #374151; margin: 0 0 6px; }
 .emptySub   { font-size: 13px; color: #64748b; margin: 0; line-height: 1.6; }
 
-/* ── Card list ───────────────────────────────────────────────────── */
+/* Card list */
 .list { display: flex; flex-direction: column; gap: 12px; }
 
-/* ── Prescription card ───────────────────────────────────────────── */
+/* Prescription card */
 .card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -73,7 +73,7 @@
 
 .cardBody { padding: 18px 20px 20px; }
 
-/* ── Card top ────────────────────────────────────────────────────── */
+/* Card top */
 .cardTop {
   display: flex;
   justify-content: space-between;
@@ -99,7 +99,7 @@
   color: #374151;
 }
 
-/* ── Badge ───────────────────────────────────────────────────────── */
+/* Badge */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -119,10 +119,10 @@
   flex-shrink: 0;
 }
 
-/* ── Divider ─────────────────────────────────────────────────────── */
+/* Divider */
 .divider { height: 1px; background: #f1f5f9; margin: 12px 0; }
 
-/* ── MC section ──────────────────────────────────────────────────── */
+/*  MC section */
 .mcSection {
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -168,7 +168,7 @@
   line-height: 1.5;
 }
 
-/* ── Medicine section ────────────────────────────────────────────── */
+/* Medicine section */
 .sectionLabel {
   font-size: 11px;
   font-weight: 600;
@@ -238,7 +238,7 @@
 .usageLabel { font-size: 10.5px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px; }
 .usageText  { font-size: 12.5px; color: #64748b; line-height: 1.6; margin: 0; }
 
-/* ── Animations ──────────────────────────────────────────────────── */
+/* Animations */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

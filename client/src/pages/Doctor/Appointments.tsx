@@ -100,11 +100,11 @@ export default function Appointments({ user }: { user: LoginResponse }) {
   return (
     <div className="pageContainer">
       
-      {/* ── HEADER ── */}
+      {/* header */}
       <h2 className="pageTitle">Daily Schedule</h2>
       <p className="pageSub">{fmtFriendlyDate(date)}</p>
 
-      {/* ── SEARCH & FILTER ── */}
+      {/* search and filter */}
       <div className="searchRow">
         <input
           type="date"
@@ -123,7 +123,7 @@ export default function Appointments({ user }: { user: LoginResponse }) {
 
       {error && <div className="errorBox">⚠️ {error}</div>}
 
-      {/* ── DATA TABLE ── */}
+      {/* data table */}
       <div className="tableContainer">
         <table className="dataTable">
           <thead>

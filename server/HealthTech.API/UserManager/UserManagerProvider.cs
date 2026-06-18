@@ -2,10 +2,9 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Factories
 {
-    // gets back the right factory without knowing anything about PatientFactory internally.
+    // FACTORY PATTERN IS NOT USED ANYMORE
     public static class UserFactoryProvider
     {
-        // entry point of the pattern.
         public static IUserFactory GetFactory(string role)
         {
             return role switch

@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — Context Class
     //
     // CONCEPT — Abstraction:
@@ -34,7 +32,6 @@ namespace HealthTech.API.Patterns.State
     //   - Expiry date
     //   - Stock quantity
     //   - Threshold level
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Context class that determines and manages the current medicine state.
     // The medicine state changes based on quantity, threshold, and expiry date.

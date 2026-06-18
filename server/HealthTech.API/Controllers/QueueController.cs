@@ -4,10 +4,7 @@ using HealthTech.API.Patterns.QueueObserver;
 
 namespace HealthTech.API.Controllers
 {
-    // ════════════════════════════════════════════════════════════════════
     // HTTP Controller — exposes QueueService operations as REST endpoints
-    // ════════════════════════════════════════════════════════════════════
-    //
     // NOTE — [Authorize] intentionally removed for local Swagger testing.
     // Re-add [Authorize] / [Authorize(Roles = "...")] once JWT auth is
     // wired into Program.cs (see Option B in the fix instructions).
@@ -18,7 +15,6 @@ namespace HealthTech.API.Controllers
     // SOLID — Dependency Inversion Principle (DIP):
     //   Constructor receives QueueService via ASP.NET Core DI.
     //   No manual instantiation (no "new QueueService()") anywhere.
-    // ════════════════════════════════════════════════════════════════════
 
     [ApiController]
     [Route("api/[controller]")]
@@ -31,14 +27,14 @@ namespace HealthTech.API.Controllers
             _queueService = queueService;
         }
 
-        // ── GET api/queue ──────────────────────────────────────────────
+        // GET api/queue 
         [HttpGet]
         public async Task<ActionResult<QueueState>> GetQueueState()
         {
             return Ok(await _queueService.GetCurrentStateAsync());
         }
 
-        // ── POST api/queue/enqueue ─────────────────────────────────────
+        // POST api/queue/enqueue 
         [HttpPost("enqueue")]
         public async Task<ActionResult<QueueEntry>> Enqueue([FromBody] EnqueueRequest req)
         {
@@ -47,7 +43,7 @@ namespace HealthTech.API.Controllers
             return Ok(entry);
         }
 
-        // ── POST api/queue/next ────────────────────────────────────────
+        // POST api/queue/next 
         [HttpPost("next")]
         public async Task<ActionResult<QueueState>> CallNext([FromBody] DoctorIdRequest req)
         {
@@ -55,7 +51,7 @@ namespace HealthTech.API.Controllers
             return Ok(state);
         }
 
-        // ── POST api/queue/complete ────────────────────────────────────
+        // POST api/queue/complete 
         [HttpPost("complete")]
         public async Task<ActionResult<QueueState>> Complete([FromBody] AppointmentIdRequest req)
         {
@@ -63,7 +59,7 @@ namespace HealthTech.API.Controllers
             return Ok(state);
         }
 
-        // ── POST api/queue/skip ────────────────────────────────────────
+        // POST api/queue/skip 
         [HttpPost("skip")]
         public async Task<ActionResult<QueueState>> Skip([FromBody] DoctorIdRequest req)
         {
@@ -71,7 +67,7 @@ namespace HealthTech.API.Controllers
             return Ok(state);
         }
 
-        // ── DELETE api/queue/reset ─────────────────────────────────────
+        // DELETE api/queue/reset 
         [HttpDelete("reset")]
         public async Task<ActionResult<QueueState>> Reset()
         {
@@ -80,12 +76,12 @@ namespace HealthTech.API.Controllers
         }
     }
 
-    // ── Request DTOs ───────────────────────────────────────────────────
+    // Request DTOs 
     public record EnqueueRequest(int AppointmentId, int PatientId, string PatientName);
 
-    /// <summary>Used by CallNext and Skip — identifies which doctor is acting.</summary>
+    /// Used by CallNext and Skip — identifies which doctor is acting
     public record DoctorIdRequest(int DoctorId);
 
-    /// <summary>Used by Complete — pinpoints the exact appointment being closed.</summary>
+    /// Used by Complete — pinpoints the exact appointment being closed
     public record AppointmentIdRequest(int AppointmentId);
 }

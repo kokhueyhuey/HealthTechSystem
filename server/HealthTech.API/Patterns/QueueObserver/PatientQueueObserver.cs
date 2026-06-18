@@ -1,10 +1,7 @@
 using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.QueueObserver{
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Concrete Observer #1: Patient (Queue module)
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Encapsulation:
     //   The logic of "what a patient cares about when the queue moves"
     //   lives entirely inside this class. No other observer duplicates
@@ -22,7 +19,6 @@ namespace HealthTech.API.Patterns.QueueObserver{
     // SOLID — Liskov Substitution Principle (LSP):
     //   Fully substitutable for IQueueObserver anywhere in the system.
     //   Removing this observer and replacing with a mock works seamlessly.
-    // ════════════════════════════════════════════════════════════════════
 
     public class PatientQueueObserver : IQueueObserver
     {

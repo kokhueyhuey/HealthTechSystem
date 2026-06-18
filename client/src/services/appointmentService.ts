@@ -213,11 +213,8 @@ export async function getAppointmentsByDate(
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
-// ─────────────────────────────────────────────────────────────────────────────
-// ADD THESE to your existing appointmentService.ts
-// ─────────────────────────────────────────────────────────────────────────────
 
-// Add this interface alongside the others
+
 export interface AppointmentSearchResult {
   id: number;
   patientId: number;
@@ -264,11 +261,9 @@ export async function createWalkIn(
   return data;
 }
 
-/* ─────────────────────────────────────────────
-   GENERATE TIME SLOTS from doctor's work hours
+/* GENERATE TIME SLOTS from doctor's work hours
    startHour / endHour are 24h integers (e.g. 9, 19)
-   Returns ["09:00", "10:00", ..., "18:00"]
-───────────────────────────────────────────── */
+   Returns ["09:00", "10:00", ..., "18:00"] */
 export function generateTimeSlots(startHour: number, endHour: number): string[] {
   const slots: string[] = [];
   for (let h = startHour; h < endHour; h++) {
@@ -277,10 +272,8 @@ export function generateTimeSlots(startHour: number, endHour: number): string[] 
   return slots;
 }
 
-/* ─────────────────────────────────────────────
-   GET BOOKED SLOTS for a doctor on a given date
-   Returns ["09:00", "14:00", ...]
-───────────────────────────────────────────── */
+/* GET BOOKED SLOTS for a doctor on a given date
+   Returns ["09:00", "14:00", ...] */
 export async function getBookedSlots(doctorId: number, date: string): Promise<string[]> {
   if (!doctorId || !date) return [];
   const res = await fetch(`${BASE_URL}/booked-slots?doctorId=${doctorId}&date=${date}`);

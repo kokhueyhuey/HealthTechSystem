@@ -1,8 +1,5 @@
 namespace HealthTech.API.Patterns.QueueObserver{
-    // ════════════════════════════════════════════════════════════════════
     // OBSERVER PATTERN — Step 2: the Subject interface (Queue module)
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Modularity:
     //   The Subject contract lives in its own file. QueueService implements
     //   it, but any alternative (e.g. MockQueueService in unit tests) can
@@ -20,7 +17,6 @@ namespace HealthTech.API.Patterns.QueueObserver{
     // SOLID — Dependency Inversion Principle (DIP):
     //   Controllers depend on IQueueSubject, not QueueService directly.
     //   This keeps the HTTP layer independent of the queue business logic.
-    // ════════════════════════════════════════════════════════════════════
 
     public interface IQueueSubject
     {

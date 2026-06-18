@@ -2,10 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace HealthTech.API.Hubs
 {
-    // ════════════════════════════════════════════════════════════════════
     // SignalR Hub — Real-time bridge between QueueService and React clients
-    // ════════════════════════════════════════════════════════════════════
-    //
     // CONCEPT — Modularity:
     //   QueueHub is intentionally thin. It is NOT the Subject and NOT
     //   an observer. It is the transport layer. Business logic stays in
@@ -24,7 +21,6 @@ namespace HealthTech.API.Hubs
     //   When QueueService calls NotifyObservers(), SignalRQueueObserver
     //   uses that context to push "ReceiveQueueUpdate" to all clients.
     //   The hub itself is passive — it just keeps connections alive.
-    // ════════════════════════════════════════════════════════════════════
 
     public class QueueHub : Hub
     {

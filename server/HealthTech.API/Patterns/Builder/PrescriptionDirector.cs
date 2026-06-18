@@ -2,8 +2,6 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.Builder
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // BUILDER PATTERN — Director Class
     //
     // CONCEPT — Modularity:
@@ -28,7 +26,6 @@ namespace HealthTech.API.Patterns.Builder
     //   entering dosage details, and submitting the prescription.
     //   The Director coordinates all building steps before returning
     //   the completed Prescription object.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class PrescriptionDirector
     {

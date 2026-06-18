@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — Concrete State: Low Stock State
     //
     // CONCEPT — Encapsulation:
@@ -15,8 +13,6 @@ namespace HealthTech.API.Patterns.State
     // SYSTEM BEHAVIOUR:
     //   Medicines in this state require restocking attention from the
     //   pharmacist before the quantity becomes unavailable.
-    // ─────────────────────────────────────────────────────────────────────────
-
 
     // Represents the medicine state when stock quantity is below the minimum threshold.
     public class LowStockState : IMedicineState

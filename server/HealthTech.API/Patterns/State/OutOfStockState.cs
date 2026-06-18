@@ -1,7 +1,5 @@
 namespace HealthTech.API.Patterns.State
 {
-
-    // ─────────────────────────────────────────────────────────────────────────
     // STATE PATTERN — Concrete State: Out Of Stock State
     //
     // CONCEPT — Encapsulation:
@@ -15,7 +13,6 @@ namespace HealthTech.API.Patterns.State
     //
     // SYSTEM BEHAVIOUR:
     //   Medicines in this state cannot be dispensed until restocked.
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Represents the medicine state when the stock quantity is zero.
     public class OutOfStockState : IMedicineState

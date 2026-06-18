@@ -1,4 +1,4 @@
-/* ── Page ────────────────────────────────────────────────────────── */
+/* page */
 .pageContainer {
   font-family: 'Inter', sans-serif;
   color: #121c2a;
@@ -25,7 +25,7 @@
   text-align: center;
 }
 
-/* ── Feedback ────────────────────────────────────────────────────── */
+/* feedback */
 .errorBox {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -56,7 +56,7 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Search row ──────────────────────────────────────────────────── */
+/* search row */
 .searchRow {
   display: flex;
   gap: 10px;
@@ -96,7 +96,7 @@
 .searchBtn:hover    { background: #1d4ed8; }
 .searchBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Table ───────────────────────────────────────────────────────── */
+/* table */
 .tableContainer {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -134,14 +134,14 @@
 
 .cancelledRow { opacity: 0.5; }
 
-/* ── Cell types ──────────────────────────────────────────────────── */
+/* cell types  */
 .timeCell    { color: #2563eb; font-weight: 600; white-space: nowrap; }
 .idCell      { color: #94a3b8; font-size: 13px; }
 .patientName { font-weight: 600; color: #121c2a; }
 .notesCell   { color: #64748b; font-size: 13px; max-width: 260px; }
 .emptyNotes  { font-style: italic; color: #cbd5e1; }
 
-/* ── Status badges ───────────────────────────────────────────────── */
+/* status badges */
 .statusBadge {
   display: inline-block;
   font-size: 11px;

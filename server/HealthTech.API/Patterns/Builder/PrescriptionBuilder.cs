@@ -2,10 +2,7 @@ using HealthTech.API.Models;
 
 namespace HealthTech.API.Patterns.Builder
 {
-
-// ─────────────────────────────────────────────────────────────────────────
     // BUILDER PATTERN — Concrete Builder
-    //
     // CONCEPT — Modularity:
     //   The prescription creation process is divided into smaller steps,
     //   such as setting patient information, doctor details, medicines,
@@ -31,7 +28,6 @@ namespace HealthTech.API.Patterns.Builder
     // SYSTEM BEHAVIOUR:
     //   The doctor selects medicines from the medicine list and gradually
     //   builds a complete prescription before pharmacist approval.
-    // ─────────────────────────────────────────────────────────────────────────
 
     public class PrescriptionBuilder : IPrescriptionBuilder
     {

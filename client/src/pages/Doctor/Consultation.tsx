@@ -45,7 +45,7 @@ export default function Consultation({ user }: { user: LoginResponse }) {
 
   const currentQueuePatient = queueState?.queue.find(e => e.status === "Serving");
 
-  // ── 1. Initial queue load ─────────────────────────────────────────────
+  // 1. initial queue load 
   useEffect(() => {
     async function loadQueue() {
       try {
@@ -58,7 +58,7 @@ export default function Consultation({ user }: { user: LoginResponse }) {
     loadQueue();
   }, [user.token]);
 
-  // ── 2. SignalR subscription (real-time queue updates) ─────────────────
+  //  2. SignalR subscription (real-time queue updates) 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(`http://localhost:5165/hubs/queue?access_token=${user.token}`)
@@ -73,7 +73,7 @@ export default function Consultation({ user }: { user: LoginResponse }) {
     return () => { connection.stop(); };
   }, [user.token]);
 
-  // ── 3. Initial patient + medicines load ────────────────────────────────
+  //  3. Initial patient + medicines load 
   useEffect(() => {
     async function loadInitialData() {
       const [patientResult, medicinesResult] = await Promise.allSettled([
@@ -201,7 +201,7 @@ export default function Consultation({ user }: { user: LoginResponse }) {
         </div>
       )}
 
-      {/* ── Queue Control ──────────────────────────────────────── */}
+      {/*  Queue Control  */}
       <div className={styles.queueCard}>
         <h3 className={styles.queueCardTitle}>Live Queue</h3>
         <div className={styles.queueContent}>
@@ -231,7 +231,7 @@ export default function Consultation({ user }: { user: LoginResponse }) {
         </div>
       </div>
 
-      {/* ── Consultation Section ───────────────────────────────── */}
+      {/*  consultation section  */}
       {patientLoading && (
         <div className={styles.loadingState}>Loading patient...</div>
       )}

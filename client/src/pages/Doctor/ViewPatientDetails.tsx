@@ -1,6 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
 // View Patient Details — Doctor page
-//
 // Flow:
 //   1. Doctor types a patient name or IC in the search bar
 //   2. Matching patients appear as cards
@@ -16,7 +14,6 @@
 // CONCEPT — Abstraction:
 //   getPatientDetails() returns a clean shaped DTO.
 //   This component never touches raw DB models.
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useCallback } from "react";
 import { searchPatients, getPatientDetails, type PatientRecord, type PatientDetails } from "../../services/patientService";
@@ -47,7 +44,7 @@ export default function Patients() {
   const [loadingDetail,  setLoadingDetail]  = useState<number | null>(null);
   const [detailError,    setDetailError]    = useState<Record<number, string>>({});
 
-  // ── Search ──────────────────────────────────────────────────────────
+  // Search
   const handleSearch = useCallback(async () => {
     if (!query.trim()) { setSearchMsg("Enter a patient name or IC number."); return; }
     setSearching(true); setSearchMsg(null); setHasSearched(true);
@@ -62,7 +59,7 @@ export default function Patients() {
     }
   }, [query]);
 
-  // ── Load patient details ─────────────────────────────────────────────
+  // Load patient details
   async function toggleDetails(patientId: number) {
     // Collapse if already open
     if (expandedId === patientId) { setExpandedId(null); return; }
@@ -83,7 +80,7 @@ export default function Patients() {
     }
   }
 
-  // ── Render ───────────────────────────────────────────────────────────
+  // Render
   return (
     <div>
       <h2 className="pageTitle">Patient Records</h2>
@@ -91,7 +88,7 @@ export default function Patients() {
         Search patients by name or IC number to view their profile and prescriptions history.
       </p>
 
-      {/* ── Search bar ───────────────────────────────────────────── */}
+      {/* Search bar */}
       <div className="searchRow">
         <input
           className="searchInput"
@@ -111,7 +108,7 @@ export default function Patients() {
         </div>
       )}
 
-      {/* ── Patient list ─────────────────────────────────────────── */}
+      {/* Patient list */}
       {!hasSearched && (
         <div className="emptyState">
           Use the search bar above to find a patient.
@@ -127,7 +124,7 @@ export default function Patients() {
         return (
           <div key={patient.id} className="patientCard">
 
-            {/* ── Patient summary row ────────────────────────────── */}
+            {/* Patient summary row */}
             <div className="patientSummary">
               <div className="patientAvatar">
                 {patient.name[0].toUpperCase()}
@@ -148,7 +145,7 @@ export default function Patients() {
               </button>
             </div>
 
-            {/* ── Expanded detail panel ───────────────────────────── */}
+            {/* Expanded detail panel */}
             {isExpanded && (
               <div className="detailPanel">
 
@@ -162,7 +159,7 @@ export default function Patients() {
 
                 {detail && (
                   <>
-                    {/* ── Profile ──────────────────────────────────── */}
+                    {/* Profile */}
                     <div className="detailSection">
                       <h4 className="detailSectionTitle">👤 Profile</h4>
                       <div className="profileGrid">
@@ -194,7 +191,7 @@ export default function Patients() {
                       </div>
                     </div>
 
-                    {/* ── Prescription history ───────────────────────── */}
+                    {/* Prescription history */}
                     <div className="detailSection">
                       <h4 className="detailSectionTitle">💊 Prescription History</h4>
 
@@ -263,7 +260,7 @@ export default function Patients() {
   );
 }
 
-// ── Small helper component ────────────────────────────────────────────────────
+// Small helper component 
 function ProfileField({ label, value }: { label: string; value: string }) {
   return (
     <div className="profileField">

@@ -41,10 +41,10 @@ builder.Services.AddScoped<AppointmentService>();         // receives SignalRApp
 // RegisterObserver() call below — QueueService itself never changes.
 builder.Services.AddSingleton<QueueService>();
 
-// ── Build app ──────────────────────────────────────────────────────────
+// Build app
 var app = builder.Build();
 
-// ── Wire Queue observers AFTER build so IHubContext is resolvable ──────
+// Wire Queue observers AFTER build so IHubContext is resolvable 
 //
 // CONCEPT — Modularity: observer registration is a startup concern.
 // The QueueService and each observer class know nothing about this wiring.
@@ -63,7 +63,7 @@ queueService.RegisterObserver(new DoctorQueueObserver());
 // Observer 3 — pharmacist log / future: SMS or in-app notification
 queueService.RegisterObserver(new PharmacistQueueObserver());
 
-// ── Middleware pipeline ────────────────────────────────────────────────
+// Middleware pipeline 
 app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())

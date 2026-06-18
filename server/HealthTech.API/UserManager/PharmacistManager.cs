@@ -7,7 +7,6 @@ namespace HealthTech.API.Factories
     {
         public User CreateUser(RegisterUserRequest request)
         {
-            // ⬇ BREAKPOINT HERE — this is the Factory Method executing for a Pharmacist.
             return new Pharmacist
             {
                 Name = request.Name,

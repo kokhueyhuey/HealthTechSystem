@@ -4,24 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTech.API.Patterns.QueueObserver
 {
-    // --------------------------------------------------------------------
-    // OBSERVER PATTERN � Concrete Subject: QueueService
-    // --------------------------------------------------------------------
-    //
-    // CONCEPT � Encapsulation:
+    // OBSERVER PATTERN - Concrete Subject: QueueService
+    // CONCEPT - Encapsulation:
     //   _observers list and _state are private. External callers use only
     //   the public API: EnqueuePatient, CallNext, CompletePatient, etc.
     //
-    // CONCEPT � Modularity:
+    // CONCEPT - Modularity:
     //   Standalone class. No controller, view, or UI logic inside.
     //
-    // SOLID � SRP: manages queue state and fires observer notifications.
-    // SOLID � OCP: new observers added via RegisterObserver(); this class never changes.
-    // SOLID � DIP: depends on IQueueObserver abstraction, not concrete types.
+    // SOLID - SRP: manages queue state and fires observer notifications.
+    // SOLID - OCP: new observers added via RegisterObserver(); this class never changes.
+    // SOLID - DIP: depends on IQueueObserver abstraction, not concrete types.
     //
     // Registered as Singleton in Program.cs so ALL HTTP requests and the
     // SignalR hub share the same live queue state.
-    // --------------------------------------------------------------------
 
     public class QueueService : IQueueSubject
     {
@@ -115,7 +111,7 @@ namespace HealthTech.API.Patterns.QueueObserver
             if (!_initialized) await InitializeAsync();
         }
 
-        // -- IQueueSubject -
+        //  IQueueSubject 
 
         public void RegisterObserver(IQueueObserver observer)
         {

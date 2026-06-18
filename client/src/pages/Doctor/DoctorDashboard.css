@@ -1,4 +1,4 @@
-/* ── Layout ─────────────────────────────────────────────────────── */
+/* Layout */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -6,7 +6,7 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────────── */
+/* Sidebar */
 .sidebar {
   width: 260px;
   flex-shrink: 0;
@@ -147,14 +147,14 @@
 
 .logoutBtn:hover { background: #fff5f5; }
 
-/* ── Main ────────────────────────────────────────────────────────── */
+/*  Main  */
 .main {
   flex: 1;
   padding: 32px;
   min-width: 0;
 }
 
-/* ── Page text ───────────────────────────────────────────────────── */
+/* Page text */
 .pageTitle {
   color: #121c2a;
   font-size: 22px;
@@ -169,7 +169,7 @@
   margin: 0 0 28px;
 }
 
-/* ── Feature card grid (Home page) ──────────────────────────────── */
+/*  Feature card grid (Home page)  */
 .cardGrid {
   display: grid;
   gap: 16px;
@@ -197,7 +197,7 @@
 .cardTitle  { color: #121c2a; font-weight: 600; font-size: 15px; margin-bottom: 4px; }
 .cardDesc   { color: #64748b; font-size: 13px; line-height: 1.5; }
 
-/* ── Shared form pieces (Book Appointment uses DoctorDashboard scope) */
+/*  Shared form pieces (Book Appointment uses DoctorDashboard scope) */
 .formCard {
   background: #ffffff;
   border: 1px solid #e5e7eb;
