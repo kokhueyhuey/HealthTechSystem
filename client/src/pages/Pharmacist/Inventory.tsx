@@ -13,7 +13,7 @@ const emptyForm: MedicineRequest = {
   description: "",
   photo: "",
   quantity: 0,
-  threshold: 50,
+  threshold: 0,
   expiryDate: "",
 };
 
@@ -148,7 +148,7 @@ export default function Inventory() {
           type="number"
           name="quantity"
           placeholder="Quantity"
-          value={form.quantity}
+          value={form.quantity || ""}
           onChange={handleChange}
         />
 
@@ -157,7 +157,7 @@ export default function Inventory() {
           type="number"
           name="threshold"
           placeholder="Low stock threshold"
-          value={form.threshold}
+          value={form.threshold || ""}
           onChange={handleChange}
         />
 
