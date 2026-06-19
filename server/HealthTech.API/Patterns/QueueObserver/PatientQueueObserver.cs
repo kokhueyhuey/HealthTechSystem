@@ -31,7 +31,7 @@ namespace HealthTech.API.Patterns.QueueObserver{
             _patientTicketNumber = patientTicketNumber;
         }
 
-        // BREAKPOINT here 
+        // BREAKPOINT
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
 
