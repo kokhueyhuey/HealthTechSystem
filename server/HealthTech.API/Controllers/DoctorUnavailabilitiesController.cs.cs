@@ -41,62 +41,49 @@ namespace HealthTech.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUnavailabilityRequest req)
         {
-            try
+            var result =
+                await _appointmentService.CreateDoctorUnavailabilityAsync(
+                    req.DoctorId,
+                    req.Date,
+                    req.StartHour,
+                    req.EndHour,
+                    req.Reason);
+
+            if (!result.Success)
             {
-                if (!DateOnly.TryParse(req.Date, out var date))
-                    return BadRequest(new { message = "Invalid date." });
-
-                // Pull to client first, then filter in memory (EF can't translate TimeSpan.FromHours)
-                var apptOnDate = await _context.Appointments
-                    .Where(a => a.DoctorId == req.DoctorId &&
-                                DateOnly.FromDateTime(a.AppointmentDate) == date &&
-                                a.Status != "Cancelled")
-                    .ToListAsync();
-
-                var affectedCount = apptOnDate.Count(a =>
-                    a.AppointmentDate.Hour >= req.StartHour &&
-                    a.AppointmentDate.Hour < req.EndHour);
-
-                var unavailability = new DoctorUnavailability
+                return BadRequest(new
                 {
-                    DoctorId  = req.DoctorId,
-                    Date      = date,
-                    StartTime = TimeSpan.FromHours(req.StartHour),
-                    EndTime   = TimeSpan.FromHours(req.EndHour),
-                    Reason    = req.Reason ?? ""
-                };
-
-                _context.DoctorUnavailabilities.Add(unavailability);
-                await _context.SaveChangesAsync();
-
-                _appointmentService.NotifyAffectedAppointmentsChanged(req.DoctorId);
-
-                return Ok(new {
-                    message          = "Unavailability saved.",
-                    affectedBookings = affectedCount,
-                    warning          = affectedCount > 0
-                        ? $"{affectedCount} existing appointment(s) are affected. The pharmacist will be notified and assist with rescheduling the appointments."
-                        : (string?)null
+                    message = result.Message
                 });
             }
-            catch (Exception ex)
+
+            return Ok(new
             {
-                return StatusCode(500, new { message = ex.Message, detail = ex.InnerException?.Message });
-            }
+                message = result.Message,
+                affectedBookings = result.AffectedBookings,
+                warning = result.Warning
+            });
         }
 
         // DELETE: api/doctorunavailabilities/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await _context.DoctorUnavailabilities.FindAsync(id);
-            if (item == null) return NotFound();
-            _context.DoctorUnavailabilities.Remove(item);
-            await _context.SaveChangesAsync();
+            var result =
+                await _appointmentService.DeleteDoctorUnavailabilityAsync(id);
 
-            _appointmentService.NotifyAffectedAppointmentsChanged(item.DoctorId);
+            if (!result.Success)
+            {
+                return NotFound(new
+                {
+                    message = result.Message
+                });
+            }
 
-            return Ok(new { message = "Unavailability removed." });
+            return Ok(new
+            {
+                message = result.Message
+            });
         }
 
         
