@@ -70,17 +70,16 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
         // 4th: SignalRAppointmentObserver.Update() → frontend browser updates live
         public void NotifyObservers(Appointment appointment, string eventType)
         {
-            foreach (var observer in _observers) // BREAKPOINT — step into each iteration
+            foreach (var observer in _observers) 
             {
                 observer.Update(appointment, eventType);
             }
         }
 
-        // USE CASE: Book Appointment — Basic Flow steps 3-6
+        // Book Appointment 
         public async Task<(bool Success, string Message, Appointment? Result)>
             BookAppointmentAsync(int patientId, int doctorId, DateTime appointmentDate, string notes = "")
         {
-            // Alternative Flow A1: slot already taken (same doctor, overlapping ±30 min)
             bool slotTaken = await _context.Appointments.AnyAsync(a =>
                 a.DoctorId == doctorId &&
                 a.Status != "Cancelled" &&
@@ -89,12 +88,10 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
             if (slotTaken)
                 return (false, "Selected time slot is already taken. Please choose another slot.", null);
 
-            // Alternative Flow A2: doctor does not exist
             var doctor = await _context.Doctors.FindAsync(doctorId);
             if (doctor == null)
                 return (false, "No available slots — doctor not found.", null);
 
-            // Appointment date must be in the future
             if (appointmentDate <= DateTime.Now)
                 return (false, "Appointment date must be in the future.", null);
 
@@ -103,14 +100,13 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
                 PatientId       = patientId,
                 DoctorId        = doctorId,
                 AppointmentDate = appointmentDate,
-                Status          = "Pending",   // CONCEPT — Encapsulation: caller never sets Status
+                Status          = "Pending",   
                 Notes           = notes
             };
 
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            // BREAKPOINT — DB saved, now all 4 observers fire including SignalR push
             NotifyObservers(appointment, "Booked");
 
             return (true, "Appointment booked successfully.", appointment);
@@ -282,19 +278,71 @@ namespace HealthTech.API.Patterns.AppointmentObserver{
         // Doctor Unavailability Notification
         // Used when unavailable slots are created or removed.
         // Triggers all observers including SignalR.
-        public void NotifyAffectedAppointmentsChanged(int doctorId)
+        // ─────────────────────────────────────────────────────────────────
+        public async Task<(bool Success, string Message, int AffectedBookings, string? Warning)>
+        CreateDoctorUnavailabilityAsync(int doctorId, string dateString, int startHour, int endHour, string? reason)
         {
-            var appointment = new Appointment
+            if (!DateOnly.TryParse(dateString, out var date))
             {
-                Id = 0,
+                return (false, "Invalid date.", 0, null);
+            }
+
+            var apptOnDate = await _context.Appointments
+                .Where(a =>
+                    a.DoctorId == doctorId &&
+                    DateOnly.FromDateTime(a.AppointmentDate) == date &&
+                    a.Status != "Cancelled")
+                .ToListAsync();
+
+            var affectedAppointments = apptOnDate
+                .Where(a =>
+                    a.AppointmentDate.Hour >= startHour &&
+                    a.AppointmentDate.Hour < endHour)
+                .ToList();
+
+            var unavailability = new DoctorUnavailability
+            {
                 DoctorId = doctorId,
-                PatientId = 0,
-                AppointmentDate = DateTime.Now,
-                Status = "Pending",
-                Notes = "Doctor unavailability changed"
+                Date = date,
+                StartTime = TimeSpan.FromHours(startHour),
+                EndTime = TimeSpan.FromHours(endHour),
+                Reason = reason ?? ""
             };
 
-            NotifyObservers(appointment, "AffectedAppointmentsUpdated");
+            _context.DoctorUnavailabilities.Add(unavailability);
+
+            await _context.SaveChangesAsync();
+
+            foreach (var appointment in affectedAppointments)
+            {
+                NotifyObservers(appointment, "Unavailable");
+            }
+
+            return (
+                true,
+                "Unavailability saved.",
+                affectedAppointments.Count,
+                affectedAppointments.Count > 0
+                    ? $"{affectedAppointments.Count} existing appointment(s) are affected. The pharmacist will be notified and assist with rescheduling the appointments."
+                    : null
+            );
+        }
+
+        public async Task<(bool Success, string Message)>
+        DeleteDoctorUnavailabilityAsync(int id)
+        {
+            var item = await _context.DoctorUnavailabilities.FindAsync(id);
+
+            if (item == null)
+            {
+                return (false, "Unavailability not found.");
+            }
+
+            _context.DoctorUnavailabilities.Remove(item);
+
+            await _context.SaveChangesAsync();
+
+            return (true, "Unavailability removed.");
         }
     }
 }
