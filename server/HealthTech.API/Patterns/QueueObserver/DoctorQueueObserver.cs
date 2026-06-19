@@ -22,6 +22,7 @@ namespace HealthTech.API.Patterns.QueueObserver{
 
     public class DoctorQueueObserver : IQueueObserver
     {
+        // BREAKPOINT
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
             var next = queueState.Queue.FirstOrDefault(e => e.Status == "Waiting");

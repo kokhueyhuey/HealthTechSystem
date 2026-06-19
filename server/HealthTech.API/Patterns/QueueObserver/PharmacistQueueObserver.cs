@@ -21,7 +21,7 @@ namespace HealthTech.API.Patterns.QueueObserver{
     //   without modifying IQueueObserver, QueueService, or any other observer.
     public class PharmacistQueueObserver : IQueueObserver
     {
-        // BREAKPOINT HERE
+        // BREAKPOINT
         public Task OnQueueUpdated(QueueState queueState, string eventType)
         {
             var msg = eventType switch
