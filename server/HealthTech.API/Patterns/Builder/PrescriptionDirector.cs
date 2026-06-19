@@ -8,11 +8,6 @@ namespace HealthTech.API.Patterns.Builder
     //   The construction workflow is separated from the actual object
     //   representation, making the code easier to manage and maintain.
     //
-    // CONCEPT — Functional Independence:
-    //   The Director is responsible only for managing the build sequence,
-    //   while the Builder handles the object creation details.
-    //   manage the sequence of prescription construction steps.
-    //
     // SOLID — Dependency Inversion Principle (DIP):
     //   The Director depends on the abstraction IPrescriptionBuilder
     //   instead of a specific concrete builder implementation.

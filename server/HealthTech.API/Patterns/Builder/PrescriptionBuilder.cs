@@ -8,14 +8,6 @@ namespace HealthTech.API.Patterns.Builder
     //   such as setting patient information, doctor details, medicines,
     //   and MC information.
     //
-    // CONCEPT — Refinement:
-    //   The Prescription object is constructed gradually step-by-step
-    //   instead of being created in one large constructor.
-    //
-    // SOLID — Open/Closed Principle (OCP):
-    //   New prescription building steps can be added without modifying
-    //   existing client code significantly.
-    //
     // SOLID — Dependency Inversion Principle (DIP):
     //   The system depends on the abstraction IPrescriptionBuilder instead
     //   of directly depending on this concrete builder implementation.
