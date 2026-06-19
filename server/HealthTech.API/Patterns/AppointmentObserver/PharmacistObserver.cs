@@ -30,10 +30,12 @@ namespace HealthTech.API.Patterns.AppointmentObserver
                 "Cancelled"     => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} cancelled. ACTION REQUIRED: contact Patient ID {appointment.PatientId} to arrange alternative or rescheduling.",
                 "Rescheduled"   => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} rescheduled to {appointment.AppointmentDate:dd MMM yyyy HH:mm}. Confirm with patient.",
                 "StatusUpdated" => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} status is now '{appointment.Status}'.",
+                "WalkIn"        => $"[PHARMACIST NOTIFICATION]  Walk-in appointment #{appointment.Id} created for Patient ID {appointment.PatientId}. Added to queue.",
+                "Unavailable"   => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} is affected by doctor unavailability. Assist with rescheduling if required.",
                 _               => $"[PHARMACIST NOTIFICATION]  Appointment #{appointment.Id} — event: {eventType}."
             };
 
-            Console.WriteLine(msg);// BREAKPOINT- show each observer receives the update
+            Console.WriteLine(msg);
         }
     }
 }

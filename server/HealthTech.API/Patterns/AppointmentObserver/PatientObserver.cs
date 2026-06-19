@@ -27,20 +27,20 @@ namespace HealthTech.API.Patterns.AppointmentObserver
 
     public class PatientObserver : IAppointmentObserver
     {
-
         public void Update(Appointment appointment, string eventType)
         {
-            
             var msg = eventType switch
             {
                 "Booked"        => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} confirmed with Doctor ID {appointment.DoctorId} on {appointment.AppointmentDate:dd MMM yyyy HH:mm}.",
                 "Cancelled"     => $"[PATIENT NOTIFICATION] Your appointment #{appointment.Id} has been cancelled.",
                 "Rescheduled"   => $"[PATIENT NOTIFICATION] Your appointment #{appointment.Id} has been rescheduled to {appointment.AppointmentDate:dd MMM yyyy HH:mm}.",
+                "WalkIn"        => $"[PATIENT NOTIFICATION] Walk-in appointment #{appointment.Id} created. You have been added to the queue.",
                 "StatusUpdated" => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} status changed to '{appointment.Status}'.",
+                "Unavailable"   => $"[PATIENT NOTIFICATION]  Your appointment #{appointment.Id} may be affected due to doctor unavailability. Please wait for rescheduling confirmation.",
                 _               => $"[PATIENT NOTIFICATION] Appointment #{appointment.Id} updated — event: {eventType}."
             };
 
-            Console.WriteLine(msg); // BREAKPOINT- show each observer receives the update
+            Console.WriteLine(msg); 
 
         }
     }
